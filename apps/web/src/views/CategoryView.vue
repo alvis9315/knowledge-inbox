@@ -1,0 +1,272 @@
+<script setup lang="ts">
+import { computed, ref, toRef, watch } from 'vue'
+import { useRoute } from 'vue-router'
+import { VueDraggable } from 'vue-draggable-plus'
+import { FileText, Braces, Sheet } from 'lucide-vue-next'
+import BaseModal from '@/components/common/BaseModal.vue'
+import BaseButton from '@/components/common/BaseButton.vue'
+import BaseConfirm from '@/components/common/BaseConfirm.vue'
+import BasePagination from '@/components/common/BasePagination.vue'
+import LoadingState from '@/components/common/LoadingState.vue'
+import SearchableSelect from '@/components/common/SearchableSelect.vue'
+import EntryCard from '@/features/entries/components/EntryCard.vue'
+import EntryListItem from '@/features/entries/components/EntryListItem.vue'
+import EntryToolbar from '@/features/entries/components/EntryToolbar.vue'
+import EntryForm from '@/features/entries/components/EntryForm.vue'
+import { useCategoryEntries } from '@/features/entries/composables/useCategoryEntries'
+import { useExport, type ExportFormat } from '@/features/entries/composables/useExport'
+import { updateEntry, deleteEntry, setEntryClosed, fetchEntriesPage } from '@/features/entries/api/entriesApi'
+import { SCOPE_ALL, SCOPE_PENDING, isRealCategory, PAGE_SIZE } from '@/features/entries/constants'
+import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
+import type { EntryInput, EntryWithTags, ViewMode } from '@/features/entries/types'
+
+const props = defineProps<{ type: string }>()
+const store = useCategoriesStore()
+const route = useRoute()
+const { exportEntries } = useExport()
+
+const typeRef = toRef(props, 'type')
+const revision = computed(() => store.revision)
+const { rows, total, page, sort, search, tag, includeClosed, loading, error, load, persistOrder } =
+  useCategoryEntries(typeRef, revision)
+
+const view = ref<ViewMode>('card')
+const isFoodCategory = computed(() => store.typeByKey[props.type]?.domain === '美食')
+
+// Tag filter (searchable dropdown). ?tag= (a clicked tag) drives it, even when
+// we're already on this page.
+const tagOptions = computed(() => store.tagNames.map((t) => ({ value: t, label: `#${t}` })))
+watch(
+  () => route.query.tag,
+  (q) => (tag.value = typeof q === 'string' ? q : null),
+  { immediate: true },
+)
+
+const heading = computed(() => {
+  if (props.type === SCOPE_ALL) return { icon: '📥', name: '全部' }
+  if (props.type === SCOPE_PENDING) return { icon: '🕓', name: '待確認' }
+  const c = store.typeByKey[props.type]
+  return { icon: c?.icon || '🏷️', name: c?.name ?? props.type }
+})
+
+const canDrag = computed(() => sort.value === 'manual' && isRealCategory(props.type))
+
+// Load on mount + whenever the store becomes ready (session established).
+watch(() => store.ready, (r) => r && load(), { immediate: true })
+
+/** vue-draggable-plus writes the reordered array back into `rows`; persist ids. */
+function onReorder() {
+  persistOrder(rows.value.map((e) => e.id))
+}
+
+// ── edit / delete ──
+const editing = ref<EntryWithTags | null>(null)
+const editOpen = ref(false)
+const saveError = ref<string | null>(null)
+
+function openEdit(entry: EntryWithTags) {
+  editing.value = entry
+  saveError.value = null
+  editOpen.value = true
+}
+async function handleSave(input: EntryInput, id?: string) {
+  saveError.value = null
+  try {
+    if (id) await updateEntry(id, input)
+    editOpen.value = false
+    await store.touch()
+    await load()
+  } catch (e) {
+    saveError.value = e instanceof Error ? e.message : String(e)
+  }
+}
+// ── confirm (delete / 歇業) via a modern modal ──
+interface ConfirmSpec {
+  title: string
+  message: string
+  variant: 'primary' | 'danger'
+  confirmText: string
+  action: () => Promise<void>
+}
+const confirm = ref<ConfirmSpec | null>(null)
+const confirmBusy = ref(false)
+
+function askRemove(entry: EntryWithTags) {
+  confirm.value = {
+    title: '刪除項目',
+    message: `確定刪除「${entry.title}」?此動作無法復原。`,
+    variant: 'danger',
+    confirmText: '刪除',
+    action: async () => {
+      await deleteEntry(entry.id)
+      await store.touch()
+      await load()
+    },
+  }
+}
+async function handleToggleClosed(entry: EntryWithTags) {
+  if (entry.closed) {
+    // Reopen — no confirmation needed.
+    await setEntryClosed(entry.id, false)
+    await store.touch()
+    await load()
+    return
+  }
+  confirm.value = {
+    title: '標記歇業',
+    message: `確定「${entry.title}」已不再營業?資料不會刪除,之後預設只顯示營業中的店家(可勾選「顯示歇業」查看)。`,
+    variant: 'primary',
+    confirmText: '標記歇業',
+    action: async () => {
+      await setEntryClosed(entry.id, true)
+      await store.touch()
+      await load()
+    },
+  }
+}
+async function runConfirm() {
+  if (!confirm.value) return
+  confirmBusy.value = true
+  try {
+    await confirm.value.action()
+    confirm.value = null
+  } catch (e) {
+    window.alert(e instanceof Error ? e.message : String(e))
+  } finally {
+    confirmBusy.value = false
+  }
+}
+
+// ── export ──
+const exportOpen = ref(false)
+const exporting = ref(false)
+async function doExport(format: ExportFormat) {
+  exporting.value = true
+  try {
+    // Export the whole (filtered) category, not just the current page.
+    const { rows: all } = await fetchEntriesPage({
+      type: props.type,
+      search: search.value,
+      sort: sort.value,
+      page: 1,
+      pageSize: 1000,
+    })
+    await exportEntries(format, all, heading.value.name)
+    exportOpen.value = false
+  } catch (e) {
+    window.alert(e instanceof Error ? e.message : String(e))
+  } finally {
+    exporting.value = false
+  }
+}
+</script>
+
+<template>
+  <section class="flex flex-col gap-5">
+    <div class="flex items-center gap-3">
+      <span class="text-2xl">{{ heading.icon }}</span>
+      <div>
+        <h1 class="text-xl font-semibold text-ink">{{ heading.name }}</h1>
+        <p class="text-sm text-muted">{{ total }} 筆</p>
+      </div>
+    </div>
+
+    <div class="flex flex-wrap items-center gap-3">
+      <div class="min-w-56 flex-1">
+        <EntryToolbar v-model:view="view" v-model:sort="sort" v-model:search="search" @export="exportOpen = true" />
+      </div>
+      <div v-if="tagOptions.length" class="flex items-center gap-2">
+        <span class="shrink-0 text-sm text-muted">標籤</span>
+        <div class="w-48">
+          <SearchableSelect v-model="tag" :options="tagOptions" placeholder="全部標籤" />
+        </div>
+      </div>
+      <label v-if="isFoodCategory" class="flex items-center gap-1.5 text-sm text-muted">
+        <input v-model="includeClosed" type="checkbox" class="rounded border-line text-accent focus:ring-accent" />
+        顯示歇業
+      </label>
+    </div>
+
+    <p v-if="canDrag && rows.length > 1" class="-mt-2 text-xs text-muted">
+      手動排序模式:直接拖曳卡片即可調整順序。
+    </p>
+
+    <LoadingState
+      :loading="loading && rows.length === 0"
+      :error="error"
+      :empty="!loading && !error && rows.length === 0"
+      empty-text="這個分類還沒有項目。"
+    >
+      <!-- Card mode -->
+      <VueDraggable
+        v-if="view === 'card'"
+        v-model="rows"
+        :disabled="!canDrag"
+        :animation="150"
+        class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3"
+        @update="onReorder"
+      >
+        <EntryCard
+          v-for="entry in rows"
+          :key="entry.id"
+          :entry="entry"
+          :draggable="canDrag"
+          @edit="openEdit"
+          @remove="askRemove"
+          @toggle-closed="handleToggleClosed"
+        />
+      </VueDraggable>
+
+      <!-- List mode -->
+      <VueDraggable
+        v-else
+        v-model="rows"
+        :disabled="!canDrag"
+        :animation="150"
+        class="flex flex-col gap-2"
+        @update="onReorder"
+      >
+        <EntryListItem
+          v-for="entry in rows"
+          :key="entry.id"
+          :entry="entry"
+          :draggable="canDrag"
+          @edit="openEdit"
+          @remove="askRemove"
+          @toggle-closed="handleToggleClosed"
+        />
+      </VueDraggable>
+    </LoadingState>
+
+    <BasePagination :page="page" :page-size="PAGE_SIZE" :total="total" @update:page="page = $event" />
+
+    <!-- edit modal -->
+    <BaseModal :open="editOpen" title="編輯項目" @close="editOpen = false">
+      <p v-if="saveError" class="mb-3 rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{{ saveError }}</p>
+      <EntryForm :entry="editing" @save="handleSave" @cancel="editOpen = false" />
+    </BaseModal>
+
+    <!-- export modal -->
+    <BaseModal :open="exportOpen" title="匯出" @close="exportOpen = false">
+      <p class="mb-4 text-sm text-muted">匯出「{{ heading.name }}」目前篩選的所有項目:</p>
+      <div class="grid grid-cols-3 gap-3">
+        <BaseButton variant="secondary" :disabled="exporting" @click="doExport('md')"><FileText :size="15" /> Markdown</BaseButton>
+        <BaseButton variant="secondary" :disabled="exporting" @click="doExport('json')"><Braces :size="15" /> JSON</BaseButton>
+        <BaseButton variant="secondary" :disabled="exporting" @click="doExport('excel')"><Sheet :size="15" /> Excel</BaseButton>
+      </div>
+    </BaseModal>
+
+    <!-- confirm (delete / 歇業) -->
+    <BaseConfirm
+      :open="!!confirm"
+      :title="confirm?.title"
+      :variant="confirm?.variant"
+      :confirm-text="confirm?.confirmText"
+      :busy="confirmBusy"
+      @confirm="runConfirm"
+      @close="confirm = null"
+    >
+      {{ confirm?.message }}
+    </BaseConfirm>
+  </section>
+</template>

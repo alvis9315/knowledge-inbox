@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+/* Dark mode via data-theme attribute (Tailwind v4 CSS-first). */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* ── Semantic color tokens (flip by theme) ────────────────────────────
+   Components use utilities like bg-canvas / bg-surface / text-ink /
+   text-muted / border-line / bg-accent — never hard-coded colors. */
+:root,
+[data-theme="light"] {
+  --canvas: #f6f7f9;
+  --surface: #ffffff;
+  --elevated: #ffffff;
+  --line: #e5e8ee;
+  --ink: #1e293b;
+  --muted: #64748b;
+  --accent: #02a8e0;
+  --accent-fg: #ffffff;
+  --accent-soft: #e2f6fd;
+  --life-soft: #ecfdf5;
+  --life-fg: #047857;
+  --tech-soft: #eff6ff;
+  --tech-fg: #1d4ed8;
+  --warn-soft: #fffbeb;
+  --warn-fg: #b45309;
+}
+
+[data-theme="dark"] {
+  --canvas: #0a0f1c;
+  --surface: #141b2e;
+  --elevated: #1b2540;
+  --line: #29334f;
+  --ink: #e6eaf2;
+  --muted: #94a3b8;
+  --accent: #3b82f6;
+  --accent-fg: #ffffff;
+  --accent-soft: rgba(59, 130, 246, 0.16);
+  --life-soft: rgba(16, 185, 129, 0.16);
+  --life-fg: #6ee7b7;
+  --tech-soft: rgba(59, 130, 246, 0.18);
+  --tech-fg: #93c5fd;
+  --warn-soft: rgba(245, 158, 11, 0.16);
+  --warn-fg: #fcd34d;
+}
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-surface: var(--surface);
+  --color-elevated: var(--elevated);
+  --color-line: var(--line);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-life-soft: var(--life-soft);
+  --color-life-fg: var(--life-fg);
+  --color-tech-soft: var(--tech-soft);
+  --color-tech-fg: var(--tech-fg);
+  --color-warn-soft: var(--warn-soft);
+  --color-warn-fg: var(--warn-fg);
+}
+
+html,
+body,
+#app {
+  height: 100%;
+}
+
+body {
+  background: var(--canvas);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans TC",
+    "PingFang TC", "Microsoft JhengHei", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Thin, unobtrusive scrollbars for the sidebar / main scroll regions. */
+.thin-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line) transparent;
+}
+.thin-scroll::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.thin-scroll::-webkit-scrollbar-thumb {
+  background: var(--line);
+  border-radius: 9999px;
+}
+.thin-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Bottom-up reveal for cards entering the viewport. */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.reveal-up {
+  animation: reveal-up 600ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Respect reduced-motion everywhere (kept across all visual tracks). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

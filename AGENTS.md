@@ -1,0 +1,76 @@
+# AGENTS.md — Knowledge Inbox
+
+給 AI Coding Agent 的工作規範。動手前先讀本檔與 `PLAN.md`。
+
+## 專案定位
+
+個人知識收件匣。前端為主(Vue 3),Supabase 直連 DB,只有 ingest pipeline 走 Edge Function。
+規格正本是 `PLAN.md`;架構圖是 `docs/architecture.md` / `docs/data-model.md`。改架構先改圖再改 code。
+
+## 積木化設計原則(底層思維)
+
+1. **你是架構師、AI 是工程師**:先看圖(docs/ 的 Mermaid),再實作指定節點。
+2. **改 A 不壞 B**:每塊積木職責單一、邊界清楚;寫入必經 Edge Function、讀取靠 RLS,展示層不直通資料層的敏感路徑。
+3. **資料按本質存**:entry 是唯一內容體;collection / 行程只引用 id,不複製內容。
+4. **設定當資料管理**:類型放 `type_definitions` 表(schema-driven),新增類型零程式碼——它同時是 LLM 規則書與前端 UI schema。
+5. **AI 建議、人核准**:LLM 產出走 confidence 分流(>0.85 filed,否則 pending_review),修正回饋進 `classification_feedback` 當 few-shot。
+6. **不提前抽象**:共用元件等第二個消費者出現才抽(`packages/ui` 目前不建);核心功能不接 AI 也要能跑。
+
+## 禁止事項
+
+- 禁止 commit:API key、token、`.env`、cookie、帳密、個資、entries 實際資料、大型資料集
+- 禁止把 `ANTHROPIC_API_KEY` 放進任何前端程式碼或 `VITE_` 變數(前端可見即外洩)
+- 禁止混用 package manager;本專案只用 **pnpm**,不可 `npm install` / 不可留多份 lock file
+- 禁止刪除 `pnpm-lock.yaml`
+- 禁止把主要畫面寫在 `App.vue`;功能元件不可全塞 `components/`;不可同時建 `pages/` 與 `views/`(統一 `views/`)
+- 禁止 commit `node_modules/`、`dist/`、`build/`
+- 禁止改動 `supabase/migrations` 已套用檔案的欄位名與 `embedding` 維度(要改用新 migration)
+- 禁止過度初始化:本階段不做 Docker、CI/CD、LINE bot、PWA、登入 UI、graph view
+
+## 前端分層防呆
+
+1. 不可把主要畫面寫在 `App.vue`(它只能是 `<AppLayout><RouterView/></AppLayout>`)
+2. 功能元件放 `src/features/{feature}/components/`,不可塞 `components/common/`
+3. 不可同時建立 `pages/` 與 `views/`
+4. API 呼叫放 `src/services/` 或 `src/features/{feature}/api/`,不可寫在 template
+5. 資料 mapping / formatting 不塞在 view;Pinia store 不當垃圾桶
+6. 即使 MVP,也維持 App / layouts / views / features / components/common / services / router 邊界
+
+## UI / CSS 防呆
+
+1. UI 樣式統一 Tailwind CSS v4,不混用其他 UI library
+2. design token 集中在 `src/assets/styles/main.css` 的 `@theme`,不散落覆寫
+3. 重複的 UI pattern 抽成 component,不重貼長 className
+4. theme / CSS variables 集中管理
+
+## Node / pnpm 防呆
+
+1. 先確認在 repo root、有無 `package.json`、`node -v` / `pnpm -v`
+2. 有 `.nvmrc` 先 `nvm use`(Node 22)
+3. 不混用 package manager,不刪 lock file
+4. 不 commit `node_modules` / `dist` / `.env`
+5. 安裝套件前說明用途(prod / dev、能否用現有替代)
+6. 完成前至少跑 `pnpm --filter web build`;失敗必停並回報
+
+## 安裝 / 啟動 / 測試指令
+
+```bash
+pnpm install                    # 安裝(root 執行)
+pnpm dev                        # 起 dev server
+pnpm build                      # 產出 dist
+pnpm --filter web typecheck     # vue-tsc 型別檢查
+```
+
+## 程式風格
+
+- TypeScript strict;Vue 3 `<script setup lang="ts">`
+- 路徑別名 `@/` → `apps/web/src/`
+- DB 型別從 `@inbox/shared-types` import,不各自重寫
+
+## Git commit 規則
+
+Conventional Commits(`feat/fix/docs/style/refactor/test/chore/build/ci`);branch `feature/*`、`fix/*`。詳見 `docs/commit-convention.md`。
+
+## 遇到錯誤的處理方式(修復迴路)
+
+指令失敗先做最小可行修復(缺套件補裝、路徑錯修正),最多 2 次;仍失敗停止並回報:錯誤訊息、可能原因、建議修法、是否需改需求。**不得假裝成功**。區分環境問題(自行修)與需求 / 程式問題(問使用者)。

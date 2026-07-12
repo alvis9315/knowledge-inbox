@@ -1,0 +1,32 @@
+# Node / frontend
+node_modules/
+dist/
+build/
+.vite/
+coverage/
+*.tsbuildinfo
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+*.p12
+*.pfx
+
+# Supabase
+supabase/.temp/
+supabase/.branches/
+
+# Local data / output (never commit real knowledge data)
+*.sqlite3
+*.db
+*.csv
+*.xlsx
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/

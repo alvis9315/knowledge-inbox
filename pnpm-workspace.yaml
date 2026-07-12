@@ -1,0 +1,10 @@
+packages:
+  - "apps/*"
+  - "packages/*"
+
+allowBuilds:
+  esbuild: set this to true or false
+
+# Allow these dependencies to run install scripts (esbuild ships a platform binary).
+onlyBuiltDependencies:
+  - esbuild
