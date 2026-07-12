@@ -21,7 +21,7 @@ function change(domain: string, key: string) {
 </script>
 
 <template>
-  <BaseModal :open="props.open" title="大分類主題" size="lg" @close="emit('close')">
+  <BaseModal :open="props.open" title="大類主題" size="lg" @close="emit('close')">
     <p class="mb-4 text-sm text-muted">
       為每個大分類指定一套世界主題(底色 + 文字 + accent)。進入該大分類的分類或項目時,整個介面會套用,像進入另一個世界。
     </p>

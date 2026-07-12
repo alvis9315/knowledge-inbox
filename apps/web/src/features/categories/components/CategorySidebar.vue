@@ -30,9 +30,11 @@ watch(
   { immediate: true, deep: true },
 )
 
-const collapsedDomains = useLocalStorage<Record<string, boolean>>('ki-collapsed-domains', {})
+// Domains start collapsed by default (empty map = all collapsed); the user
+// expands the ones they want. Persisted per browser.
+const expandedDomains = useLocalStorage<Record<string, boolean>>('ki-expanded-domains', {})
 function toggleDomain(d: string) {
-  collapsedDomains.value = { ...collapsedDomains.value, [d]: !collapsedDomains.value[d] }
+  expandedDomains.value = { ...expandedDomains.value, [d]: !expandedDomains.value[d] }
 }
 function persistOrder() {
   store.reorder(groups.value.flatMap((g) => g.items.map((c) => c.key)))
@@ -73,7 +75,7 @@ function domainCount(g: Group) {
     <!-- Expanded: compact top toolbar (全部 / 待確認 / +) then the tree -->
     <template v-else>
       <div class="flex items-center gap-1 px-1 pb-1">
-        <span class="mr-auto text-xs font-semibold uppercase tracking-wide text-muted">分類</span>
+        <span class="mr-auto pl-4 text-xs font-semibold uppercase tracking-wide text-muted">Menu</span>
         <RouterLink :to="{ name: 'browse', params: { type: SCOPE_ALL } }" class="icon-nav" active-class="nav-active" title="全部">
           <Inbox :size="17" />
         </RouterLink>
@@ -103,7 +105,7 @@ function domainCount(g: Group) {
               :aria-label="`展開 ${group.domain}`"
               @click="toggleDomain(group.domain)"
             >
-              <ChevronRight :size="15" class="transition-transform" :class="collapsedDomains[group.domain] ? '' : 'rotate-90'" />
+              <ChevronRight :size="15" class="transition-transform" :class="expandedDomains[group.domain] ? 'rotate-90' : ''" />
             </button>
             <RouterLink
               :to="{ name: 'domain', params: { domain: group.domain } }"
@@ -117,7 +119,7 @@ function domainCount(g: Group) {
           </div>
 
           <VueDraggable
-            v-show="!collapsedDomains[group.domain]"
+            v-show="expandedDomains[group.domain]"
             v-model="group.items"
             :animation="150"
             class="ml-3 flex flex-col gap-0.5 border-l border-line pl-1"

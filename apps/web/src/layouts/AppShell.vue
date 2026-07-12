@@ -139,10 +139,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           </button>
         </template>
         <button class="menu-item" @click="domainThemeOpen = true">
-          <SwatchBook :size="16" /> 大分類主題
+          <SwatchBook :size="16" /> 大類主題
         </button>
         <button class="menu-item" @click="settingsOpen = true">
-          <Droplet :size="16" /> 子分類主色
+          <Droplet :size="16" /> 子類主色
         </button>
         <button class="menu-item" @click="tagsOpen = true">
           <Tag :size="16" /> 標籤管理

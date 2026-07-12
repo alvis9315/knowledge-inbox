@@ -25,9 +25,9 @@ async function pick(key: string, color: string) {
 </script>
 
 <template>
-  <BaseModal :open="props.open" title="子分類主色" size="lg" @close="emit('close')">
+  <BaseModal :open="props.open" title="子類主色" size="lg" @close="emit('close')">
     <p class="mb-4 text-sm text-muted">
-      每個子分類可設定專屬主色。進入該分類時,介面主色(按鈕、連結、色條)會換成這個顏色;大分類主題的底色與文字仍沿用世界配色。
+      每個子類別可設定專屬主色。進入該分類時,介面主色(按鈕、連結、色條)會換成這個顏色;大類主題的底色與文字仍沿用世界配色。
     </p>
     <div class="flex max-h-[60vh] flex-col gap-3 overflow-y-auto">
       <div v-for="cat in store.categories" :key="cat.key" class="flex items-center gap-3">

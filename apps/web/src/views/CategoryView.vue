@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, toRef, watch } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, RouterLink } from 'vue-router'
 import { VueDraggable } from 'vue-draggable-plus'
-import { FileText, Braces, Sheet } from 'lucide-vue-next'
+import { FileText, Braces, Sheet, ArrowLeft } from 'lucide-vue-next'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseConfirm from '@/components/common/BaseConfirm.vue'
@@ -50,6 +50,15 @@ const heading = computed(() => {
 })
 
 const canDrag = computed(() => sort.value === 'manual' && isRealCategory(props.type))
+
+// Back button: a real subcategory returns to its 大類別 view; 全部/待確認 → 總覽.
+const backLink = computed(() => {
+  const domain = store.typeByKey[props.type]?.domain
+  if (isRealCategory(props.type) && domain) {
+    return { to: { name: 'domain', params: { domain } }, label: `回「${domain}」` }
+  }
+  return { to: { name: 'home' }, label: '回總覽' }
+})
 
 // Load on mount + whenever the store becomes ready (session established).
 watch(() => store.ready, (r) => r && load(), { immediate: true })
@@ -163,6 +172,12 @@ async function doExport(format: ExportFormat) {
 
 <template>
   <section class="flex flex-col gap-5">
+    <RouterLink
+      :to="backLink.to"
+      class="inline-flex w-fit items-center gap-2 rounded-xl border border-line bg-surface px-4 py-2 text-sm font-medium text-ink shadow-sm transition hover:-translate-x-0.5 hover:bg-canvas"
+    >
+      <ArrowLeft :size="16" /> {{ backLink.label }}
+    </RouterLink>
     <div class="flex items-center gap-3">
       <span class="text-2xl">{{ heading.icon }}</span>
       <div>

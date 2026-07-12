@@ -1,5 +1,24 @@
 # Worklog
 
+## 2026-07-13 — 首頁改大類別破題 + 側欄/favicon/命名一批
+
+- **首頁「分類總覽」改為大類別破題**:輪播從 63 張子分類卡改成 ~7 張大類別卡(`DomainCard`,點進 domain view)。輪播抽成通用 slot 版 `CardCarousel`(取代 `CategoryCarousel`);`CarouselSettings` 顯示開關改以大分類為單位(`ki-carousel-hidden-domains`)。
+- **輪播填滿高度(真的修好)**:上次 `min-h-full` 百分比高度鏈斷掉 → 改 section `flex-1`。
+- **favicon** 換成品牌藍(#02a8e0)收件匣圖示。
+- **側欄**:「分類」→「Menu」並與下方展開箭頭齊頭對齊;大類別**預設全部收合**(改用 `ki-expanded-domains`,空=全收合)。
+- **學習大類別 icon** 📚→💻。
+- **齒輪選單/彈窗命名**:大分類主題→大類主題、子分類主色→子類主色。
+- **CategoryView 左上返回鈕**:子類別清單回其大類別頁(全部/待確認回總覽)。
+- 驗證:typecheck ✅、build ✅。
+
+## 2026-07-13 — AI 串接資安/成本控管規範 → Supabase 落地評估
+
+- 使用者提供先前為「串接 AI 公司 API」擬的資安規範(原為 Next.js + Redis + WAF + 可選 Spring Boot);評估能否照著在本專案(Supabase)實作。
+- 產出 `docs/security/ai-cost-abuse-supabase.md`:總判定「~85% 可乾淨對應」,關鍵前提是**訪客=mock 零 AI、真 Claude 只對擁有者**→ 規範拆 A(單人也必做)/ B(開放公開帳號才必做)兩層。
+- 兩處要換做法:Redis→Postgres 原子 SQL(或加 Upstash);SSRF 在 Deno Edge 自幹(逃生口:Phase 2a 先純文字不開 URL 就免 SSRF)。
+- 標出 `/ingest` 骨架 Phase 2 必修:驗 caller JWT+設 user_id、收斂 CORS、成本閘門/Kill Switch/Zod/Idempotency 尚未接。
+- 待拍板決策:Postgres-only vs Upstash、URL 是否延後、是否開放公開帳號。
+
 ## 2026-07-13 — 首頁滿版輪播 + 初始藍換 figureshot 藍 + 子分類主色修復
 
 - **首頁輪播佔滿高度**:AppShell 主內容區 `min-h-full flex-col`,HomeView `section` + 輪播容器 `flex-1`,兩排 CategoryCarousel `flex-1`(items-stretch + `h-full`),卡片內文區 `flex-1` 撐開 → 卡片放大填滿視窗、消除下方留白。

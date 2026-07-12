@@ -3,11 +3,15 @@ import { computed, onMounted, watch } from 'vue'
 import emblaCarouselVue from 'embla-carousel-vue'
 import AutoScroll from 'embla-carousel-auto-scroll'
 import { useMediaQuery } from '@vueuse/core'
-import CategoryCard from './CategoryCard.vue'
-import type { CategoryMeta } from '@/features/categories/api/categoriesApi'
 
+// Generic auto-scrolling card carousel. The parent supplies items (each needs a
+// stable `key`) and renders each via the default slot, so the carousel stays
+// card-agnostic (domain cards, category cards, …).
+interface CarouselItem {
+  key: string
+}
 const props = defineProps<{
-  items: CategoryMeta[]
+  items: CarouselItem[]
   direction: 'forward' | 'backward'
   playing: boolean
 }>()
@@ -46,12 +50,18 @@ watch(() => [props.playing, reduceMotion.value, displayItems.value.length], sync
 </script>
 
 <template>
-  <!-- Spacing via per-slide margin, NOT `gap`: Embla's loop transforms don't
-       honor CSS gap at the wrap seam, which glues two cards together. -->
-  <div ref="emblaRef" class="overflow-hidden py-1">
-    <div class="flex h-full items-stretch pl-4 sm:pl-6" style="touch-action: pan-y">
-      <div v-for="(cat, i) in displayItems" :key="`${cat.key}-${i}`" class="mr-4 w-64 shrink-0 sm:w-72">
-        <CategoryCard :category="cat" />
+  <!-- Full-height fill via flex (NOT percentage height, which doesn't resolve
+       through Embla's viewport): the viewport is a flex column, the slide
+       container flex-1 grows to fill it, and items-stretch makes every slide
+       (and its card) equal-height.
+       Spacing lives INSIDE each slide as padding, NOT margin: Embla measures
+       slides by their border box (padding included, margin excluded), so a
+       margin gap goes uncounted at the loop seam and shows an uneven gap there.
+       Padding keeps every gap — including the wrap seam — identical. -->
+  <div ref="emblaRef" class="flex min-h-0 flex-col overflow-hidden py-1">
+    <div class="flex min-h-0 flex-1 items-stretch" style="touch-action: pan-y">
+      <div v-for="(item, i) in displayItems" :key="`${item.key}-${i}`" class="w-64 shrink-0 pl-4 sm:w-72 sm:pl-6">
+        <slot :item="item" />
       </div>
     </div>
   </div>
