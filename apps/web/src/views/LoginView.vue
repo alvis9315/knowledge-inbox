@@ -132,8 +132,24 @@ function enterApp() {
     stage.value = 'form'
   }, 450)
 }
-onMounted(runDecode)
-onUnmounted(() => clearInterval(introTimer))
+// ── TargetCursor(外型版):四角括號+中心點跟隨滑鼠;不帶官方的旋轉/
+// 鎖定動畫(避免和 START 對焦框互搶)。僅精準指標裝置啟用。
+const finePointer = window.matchMedia('(pointer: fine)').matches
+const cursorEl = ref<HTMLElement | null>(null)
+function onCursorMove(e: PointerEvent) {
+  if (cursorEl.value) {
+    cursorEl.value.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`
+  }
+}
+
+onMounted(() => {
+  runDecode()
+  if (finePointer) window.addEventListener('pointermove', onCursorMove, { passive: true })
+})
+onUnmounted(() => {
+  clearInterval(introTimer)
+  window.removeEventListener('pointermove', onCursorMove)
+})
 
 const email = ref('')
 const password = ref('')
@@ -167,7 +183,16 @@ async function withGoogle() {
 </script>
 
 <template>
-  <div class="relative flex min-h-screen items-center justify-center overflow-hidden p-4 text-white">
+  <div
+    class="relative flex min-h-screen items-center justify-center overflow-hidden p-4 text-white"
+    :class="finePointer ? 'login-cursor-none' : ''"
+  >
+    <!-- TargetCursor 外型(跟隨,無動畫) -->
+    <div v-if="finePointer" ref="cursorEl" class="target-cursor" style="transform: translate3d(-100px, -100px, 0)" aria-hidden="true">
+      <i class="tc-corner tl" /><i class="tc-corner tr" />
+      <i class="tc-corner bl" /><i class="tc-corner br" />
+      <i class="tc-dot" />
+    </div>
     <KnowledgeGalaxy
       v-if="bg === 'galaxy'"
       class="absolute inset-0"
@@ -377,7 +402,10 @@ async function withGoogle() {
 .title-galaxy {
   font-weight: 300;
   letter-spacing: 0.16em;
-  background: linear-gradient(180deg, #ffffff 0%, #c4d8ff 100%);
+  /* GradientText(react-bits 語意):水平 3 色、300% 寬、0↔100% yoyo、2s */
+  background: linear-gradient(90deg, #ffffff, #c4d8ff, #9fc0ff);
+  background-size: 300% 100%;
+  animation: title-gradient-move 2s linear infinite alternate;
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -385,6 +413,10 @@ async function withGoogle() {
   /* background-clip:text + 行高 1 會讓 g/y 的下伸部超出背景範圍而隱形 */
   padding-bottom: 0.18em;
   margin-bottom: -0.18em;
+}
+@keyframes title-gradient-move {
+  from { background-position: 0% 50%; }
+  to { background-position: 100% 50%; }
 }
 /* Threads theme title — techy monospace, uppercase, tight. */
 .title-threads {
@@ -445,6 +477,44 @@ async function withGoogle() {
   box-shadow: 0 0 26px rgba(110, 190, 255, 0.4), inset 0 0 18px rgba(140, 205, 255, 0.14);
   transform: translateY(-1px);
 }
+/* TargetCursor 外型版:四角括號 + 中心點,純跟隨無動畫 */
+.login-cursor-none,
+.login-cursor-none * {
+  cursor: none !important;
+}
+.target-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  pointer-events: none;
+  z-index: 95;
+  will-change: transform;
+}
+.tc-corner {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  border: 0 solid #c4d8ff;
+  filter: drop-shadow(0 0 4px rgba(196, 216, 255, 0.6));
+}
+.tc-corner.tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
+.tc-corner.tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
+.tc-corner.bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; }
+.tc-corner.br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; }
+.tc-dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 4px;
+  height: 4px;
+  margin: -2px 0 0 -2px;
+  border-radius: 9999px;
+  background: #ffffff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.85);
+}
+
 /* TrueFocus 對焦框(hover 由外縮入;移開向外擴散淡出) */
 .focus-frame {
   position: absolute;
