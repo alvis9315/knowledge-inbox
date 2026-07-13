@@ -4,8 +4,8 @@
  * token set, so it reads like another world. Text colours are pre-tuned for
  * readability. Add a preset here to offer a new world.
  */
-/** 活背景型別(之後逐步擴充 react-bits Backgrounds:aurora、beams…)。 */
-export type LiveBgKind = 'galaxy' | 'threads' | 'image'
+/** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
+export type LiveBgKind = 'galaxy' | 'threads' | 'image' | 'aurora'
 
 export interface ThemePreset {
   canvas: string
@@ -110,6 +110,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#05080f', surface: '#0b111d', elevated: '#111a2b', line: '#1e2a40',
       ink: '#dfe9ff', muted: '#8494b5', accent: '#9cc4ff', accentFg: '#05080f',
       accentSoft: 'rgba(156, 196, 255, 0.14)',
+    },
+  },
+  {
+    key: 'aurora-night',
+    label: '極光(活背景)',
+    liveBg: 'aurora',
+    preset: {
+      canvas: '#07131c', surface: '#0d1c28', elevated: '#122534', line: '#1e3547',
+      ink: '#e4f4f4', muted: '#8fb0b8', accent: '#2dd4bf', accentFg: '#062028',
+      accentSoft: 'rgba(45, 212, 191, 0.16)',
     },
   },
   {

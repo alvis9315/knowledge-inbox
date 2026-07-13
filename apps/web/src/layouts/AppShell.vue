@@ -26,6 +26,7 @@ import { isMock } from '@/services/dataMode'
 const KnowledgeGalaxy = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeGalaxy.vue'))
 const KnowledgeThreads = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeThreads.vue'))
 const GalaxyImageBackground = defineAsyncComponent(() => import('@/components/backgrounds/GalaxyImageBackground.vue'))
+const KnowledgeAurora = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeAurora.vue'))
 import BackgroundSettings from '@/features/theme/BackgroundSettings.vue'
 import { topbarOpacity, sidebarOpacity, cardOpacity, entryOpacity, cardGlass, chromeBg } from '@/features/theme/chromeOpacity'
 import {
@@ -133,8 +134,9 @@ const readCfg = (k: string) => {
 }
 const galaxySaved = readCfg('ki-app-galaxy-cfg')
 const threadsSaved = readCfg('ki-app-threads-cfg')
-function onBgDone(kind: 'galaxy' | 'threads', cfg: Record<string, unknown>) {
-  localStorage.setItem(kind === 'galaxy' ? 'ki-app-galaxy-cfg' : 'ki-app-threads-cfg', JSON.stringify(cfg))
+const auroraSaved = readCfg('ki-app-aurora-cfg')
+function onBgDone(kind: LiveBgKind, cfg: Record<string, unknown>) {
+  localStorage.setItem(`ki-app-${kind}-cfg`, JSON.stringify(cfg))
   bgControlsOpen.value = false
 }
 watch(
@@ -226,7 +228,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         @controls-done="onBgDone('threads', $event)"
         @controls-cancel="bgControlsOpen = false"
       />
-      <GalaxyImageBackground v-else class="absolute inset-0" :parallax="false" :version="coverVersion" />
+      <KnowledgeAurora
+        v-else-if="activeLive === 'aurora'"
+        class="absolute inset-0"
+        :show-controls="bgControlsOpen"
+        v-bind="auroraSaved"
+        @controls-done="onBgDone('aurora', $event)"
+        @controls-cancel="bgControlsOpen = false"
+      />
+      <GalaxyImageBackground v-else-if="activeLive === 'image'" class="absolute inset-0" :parallax="false" :version="coverVersion" />
     </div>
     <!-- Fixed top bar -->
     <header
