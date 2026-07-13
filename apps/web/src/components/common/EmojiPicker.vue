@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, shallowRef, watch } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { ChevronDown } from 'lucide-vue-next'
 import { useAnchoredPanel } from '@/composables/useAnchoredPanel'
@@ -58,15 +58,40 @@ const GROUPS: Array<{ label: string; items: Item[] }> = [
   ]},
 ]
 
+// ── 全量庫(emojibase,Unicode CLDR 官方繁中關鍵字,~1900 顆)──
+// 開面板才 lazy-load(獨立 chunk),主包零負擔;失敗也不影響精選面板。
+const fullLib = shallowRef<Item[]>([])
+let fullLibLoading = false
+async function ensureFullLib() {
+  if (fullLib.value.length || fullLibLoading) return
+  fullLibLoading = true
+  try {
+    const { default: list } = await import('emojibase-data/zh-hant/compact.json')
+    fullLib.value = list
+      .filter((e) => e.group !== 2) // 排除膚色/髮型等組件
+      .map((e) => [e.unicode, [e.label, ...(e.tags ?? [])].join(' ')] as Item)
+  } catch (err) {
+    console.warn('[emoji] 全量庫載入失敗,僅精選可搜:', err)
+  } finally {
+    fullLibLoading = false
+  }
+}
+watch(open, (o) => { if (o) void ensureFullLib() })
+
 const search = ref('')
 const EMOJI_RE = /\p{Extended_Pictographic}/u
 const searching = computed(() => search.value.trim() !== '' && !EMOJI_RE.test(search.value))
 const flatResults = computed(() => {
   const t = search.value.trim().toLowerCase()
   const out: Item[] = []
+  const seen = new Set<string>()
+  // 精選字典優先(手選的中文別名最貼使用情境),全量庫補位
   for (const g of GROUPS) for (const it of g.items) {
-    if (it[1].toLowerCase().includes(t) || it[0] === t) out.push(it)
-    if (out.length >= 45) return out
+    if (it[1].toLowerCase().includes(t)) { out.push(it); seen.add(it[0]) }
+  }
+  for (const it of fullLib.value) {
+    if (out.length >= 72) break
+    if (!seen.has(it[0]) && it[1].toLowerCase().includes(t)) out.push(it)
   }
   return out
 })

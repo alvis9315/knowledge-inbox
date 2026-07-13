@@ -29,8 +29,6 @@ export async function fetchCategoriesWithMeta(): Promise<CategoryMeta[]> {
   ])
 
   if (cats.error) throw new Error(cats.error.message)
-  // TEMP 診斷:追「DB 有餐酒館但 UI 沒有」
-  console.info('[cats] rows =', cats.data?.length, '| 餐酒館 =', (cats.data ?? []).some((c) => c.name === '餐酒館'))
   if (counts.error) throw new Error(counts.error.message)
   if (recent.error) throw new Error(recent.error.message)
 
