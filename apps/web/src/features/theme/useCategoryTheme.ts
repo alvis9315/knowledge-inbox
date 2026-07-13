@@ -47,20 +47,32 @@ function applyPreset(p: ThemePreset) {
   s.setProperty('--accent-soft', p.accentSoft)
 }
 
+/** 登入頁選定的背景風格 → App 基底世界主題(頂欄/側欄/主內容跟隨)。 */
+function appBasePreset(): ThemePreset | null {
+  const raw = (localStorage.getItem('ki-login-bg') ?? 'galaxy').replace(/"/g, '')
+  const key = raw === 'threads' ? 'ink-threads' : 'space-navy' // galaxy 與 image 都走星空深藍
+  return presetByKey(key).preset
+}
+
 /**
  * Apply the world theme for a 大類別. The domain's preset sets the "world"
  * (bg + text + accent); a 子分類 colour, when set, always overrides the accent
  * on top of that world — so the per-category colour picker stays meaningful
  * even for domains that have a world preset.
+ * 無 domain(總覽/全部/待確認)或該 domain 未指派世界主題時,
+ * 改用「登入風格基底主題」讓整站與登入頁一致。
  */
 export function applyTheme(domain: string | null | undefined, categoryColor?: string | null) {
   reset()
+  const base = appBasePreset()
   if (!domain) {
+    if (base) applyPreset(base)
     if (categoryColor) applyAccent(categoryColor)
     return
   }
   const preset = presetByKey(domainThemeKey(domain)).preset
   if (preset) applyPreset(preset)
+  else if (base) applyPreset(base)
   if (categoryColor) applyAccent(categoryColor)
 }
 

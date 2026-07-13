@@ -161,7 +161,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <!-- Thin bar reflecting the active category's color. -->
     <div class="h-0.5 shrink-0 bg-accent transition-colors" />
 
-    <div v-if="mock" class="shrink-0 border-b border-slate-200 bg-white px-4 py-1.5 text-center text-xs text-slate-500">
+    <div v-if="mock" class="shrink-0 border-b border-line bg-surface px-4 py-1.5 text-center text-xs text-muted">
       訪客 / Demo 模式 — 使用本機假資料,變更只存在這個瀏覽器,不會影響雲端。
     </div>
 

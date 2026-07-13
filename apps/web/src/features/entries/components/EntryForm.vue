@@ -106,7 +106,7 @@ async function submit() {
     <BaseInput v-model="form.title" label="標題 *" placeholder="這筆內容叫什麼" />
 
     <label class="block">
-      <span class="mb-1 block text-sm font-medium text-slate-700">類型</span>
+      <span class="mb-1 block text-sm font-medium text-ink">類型</span>
       <CategoryCascader v-model="form.type" placeholder="未分類" />
     </label>
 
@@ -115,20 +115,20 @@ async function submit() {
       <template v-for="field in attrFields" :key="field.key">
         <!-- 營業時間: start / end datetime pickers -->
         <div v-if="field.key === '營業時間'" class="sm:col-span-2">
-          <span class="mb-1 block text-sm font-medium text-slate-700">營業時間(起 / 迄)</span>
+          <span class="mb-1 block text-sm font-medium text-ink">營業時間(起 / 迄)</span>
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <span class="mb-1 block text-xs text-slate-500">起</span>
+              <span class="mb-1 block text-xs text-muted">起</span>
               <DateTimePicker v-model="hoursStart" placeholder="開始時間" />
             </div>
             <div>
-              <span class="mb-1 block text-xs text-slate-500">迄</span>
+              <span class="mb-1 block text-xs text-muted">迄</span>
               <DateTimePicker v-model="hoursEnd" placeholder="結束時間" />
             </div>
           </div>
         </div>
         <label v-else class="block">
-          <span class="mb-1 block text-sm font-medium text-slate-700">{{ field.key }}</span>
+          <span class="mb-1 block text-sm font-medium text-ink">{{ field.key }}</span>
           <SearchableSelect
             v-if="field.kind === 'enum'"
             :model-value="attrs[field.key] || null"
@@ -141,7 +141,7 @@ async function submit() {
             v-else
             v-model="attrs[field.key]"
             type="text"
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
+            class="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
           />
         </label>
       </template>
@@ -151,25 +151,25 @@ async function submit() {
     <BaseInput v-model="form.source_url" label="來源網址" placeholder="https://…" />
 
     <label class="block">
-      <span class="mb-1 block text-sm font-medium text-slate-700">內容</span>
+      <span class="mb-1 block text-sm font-medium text-ink">內容</span>
       <textarea
         v-model="form.content"
         rows="4"
-        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
+        class="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
         placeholder="原始內容 / 筆記"
       />
     </label>
 
     <label class="block">
-      <span class="mb-1 block text-sm font-medium text-slate-700">標籤</span>
+      <span class="mb-1 block text-sm font-medium text-ink">標籤</span>
       <TagInput v-model="form.tags" :suggestions="store.tagNames" placeholder="高雄、咖啡、待訪…(Enter 或點選)" />
     </label>
 
-    <label class="flex items-center gap-2 text-sm text-slate-600">
+    <label class="flex items-center gap-2 text-sm text-muted">
       <input
         type="checkbox"
         :checked="form.status === 'pending_review'"
-        class="rounded border-slate-300 text-accent-600 focus:ring-accent-500"
+        class="rounded border-line text-accent focus:ring-accent"
         @change="form.status = ($event.target as HTMLInputElement).checked ? 'pending_review' : 'filed'"
       />
       標記為待確認

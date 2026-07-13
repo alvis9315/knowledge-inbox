@@ -149,7 +149,7 @@ async function submit() {
     <form class="flex flex-col gap-4" @submit.prevent="submit">
       <!-- 1. 大類別 -->
       <label class="block">
-        <span class="mb-1 flex items-center justify-between text-sm font-medium text-slate-700">
+        <span class="mb-1 flex items-center justify-between text-sm font-medium text-ink">
           大類別 *
           <button
             v-if="creatingDomain && store.domains.length"
@@ -191,7 +191,7 @@ async function submit() {
       <!-- 2. 子類別批次列:＋ 一次加一列 -->
       <div>
         <div class="mb-1 flex items-center justify-between">
-          <span class="text-sm font-medium text-slate-700">子類別 *</span>
+          <span class="text-sm font-medium text-ink">子類別 *</span>
           <button
             type="button"
             class="inline-flex items-center gap-1 rounded-lg border border-line px-2 py-1 text-xs text-muted transition hover:bg-canvas hover:text-ink"

@@ -87,6 +87,24 @@ export const THEME_PRESETS: NamedPreset[] = [
       accentSoft: 'rgba(251, 113, 133, 0.16)',
     },
   },
+  {
+    key: 'space-navy',
+    label: '星空深藍',
+    preset: {
+      canvas: '#0a1226', surface: '#111b36', elevated: '#172547', line: '#263457',
+      ink: '#e8eeff', muted: '#93a3c8', accent: '#8fb7ff', accentFg: '#0a1226',
+      accentSoft: 'rgba(143, 183, 255, 0.16)',
+    },
+  },
+  {
+    key: 'ink-threads',
+    label: '線條墨黑',
+    preset: {
+      canvas: '#05080f', surface: '#0b111d', elevated: '#111a2b', line: '#1e2a40',
+      ink: '#dfe9ff', muted: '#8494b5', accent: '#9cc4ff', accentFg: '#05080f',
+      accentSoft: 'rgba(156, 196, 255, 0.14)',
+    },
+  },
 ]
 
 export function presetByKey(key: string): NamedPreset {
