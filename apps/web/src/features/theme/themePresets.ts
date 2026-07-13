@@ -5,7 +5,8 @@
  * readability. Add a preset here to offer a new world.
  */
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
-export type LiveBgKind = 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence'
+export type LiveBgKind =
+  | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
 
 export interface ThemePreset {
   canvas: string
@@ -160,6 +161,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0c1122', surface: '#141b33', elevated: '#1b2444', line: '#2b3560',
       ink: '#e9edff', muted: '#94a1cc', accent: '#7c9aff', accentFg: '#0c1122',
       accentSoft: 'rgba(124, 154, 255, 0.16)',
+    },
+  },
+  {
+    key: 'letter-glitch',
+    label: '字符雨(活背景)',
+    liveBg: 'letterglitch',
+    preset: {
+      canvas: '#0a120d', surface: '#101a14', elevated: '#15221b', line: '#23392c',
+      ink: '#dcf5e8', muted: '#8bb59e', accent: '#61dca3', accentFg: '#0a120d',
+      accentSoft: 'rgba(97, 220, 163, 0.16)',
     },
   },
   {
