@@ -21,7 +21,10 @@ function setVisible(d: string, visible: boolean) {
 
 <template>
   <BaseModal :open="props.open" title="首頁顯示的大分類" size="md" @close="emit('close')">
-    <p class="mb-4 text-sm text-muted">勾選要出現在首頁總覽的大分類;取消勾選即隱藏(資料不受影響)。</p>
+    <p class="mb-1.5 text-sm font-medium text-ink">勾選要顯示在首頁的大分類。</p>
+    <ul class="mb-3 space-y-0.5 text-xs text-muted">
+      <li>· 取消勾選只是不顯示,資料不受影響</li>
+    </ul>
     <div class="flex flex-col gap-1">
       <label
         v-for="d in store.domains"

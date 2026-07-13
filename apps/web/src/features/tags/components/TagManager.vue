@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Search, Plus, Pencil, Eye, EyeOff, Check, X } from 'lucide-vue-next'
+import { Search, Plus, Pencil, Eye, EyeOff, Check, X, List, LayoutDashboard } from 'lucide-vue-next'
+import { toast } from '@/composables/useToast'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { addTag, fetchTagsDetailed, renameTag, setTagHidden, type TagDetail } from '@/features/tags/api/tagsApi'
@@ -18,6 +19,7 @@ const search = ref('')
 const newTag = ref('')
 const editing = ref<string | null>(null)
 const editValue = ref('')
+const view = ref<'list' | 'cloud'>('list')
 
 const filtered = computed(() => {
   const t = search.value.trim().toLowerCase()
@@ -40,11 +42,18 @@ watch(() => props.open, (o) => o && load())
 async function doAdd() {
   const n = newTag.value.trim()
   if (!n) return
+  // 已存在(含隱藏中)→ 明確告知,不默默吞掉。
+  if (tags.value.some((t) => t.name === n)) {
+    toast.info(`#${n} 已存在`)
+    return
+  }
   try {
     await addTag(n)
     newTag.value = ''
+    search.value = ''
     await load()
     await store.reload()
+    toast.success(`已新增 #${n}`)
   } catch (e) {
     error.value = humanError(e, '標籤操作失敗,請稍後再試')
   }
@@ -80,9 +89,11 @@ async function toggleHidden(t: TagDetail) {
 <template>
   <BaseModal :open="props.open" title="標籤管理" size="xl" @close="emit('close')">
     <div class="flex flex-col gap-3">
-      <p class="text-xs text-muted">
-        標籤可改名(會同步更新所有引用的項目)或隱藏。為避免影響既有資料,標籤**不提供刪除**——用「隱藏」讓它不再出現在篩選與建議中即可。
-      </p>
+      <p class="text-sm font-medium text-ink">標籤可改名或隱藏,不提供刪除。</p>
+      <ul class="-mt-1 space-y-0.5 text-xs text-muted">
+        <li>· 改名會同步更新所有引用的項目</li>
+        <li>· 隱藏後不再出現在篩選與建議,資料保留</li>
+      </ul>
 
       <!-- search + add -->
       <div class="flex flex-wrap gap-2">
@@ -101,14 +112,66 @@ async function toggleHidden(t: TagDetail) {
             placeholder="新增標籤"
             class="w-36 rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
           />
-          <BaseButton type="submit" size="sm"><Plus :size="15" /> 新增</BaseButton>
+          <BaseButton type="submit" size="sm" :disabled="!newTag.trim()"><Plus :size="15" /> 新增</BaseButton>
         </form>
+        <div class="flex rounded-lg border border-line p-0.5">
+          <button
+            type="button"
+            class="rounded-md p-1.5"
+            :class="view === 'list' ? 'bg-accent-soft text-accent' : 'text-muted hover:text-ink'"
+            aria-label="清單模式"
+            @click="view = 'list'"
+          >
+            <List :size="16" />
+          </button>
+          <button
+            type="button"
+            class="rounded-md p-1.5"
+            :class="view === 'cloud' ? 'bg-accent-soft text-accent' : 'text-muted hover:text-ink'"
+            aria-label="標籤牆模式"
+            title="標籤牆(依文字長度自適應)"
+            @click="view = 'cloud'"
+          >
+            <LayoutDashboard :size="16" />
+          </button>
+        </div>
       </div>
 
       <p v-if="error" class="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-700">{{ error }}</p>
 
+      <!-- 標籤牆:chip 依文字長度自適應寬度 -->
+      <div v-if="view === 'cloud'" class="max-h-[52vh] overflow-y-auto thin-scroll">
+        <p v-if="!loading && filtered.length === 0" class="py-8 text-center text-sm text-muted">沒有標籤</p>
+        <div class="flex flex-wrap gap-2">
+          <span
+            v-for="t in filtered"
+            :key="t.name"
+            class="group inline-flex items-center gap-1.5 rounded-full border border-line bg-surface px-3 py-1.5 text-sm text-ink"
+            :class="t.hidden ? 'opacity-50' : ''"
+          >
+            <template v-if="editing === t.name">
+              <input
+                v-model="editValue"
+                class="w-28 rounded-md border border-accent bg-surface px-1.5 py-0.5 text-sm text-ink focus:outline-none"
+                @keyup.enter="saveEdit(t.name)"
+                @keyup.esc="editing = null"
+              />
+              <button class="icon-btn text-accent" aria-label="儲存" @click="saveEdit(t.name)"><Check :size="14" /></button>
+            </template>
+            <template v-else>
+              #{{ t.name }}
+              <span class="text-xs text-muted">{{ t.count }}</span>
+              <button class="icon-btn" title="改名" @click="startEdit(t)"><Pencil :size="13" /></button>
+              <button class="icon-btn" :title="t.hidden ? '取消隱藏' : '隱藏'" @click="toggleHidden(t)">
+                <component :is="t.hidden ? EyeOff : Eye" :size="13" />
+              </button>
+            </template>
+          </span>
+        </div>
+      </div>
+
       <!-- list -->
-      <div class="max-h-[52vh] overflow-y-auto thin-scroll">
+      <div v-else class="max-h-[52vh] overflow-y-auto thin-scroll">
         <p v-if="!loading && filtered.length === 0" class="py-8 text-center text-sm text-muted">沒有標籤</p>
         <div
           v-for="t in filtered"
