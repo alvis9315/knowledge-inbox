@@ -7,6 +7,7 @@ import TagInput from '@/components/common/TagInput.vue'
 import CategoryCascader from '@/features/categories/components/CategoryCascader.vue'
 import { createEntry } from '@/features/entries/api/entriesApi'
 import { classifyText } from '@/features/capture/classify'
+import { extractUrl } from '@/services/extract'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { toast } from '@/composables/useToast'
 import { humanError } from '@/utils/humanError'
@@ -47,11 +48,25 @@ async function submit() {
   saving.value = true
   error.value = null
   try {
-    // No manual category → let the classifier guess (mock heuristic / Phase 2 LLM).
+    // 連結 → 先擷取網頁 metadata(og/oEmbed/Maps 店名):標題變人話、
+    // 描述進分類評分。fail-soft:擷取不到照原樣存。
+    let title = text.slice(0, 80)
+    let summary: string | null = null
+    let classifyInput = text
+    if (isUrl) {
+      const meta = await extractUrl(text)
+      if (meta?.title) {
+        title = meta.title.slice(0, 120)
+        summary = meta.description?.slice(0, 300) ?? null
+        classifyInput = `${meta.title} ${meta.description ?? ''} ${text}`
+      }
+    }
+
+    // No manual category → let the classifier guess (rules → future LLM).
     let type = form.type
     let status: 'filed' | 'pending_review' = form.pending ? 'pending_review' : 'filed'
     if (!type) {
-      const guess = await classifyText(text)
+      const guess = await classifyText(classifyInput)
       if (guess.type && guess.confidence > 0.85 && !form.pending) {
         type = guess.type
         status = 'filed'
@@ -61,9 +76,9 @@ async function submit() {
       }
     }
     await createEntry({
-      title: text.slice(0, 80),
+      title,
       type,
-      summary: null,
+      summary,
       content: text,
       source_url: isUrl ? text : null,
       attrs: {},
