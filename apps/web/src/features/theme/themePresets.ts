@@ -5,7 +5,7 @@
  * readability. Add a preset here to offer a new world.
  */
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
-export type LiveBgKind = 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil'
+export type LiveBgKind = 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk'
 
 export interface ThemePreset {
   canvas: string
@@ -140,6 +140,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0a0916', surface: '#131126', elevated: '#191634', line: '#282350',
       ink: '#e8e4ff', muted: '#9b93c4', accent: '#8b7cf6', accentFg: '#0a0916',
       accentSoft: 'rgba(139, 124, 246, 0.16)',
+    },
+  },
+  {
+    key: 'silk-mauve',
+    label: '絲綢(活背景)',
+    liveBg: 'silk',
+    preset: {
+      canvas: '#17141c', surface: '#201c27', elevated: '#282332', line: '#3a3446',
+      ink: '#ece8f2', muted: '#a79eb4', accent: '#b3a2cc', accentFg: '#17141c',
+      accentSoft: 'rgba(179, 162, 204, 0.16)',
     },
   },
   {
