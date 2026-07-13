@@ -69,9 +69,11 @@ body,
 
 .card-bg {
   background: color-mix(in srgb, var(--surface) calc(var(--card-alpha, 100) * 1%), transparent);
+  backdrop-filter: blur(var(--card-blur, 0px));
 }
 .entry-bg {
   background: color-mix(in srgb, var(--surface) calc(var(--entry-alpha, 100) * 1%), transparent);
+  backdrop-filter: blur(var(--card-blur, 0px));
 }
 
 body {

@@ -25,7 +25,7 @@ import KnowledgeGalaxy from '@/components/backgrounds/KnowledgeGalaxy.vue'
 import KnowledgeThreads from '@/components/backgrounds/KnowledgeThreads.vue'
 import GalaxyImageBackground from '@/components/backgrounds/GalaxyImageBackground.vue'
 import BackgroundSettings from '@/features/theme/BackgroundSettings.vue'
-import { topbarOpacity, sidebarOpacity, cardOpacity, entryOpacity, chromeBg } from '@/features/theme/chromeOpacity'
+import { topbarOpacity, sidebarOpacity, cardOpacity, entryOpacity, cardGlass, chromeBg } from '@/features/theme/chromeOpacity'
 import {
   GALAXY_BG_CSS,
   GALAXY_BG_STARS,
@@ -164,7 +164,11 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 <template>
   <div
     class="relative flex h-full flex-col overflow-hidden"
-    :style="{ '--card-alpha': liveBgActive ? String(cardOpacity) : '100', '--entry-alpha': liveBgActive ? String(entryOpacity) : '100' }"
+    :style="{
+      '--card-alpha': liveBgActive ? String(cardOpacity) : '100',
+      '--entry-alpha': liveBgActive ? String(entryOpacity) : '100',
+      '--card-blur': liveBgActive && cardGlass ? '6px' : '0px',
+    }"
   >
     <!-- 登入頁同款活背景(fixed 鋪滿;介面表層半透明讓它透出) -->
     <!-- 調參時背景層升到最上層(全螢幕預覽),平時墊在內容底下 -->

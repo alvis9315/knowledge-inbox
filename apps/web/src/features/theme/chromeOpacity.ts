@@ -7,6 +7,8 @@ export const sidebarOpacity = useLocalStorage('ki-chrome-side', 55)
 export const cardOpacity = useLocalStorage('ki-card-alpha', 88)
 /** 項目卡片透明度(%)。 */
 export const entryOpacity = useLocalStorage('ki-entry-alpha', 88)
+/** 卡片毛玻璃(輕量 6px;輪播卡多時若掉幀可關)。 */
+export const cardGlass = useLocalStorage('ki-card-glass', true)
 
 export const chromeBg = (pct: number) =>
   `color-mix(in srgb, var(--surface) ${pct}%, transparent)`

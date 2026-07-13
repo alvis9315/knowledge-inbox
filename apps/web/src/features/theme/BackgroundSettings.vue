@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import BaseModal from '@/components/common/BaseModal.vue'
-import { topbarOpacity, sidebarOpacity, cardOpacity, entryOpacity } from './chromeOpacity'
+import { topbarOpacity, sidebarOpacity, cardOpacity, entryOpacity, cardGlass } from './chromeOpacity'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
@@ -12,6 +12,10 @@ const emit = defineEmits<{ close: [] }>()
     <ul class="mb-4 space-y-0.5 text-xs text-muted">
       <li>· 只在有活背景的頁面生效;純色主題頁不受影響</li>
     </ul>
+    <label class="mb-4 flex items-center justify-between rounded-lg border border-line px-3 py-2 text-sm text-ink">
+      <span>卡片毛玻璃<span class="ml-1 text-xs text-muted">(輪播若卡頓可關)</span></span>
+      <input v-model="cardGlass" type="checkbox" class="h-4 w-4 accent-[var(--accent)]" />
+    </label>
     <div class="flex flex-col gap-4">
       <label class="flex flex-col gap-1 text-sm text-ink">
         <span class="flex items-center justify-between">頂欄
