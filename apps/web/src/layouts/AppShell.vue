@@ -2,7 +2,7 @@
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useLocalStorage } from '@vueuse/core'
-import { PanelLeft, Search, PlusCircle, Menu, X, Power, Settings, Tag, SwatchBook, Droplet } from 'lucide-vue-next'
+import { PanelLeft, Search, PlusCircle, Menu, X, Power, Settings, Tag, SwatchBook, Droplet, Image as ImageIcon } from 'lucide-vue-next'
 import CategorySidebar from '@/features/categories/components/CategorySidebar.vue'
 import QuickCapture from '@/features/capture/QuickCapture.vue'
 import NewCategoryModal from '@/features/categories/components/NewCategoryModal.vue'
@@ -19,6 +19,8 @@ import { isMock } from '@/services/dataMode'
 import KnowledgeGalaxy from '@/components/backgrounds/KnowledgeGalaxy.vue'
 import KnowledgeThreads from '@/components/backgrounds/KnowledgeThreads.vue'
 import GalaxyImageBackground from '@/components/backgrounds/GalaxyImageBackground.vue'
+import BackgroundSettings from '@/features/theme/BackgroundSettings.vue'
+import { topbarOpacity, sidebarOpacity, chromeBg } from '@/features/theme/chromeOpacity'
 import {
   GALAXY_BG_CSS,
   GALAXY_BG_STARS,
@@ -40,6 +42,9 @@ const liveBg = currentLoginBg()
 const liveGalaxy = currentGalaxyBg()
 const liveGalaxyCss = GALAXY_BG_CSS[liveGalaxy]
 const liveStars = GALAXY_BG_STARS[liveGalaxy]
+// 活背景只在「無大類別」頁(總覽/全部/待確認);大類別頁照世界主題。
+const liveBgActive = computed(() => themeContext.value.domain === null && route.name !== 'entry-detail')
+const bgSettingsOpen = ref(false)
 
 const logoutConfirmOpen = ref(false)
 const loggingOut = ref(false)
@@ -108,7 +113,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 <template>
   <div class="relative flex h-full flex-col overflow-hidden">
     <!-- 登入頁同款活背景(fixed 鋪滿;介面表層半透明讓它透出) -->
-    <div class="fixed inset-0 -z-10" aria-hidden="true">
+    <div v-if="liveBgActive" class="fixed inset-0 -z-10" aria-hidden="true">
       <KnowledgeGalaxy
         v-if="liveBg === 'galaxy'"
         class="absolute inset-0"
@@ -141,7 +146,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     </div>
     <!-- Fixed top bar -->
     <header
-      class="relative z-30 flex h-14 shrink-0 items-center gap-2 border-b border-line bg-surface/90 px-3 backdrop-blur sm:px-4"
+      class="relative z-30 flex h-14 shrink-0 items-center gap-2 border-b border-line px-3 backdrop-blur sm:px-4"
+      :style="{ background: liveBgActive ? chromeBg(topbarOpacity) : 'color-mix(in srgb, var(--surface) 92%, transparent)' }"
     >
       <button
         class="inline-flex h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-canvas hover:text-ink md:hidden"
@@ -203,6 +209,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <button class="menu-item" @click="tagsOpen = true">
           <Tag :size="16" /> 標籤管理
         </button>
+        <button class="menu-item" @click="bgSettingsOpen = true">
+          <ImageIcon :size="16" /> 介面背景
+        </button>
       </HoverMenu>
     </header>
     <!-- Thin bar reflecting the active category's color. -->
@@ -215,7 +224,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <div class="flex min-h-0 flex-1 overflow-hidden">
       <!-- Desktop sidebar (fixed height, its own scroll — never moves the page) -->
       <aside
-        class="relative hidden h-full shrink-0 flex-col overflow-hidden border-r border-line bg-surface/75 backdrop-blur-md transition-[width] duration-300 ease-in-out md:flex"
+        class="relative hidden h-full shrink-0 flex-col overflow-hidden border-r border-line backdrop-blur-md transition-[width] duration-300 ease-in-out md:flex"
+        :style="{ background: liveBgActive ? chromeBg(sidebarOpacity) : 'var(--surface)' }"
         :class="collapsed ? 'w-14' : 'w-60'"
       >
         <div class="min-h-0 flex-1 overflow-y-auto thin-scroll">
@@ -255,7 +265,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       </Teleport>
 
       <!-- Main (the only scrolling region) -->
-      <main class="min-w-0 flex-1 overflow-y-auto overflow-x-hidden thin-scroll">
+      <main class="min-w-0 flex-1 overflow-y-auto overflow-x-hidden thin-scroll" :class="liveBgActive ? '' : 'bg-canvas'">
         <div class="flex min-h-full flex-col px-4 py-6 sm:px-6">
           <slot />
         </div>
@@ -268,6 +278,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <CategoryThemeSettings :open="settingsOpen" :active-type="activeType" @close="settingsOpen = false" />
     <DomainThemeSettings :open="domainThemeOpen" :active-domain="activeDomain" @close="domainThemeOpen = false" />
     <TagManager :open="tagsOpen" @close="tagsOpen = false" />
+    <BackgroundSettings :open="bgSettingsOpen" @close="bgSettingsOpen = false" />
     <BaseConfirm
       :open="logoutConfirmOpen"
       title="登出"

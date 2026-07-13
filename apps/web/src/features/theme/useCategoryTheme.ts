@@ -70,9 +70,9 @@ export function applyTheme(domain: string | null | undefined, categoryColor?: st
     if (categoryColor) applyAccent(categoryColor)
     return
   }
+  // 大類別一律照「大類主題」面板決定(default=淺藍),不被登入基底覆蓋。
   const preset = presetByKey(domainThemeKey(domain)).preset
   if (preset) applyPreset(preset)
-  else if (base) applyPreset(base)
   if (categoryColor) applyAccent(categoryColor)
 }
 

@@ -1,0 +1,8 @@
+import { useLocalStorage } from '@vueuse/core'
+
+/** 頂欄/側欄透明度(%),活背景模式下生效;面板控制器即時調整。 */
+export const topbarOpacity = useLocalStorage('ki-chrome-top', 55)
+export const sidebarOpacity = useLocalStorage('ki-chrome-side', 55)
+
+export const chromeBg = (pct: number) =>
+  `color-mix(in srgb, var(--surface) ${pct}%, transparent)`
