@@ -5,7 +5,7 @@
  * readability. Add a preset here to offer a new world.
  */
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
-export type LiveBgKind = 'galaxy' | 'threads' | 'image' | 'aurora'
+export type LiveBgKind = 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves'
 
 export interface ThemePreset {
   canvas: string
@@ -120,6 +120,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#07131c', surface: '#0d1c28', elevated: '#122534', line: '#1e3547',
       ink: '#e4f4f4', muted: '#8fb0b8', accent: '#2dd4bf', accentFg: '#062028',
       accentSoft: 'rgba(45, 212, 191, 0.16)',
+    },
+  },
+  {
+    key: 'wave-lines',
+    label: '波浪(活背景)',
+    liveBg: 'waves',
+    preset: {
+      canvas: '#080e1a', surface: '#0e1728', elevated: '#141f36', line: '#22304d',
+      ink: '#e3ecff', muted: '#8b9cc0', accent: '#6d9eff', accentFg: '#080e1a',
+      accentSoft: 'rgba(109, 158, 255, 0.16)',
     },
   },
   {
