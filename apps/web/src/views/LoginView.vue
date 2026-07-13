@@ -371,7 +371,7 @@ async function withGoogle() {
     <!-- 開機序列:解碼標題 + [ START ] -->
     <div
       v-if="stage !== 'form'"
-      class="relative z-10 flex cursor-default flex-col items-center gap-10"
+      class="relative z-10 flex cursor-default select-none flex-col items-center gap-10"
       @click="skipTyping"
     >
       <!-- invisible 保留版位:消失/重現、START 出現時標題都不位移 -->
@@ -429,7 +429,7 @@ async function withGoogle() {
       class="relative z-10 w-full max-w-sm rounded-3xl border border-white/10 bg-white/[0.03] p-8 shadow-2xl backdrop-blur-md"
     >
       <div class="mb-7 text-center">
-        <h1 class="text-4xl" :class="titleClass">Knowledge Inbox</h1>
+        <h1 class="select-none text-4xl" :class="titleClass">Knowledge Inbox</h1>
         <p class="mt-2 text-sm text-white/70">懶人福音 —— 丟進來就好,剩下交給它</p>
       </div>
 
@@ -495,8 +495,8 @@ async function withGoogle() {
   letter-spacing: 0.16em;
   /* ShinyText(react-bits 語意):半透明底色字 + 白色光帶掃過。
      字色 = 原標題底色 #c4d8ff(帶透明度讓光帶透出)。 */
-  color: rgba(196, 216, 255, 0.78);
-  background: linear-gradient(120deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.95) 50%, rgba(255, 255, 255, 0) 60%);
+  color: rgba(196, 216, 255, 0.66); /* 字色越透明,掃過的白光帶越明顯(官方 ShinyText 手法) */
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0) 38%, rgba(255, 255, 255, 1) 50%, rgba(255, 255, 255, 0) 62%);
   background-size: 200% 100%;
   animation: title-shine 2.4s linear infinite;
   -webkit-background-clip: text;
