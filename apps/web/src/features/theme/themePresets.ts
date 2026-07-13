@@ -5,7 +5,7 @@
  * readability. Add a preset here to offer a new world.
  */
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
-export type LiveBgKind = 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk'
+export type LiveBgKind = 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence'
 
 export interface ThemePreset {
   canvas: string
@@ -150,6 +150,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#17141c', surface: '#201c27', elevated: '#282332', line: '#3a3446',
       ink: '#ece8f2', muted: '#a79eb4', accent: '#b3a2cc', accentFg: '#17141c',
       accentSoft: 'rgba(179, 162, 204, 0.16)',
+    },
+  },
+  {
+    key: 'iridescent-flow',
+    label: '虹彩(活背景)',
+    liveBg: 'iridescence',
+    preset: {
+      canvas: '#0c1122', surface: '#141b33', elevated: '#1b2444', line: '#2b3560',
+      ink: '#e9edff', muted: '#94a1cc', accent: '#7c9aff', accentFg: '#0c1122',
+      accentSoft: 'rgba(124, 154, 255, 0.16)',
     },
   },
   {
