@@ -91,54 +91,63 @@ const TITLE_TEXT = 'Knowledge Inbox'
 const GLYPHS = '!<>-_\\/[]{}=+*^?#░▒▓█01'
 let introTimer = 0
 
+const titleHidden = ref(false)
+const showCaret = ref(true)
+const N = TITLE_TEXT.length
+const glyph = () => GLYPHS[(Math.random() * GLYPHS.length) | 0]
+const scrambleStr = (n: number) => Array.from({ length: n }, glyph).join('')
+
+/**
+ * 開機分鏡(無震動):
+ * A 亂碼一路往右長滿 → B 從頭逐字抹除(尾端持續跳動)到清空
+ * → 0.3s 黑場 → C 反向(右→左)拼裝成完整標題 → START。
+ */
 function runDecode() {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     stage.value = 'form'
     return
   }
-  let frame = 0
+  let len = 0
   introTimer = window.setInterval(() => {
-    frame++
-    const locked = Math.floor(frame / 3) // 每 3 幀鎖定一個字
-    let out = ''
-    for (let i = 0; i < TITLE_TEXT.length; i++) {
-      if (i < locked) out += TITLE_TEXT[i]
-      else if (i < locked + 5) out += GLYPHS[(Math.random() * GLYPHS.length) | 0]
-    }
-    display.value = out
-    if (locked >= TITLE_TEXT.length) {
+    len++
+    display.value = scrambleStr(Math.min(N, len))
+    if (len >= N) {
       clearInterval(introTimer)
-      // glitch → 完全消失(保留版位)→ 數位亂碼快速拼裝重現 → START
       showCaret.value = false
-      glitching.value = true
-      setTimeout(() => {
-        glitching.value = false
-        titleHidden.value = true
-        setTimeout(() => {
-          titleHidden.value = false
-          runScrambleIn(() => (stage.value = 'start'))
-        }, 650)
-      }, 500)
+      phaseErase()
     }
-  }, 45)
+  }, 40)
 }
-const titleHidden = ref(false)
-const showCaret = ref(true)
-
-/** 重現:全長亂碼快速逐字解析成完整標題(digital 拼裝感)。 */
-function runScrambleIn(done: () => void) {
-  let frame = 0
+/** B:抹除從頭開始,剩餘尾段持續跳動(nbsp 佔位,零位移)。 */
+function phaseErase() {
+  let k = 0
   introTimer = window.setInterval(() => {
-    frame++
-    const locked = frame * 2 // 一幀解兩字,約 0.4s 拼完
+    k++
+    if (k >= N) {
+      clearInterval(introTimer)
+      display.value = ''
+      titleHidden.value = true
+      setTimeout(phaseAssemble, 300)
+    } else {
+      display.value = ' '.repeat(k) + scrambleStr(N - k) // nbsp 佔位(一般空白會被折疊)
+    }
+  }, 35)
+}
+/** C:反向拼裝——右側先鎖定,往左逐字解析成完整標題。 */
+function phaseAssemble() {
+  titleHidden.value = false
+  let locked = 0
+  introTimer = window.setInterval(() => {
+    locked += 2
     let out = ''
-    for (let i = 0; i < TITLE_TEXT.length; i++) {
-      out += i < locked ? TITLE_TEXT[i] : GLYPHS[(Math.random() * GLYPHS.length) | 0]
+    for (let i = 0; i < N; i++) {
+      out += i >= N - locked ? TITLE_TEXT[i] : glyph()
     }
     display.value = out
-    if (locked >= TITLE_TEXT.length) {
+    if (locked >= N) {
       clearInterval(introTimer)
-      done()
+      display.value = TITLE_TEXT
+      stage.value = 'start'
     }
   }, 40)
 }
@@ -338,7 +347,7 @@ async function withGoogle() {
       <!-- 隱形完整標題撐死寬度,動畫文字絕對定位疊上 → 全程零位移 -->
       <h1
         class="relative whitespace-nowrap text-4xl sm:text-6xl"
-        :class="[titleClass, glitching ? 'intro-glitch' : '', titleHidden ? 'invisible' : '']"
+        :class="[titleClass, titleHidden ? 'invisible' : '']"
       >
         <span class="invisible">{{ TITLE_TEXT }}</span>
         <span class="absolute inset-0">{{ display }}<span v-if="showCaret" class="intro-caret">▌</span></span>
