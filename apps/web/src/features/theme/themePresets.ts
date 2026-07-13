@@ -7,7 +7,7 @@
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
-  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid'
+  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb'
 
 export interface ThemePreset {
   canvas: string
@@ -212,6 +212,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#060911', surface: '#0d1220', elevated: '#131a30', line: '#22304e',
       ink: '#e5ecfa', muted: '#8c9dc2', accent: '#7fa3e8', accentFg: '#060911',
       accentSoft: 'rgba(127, 163, 232, 0.16)',
+    },
+  },
+  {
+    key: 'energy-orb',
+    label: '能量球(活背景)',
+    liveBg: 'orb',
+    preset: {
+      canvas: '#08060f', surface: '#110d1e', elevated: '#17122a', line: '#2a2245',
+      ink: '#ece6fa', muted: '#a195c2', accent: '#9c74ff', accentFg: '#08060f',
+      accentSoft: 'rgba(156, 116, 255, 0.16)',
     },
   },
   {
