@@ -189,8 +189,10 @@ async function withGoogle() {
   >
     <!-- TargetCursor 外型(跟隨,無動畫) -->
     <div v-if="finePointer" ref="cursorEl" class="target-cursor" style="transform: translate3d(-100px, -100px, 0)" aria-hidden="true">
-      <i class="tc-corner tl" /><i class="tc-corner tr" />
-      <i class="tc-corner bl" /><i class="tc-corner br" />
+      <span class="tc-spin">
+        <i class="tc-corner tl" /><i class="tc-corner tr" />
+        <i class="tc-corner bl" /><i class="tc-corner br" />
+      </span>
       <i class="tc-dot" />
     </div>
     <KnowledgeGalaxy
@@ -491,6 +493,18 @@ async function withGoogle() {
   pointer-events: none;
   z-index: 95;
   will-change: transform;
+}
+/* 官方 TargetCursor 的持續旋轉(2s/圈);位移在外層,旋轉放內層互不干擾 */
+.tc-spin {
+  position: absolute;
+  inset: 0;
+  animation: tc-rotate 2s linear infinite;
+}
+@keyframes tc-rotate {
+  to { transform: rotate(360deg); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tc-spin { animation: none; }
 }
 .tc-corner {
   position: absolute;
