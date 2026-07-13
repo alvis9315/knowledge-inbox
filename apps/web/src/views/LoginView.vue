@@ -423,7 +423,7 @@ async function withGoogle() {
     >
     <div
       v-if="stage === 'form'"
-      class="relative z-10 w-full max-w-sm rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl"
+      class="relative z-10 w-full max-w-sm rounded-3xl border border-white/10 bg-white/[0.03] p-8 shadow-2xl backdrop-blur-md"
     >
       <div class="mb-7 text-center">
         <h1 class="text-4xl" :class="titleClass">Knowledge Inbox</h1>
@@ -579,6 +579,8 @@ async function withGoogle() {
   pointer-events: none;
   z-index: 95;
   will-change: transform;
+  /* 與背景做差值:壓到白色按鈕自動變深、深空維持亮色——任何底色都有對比 */
+  mix-blend-mode: difference;
 }
 /* 官方 TargetCursor 的持續旋轉(2s/圈);位移在外層,旋轉放內層互不干擾 */
 .tc-spin {
@@ -596,8 +598,8 @@ async function withGoogle() {
   position: absolute;
   width: 9px;
   height: 9px;
-  border: 0 solid #c4d8ff;
-  filter: drop-shadow(0 0 4px rgba(196, 216, 255, 0.6));
+  /* difference 混合下用純白,反色後對比最大(深空≈白、白鈕上≈黑) */
+  border: 0 solid #ffffff;
 }
 .tc-corner.tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
 .tc-corner.tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
@@ -612,7 +614,6 @@ async function withGoogle() {
   margin: -2px 0 0 -2px;
   border-radius: 9999px;
   background: #ffffff;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.85);
 }
 
 /* TrueFocus 對焦框(hover 由外縮入;移開向外擴散淡出) */
