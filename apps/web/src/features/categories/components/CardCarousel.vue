@@ -58,7 +58,8 @@ watch(() => [props.playing, reduceMotion.value, displayItems.value.length], sync
        slides by their border box (padding included, margin excluded), so a
        margin gap goes uncounted at the loop seam and shows an uneven gap there.
        Padding keeps every gap — including the wrap seam — identical. -->
-  <div ref="emblaRef" class="flex min-h-0 flex-col overflow-hidden py-1">
+  <!-- py-3 緩衝:卡片 tilt 放大與 hover 上移會溢出卡面,避免被 overflow-hidden 裁頭 -->
+  <div ref="emblaRef" class="flex min-h-0 flex-col overflow-hidden py-3">
     <div class="flex min-h-0 flex-1 items-stretch" style="touch-action: pan-y">
       <div v-for="(item, i) in displayItems" :key="`${item.key}-${i}`" class="w-64 shrink-0 pl-4 sm:w-72 sm:pl-6">
         <slot :item="item" />

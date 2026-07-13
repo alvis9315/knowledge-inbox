@@ -11,6 +11,7 @@ import CategoryThemeSettings from '@/features/theme/CategoryThemeSettings.vue'
 import DomainThemeSettings from '@/features/theme/DomainThemeSettings.vue'
 import TagManager from '@/features/tags/components/TagManager.vue'
 import HoverMenu from '@/components/common/HoverMenu.vue'
+import BaseConfirm from '@/components/common/BaseConfirm.vue'
 import { applyTheme } from '@/features/theme/useCategoryTheme'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { useAuthStore } from '@/features/auth/stores/authStore'
@@ -25,9 +26,17 @@ const tagsOpen = ref(false)
 const domainThemeOpen = ref(false)
 const mock = computed(() => isMock())
 
-async function logout() {
-  await auth.logout()
-  router.push({ name: 'login' })
+const logoutConfirmOpen = ref(false)
+const loggingOut = ref(false)
+async function doLogout() {
+  loggingOut.value = true
+  try {
+    await auth.logout()
+    router.push({ name: 'login' })
+  } finally {
+    loggingOut.value = false
+    logoutConfirmOpen.value = false
+  }
 }
 
 // The active 大類別 themes the whole app — its "world" (bg + text + accent).
@@ -172,7 +181,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           <button
             class="flex w-full items-center justify-center gap-2 rounded-lg px-2 py-2 text-sm text-muted transition-colors hover:bg-canvas hover:text-red-600"
             :title="collapsed ? '登出' : undefined"
-            @click="logout"
+            @click="logoutConfirmOpen = true"
           >
             <Power :size="18" />
             <span v-if="!collapsed">登出</span>
@@ -212,6 +221,17 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <CategoryThemeSettings :open="settingsOpen" :active-type="activeType" @close="settingsOpen = false" />
     <DomainThemeSettings :open="domainThemeOpen" :active-domain="activeDomain" @close="domainThemeOpen = false" />
     <TagManager :open="tagsOpen" @close="tagsOpen = false" />
+    <BaseConfirm
+      :open="logoutConfirmOpen"
+      title="登出"
+      variant="primary"
+      confirm-text="登出"
+      :busy="loggingOut"
+      @confirm="doLogout"
+      @close="logoutConfirmOpen = false"
+    >
+      確定要登出嗎?
+    </BaseConfirm>
   </div>
 </template>
 

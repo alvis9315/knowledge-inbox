@@ -176,12 +176,8 @@ function skipTyping() {
 }
 /** 按 START:glitch 退場 → 登入卡片進場。 */
 function enterApp() {
-  glitching.value = true
-  stage.value = 'leaving'
-  setTimeout(() => {
-    glitching.value = false
-    stage.value = 'form'
-  }, 450)
+  stage.value = 'leaving' // 縮小淡出(不用 glitch,無限抖動很干擾)
+  setTimeout(() => (stage.value = 'form'), 350)
 }
 const assembled = computed(() => stage.value === 'start' || stage.value === 'leaving')
 const TITLE_CHARS = TITLE_TEXT.split('').map((c) => (c === ' ' ? '\u00A0' : c))
@@ -401,8 +397,8 @@ async function withGoogle() {
       >
         <button
           v-if="stage === 'start' || stage === 'leaving'"
-          class="start-btn group relative"
-          :class="stage === 'leaving' ? 'intro-glitch' : ''"
+          class="start-btn group relative transition duration-300"
+          :class="stage === 'leaving' ? 'scale-90 opacity-0' : ''"
           @click.stop="enterApp"
         >
           <!-- TrueFocus 對焦框:hover 由外縮入對焦,移開向外擴散消失 -->
