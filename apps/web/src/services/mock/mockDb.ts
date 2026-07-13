@@ -116,6 +116,10 @@ export const mockDb = {
 
   createCategory(input: NewCategoryInput) {
     if (state.categories.some((c) => c.key === input.key)) return
+    // 同大類別下名稱唯一(對齊雲端 0009 的唯一約束)。
+    if (state.categories.some((c) => c.domain === input.domain && c.name === input.name)) {
+      throw new Error(`「${input.domain}」底下已有「${input.name}」,請換個名稱`)
+    }
     state.categories.push({
       key: input.key,
       name: input.name,
