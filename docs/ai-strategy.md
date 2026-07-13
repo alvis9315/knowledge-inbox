@@ -79,18 +79,23 @@
 AppShell 依當前大類別的主題渲染(fixed 層;調參時升 z-40 全螢幕預覽);
 控制器按鈕 `BgControlsButton`(視圖 icon 左)全域開關 `liveBgControls.ts`。
 
-**已完成**(2026-07-14 夜班批次 +6):galaxy(星空)、threads(線條)、
+**已完成 14 種**(2026-07-14 兩班批次):galaxy(星空)、threads(線條)、
 image(圖片封面,控制器=上傳)、aurora(極光)、waves(波浪)、
-darkveil(暗湧)、silk(絲綢)、iridescence(虹彩)、letterglitch(字符雨)。
+darkveil(暗湧)、silk(絲綢)、iridescence(虹彩)、letterglitch(字符雨)、
+lightning(閃電)、liquidchrome(液態鉻)、particles(漂浮粒子)、
+ripplegrid(漣漪網格)、orb(能量球)、plasma(電漿)。
 
 **移植紀律**(夜班確立):只收零新依賴的(ogl 或純 canvas);
-活背景一律 `defineAsyncComponent` 掛進 AppShell(主包零成長);
-掛載五件套 = 元件 + Controls + LiveBgKind + THEME_PRESETS + AppShell 分支。
+一律 `defineAsyncComponent`(主包零成長);掛載四件套 =
+元件 + Controls + LiveBgKind + THEME_PRESETS + **registry 一行**
+(2026-07-14 起 AppShell 改 registry 驅動,見 backgrounds/registry.ts)。
 
-**待移植(零新依賴,可直接做)**:Lightning、LiquidChrome(ogl)、
-Particles、Orb、RippleGrid(ogl)、FaultyTerminal、GridDistortion、
-Dither、PixelSnow 等(逐個檢查 import 再動工)。
+**待移植(已確認零新依賴)**:DotField(純 canvas)、SoftAurora、
+LightRays(ogl)。**待逐個查 import**:FaultyTerminal、GridDistortion、
+Dither、Radar、Prism、PrismaticBurst、GridScan、SideRays、LightPillar、
+Lightfall、LineWaves、ShapeGrid、EvilEye、ColorBends、Grainient、PixelBlast。
 
-**暫緩(需要新重依賴,違反不亂加套件原則)**:Beams、Hyperspeed
-(three.js/postprocessing)、DotGrid、GridMotion(gsap)——若未來
-決定引入 three.js 或 gsap 再整批解鎖。
+**暫緩(需要新重依賴,違反不亂加套件原則)**:Beams、Hyperspeed、
+PixelSnow、FloatingLines(three.js/postprocessing)、DotGrid、GridMotion
+(gsap)——若未來決定引入 three.js 或 gsap 再整批解鎖
+(依賴照樣走 async chunk,只有選用該主題的人會下載)。
