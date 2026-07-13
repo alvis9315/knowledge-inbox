@@ -165,7 +165,10 @@ function onKey(e: KeyboardEvent) {
   }
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 關鍵順序:先等 auth 恢復 session、確立資料模式(guest/supabase),
+  // 再載入分類——否則登入狀態下會搶跑渲染出 mock 假資料(時有時無 bug 根因)。
+  await auth.init()
   store.init()
   window.addEventListener('keydown', onKey)
 })
