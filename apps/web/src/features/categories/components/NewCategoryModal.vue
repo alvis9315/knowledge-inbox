@@ -137,7 +137,14 @@ async function submit() {
     )
     emit('close')
   } catch (e) {
-    error.value = humanError(e, '建立失敗,請稍後再試')
+    const msg = humanError(e, '建立失敗,請稍後再試')
+    // DB 撞唯一約束 = 前端清單落後於資料庫 → 自動刷新自癒。
+    if (msg.includes('已有相同的資料')) {
+      await store.reload().catch(() => {})
+      error.value = '已有同名分類(清單已重新整理,請再確認)'
+    } else {
+      error.value = msg
+    }
   } finally {
     saving.value = false
   }

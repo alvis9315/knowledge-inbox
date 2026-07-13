@@ -30,11 +30,10 @@ watch(
   { immediate: true, deep: true },
 )
 
-// Domains start collapsed by default (empty map = all collapsed); the user
-// expands the ones they want. Persisted per browser.
-const expandedDomains = useLocalStorage<Record<string, boolean>>('ki-expanded-domains', {})
+// 預設全部展開:只記「被收合的」,沒記到 = 展開。
+const collapsedDomains = useLocalStorage<Record<string, boolean>>('ki-collapsed-domains-v2', {})
 function toggleDomain(d: string) {
-  expandedDomains.value = { ...expandedDomains.value, [d]: !expandedDomains.value[d] }
+  collapsedDomains.value = { ...collapsedDomains.value, [d]: !collapsedDomains.value[d] }
 }
 function persistOrder() {
   store.reorder(groups.value.flatMap((g) => g.items.map((c) => c.key)))
@@ -107,7 +106,7 @@ function domainCount(g: Group) {
               :aria-label="`展開 ${group.domain}`"
               @click="toggleDomain(group.domain)"
             >
-              <ChevronRight :size="15" class="transition-transform" :class="expandedDomains[group.domain] ? 'rotate-90' : ''" />
+              <ChevronRight :size="15" class="transition-transform" :class="!collapsedDomains[group.domain] ? 'rotate-90' : ''" />
             </button>
             <RouterLink
               :to="{ name: 'domain', params: { domain: group.domain } }"
@@ -121,7 +120,7 @@ function domainCount(g: Group) {
           </div>
 
           <VueDraggable
-            v-if="expandedDomains[group.domain]"
+            v-if="!collapsedDomains[group.domain]"
             v-model="group.items"
             :animation="150"
             class="ml-3 flex flex-col gap-0.5 border-l border-line pl-1"
