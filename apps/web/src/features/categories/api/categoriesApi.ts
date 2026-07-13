@@ -118,14 +118,23 @@ export async function setCategoryColor(key: string, color: string): Promise<void
   if (error) throw new Error(error.message)
 }
 
-/** 大類別自訂 icon(domain_meta;mock 存 localStorage)。 */
+/**
+ * 大類別自訂 icon(domain_meta;mock 存 localStorage)。
+ * Fail-soft:icon 是裝飾性資料,讀取失敗(如 migration 0008 尚未套用)
+ * 一律退回空 map 用預設 icon——絕不弄垮整個分類載入。
+ */
 export async function fetchDomainIcons(): Promise<Record<string, string>> {
   if (isMock()) return mockDb.domainIcons()
-  const { data, error } = await requireSupabase().from('domain_meta').select('domain, icon')
-  if (error) throw new Error(error.message)
-  const map: Record<string, string> = {}
-  for (const row of data ?? []) if (row.icon) map[row.domain] = row.icon
-  return map
+  try {
+    const { data, error } = await requireSupabase().from('domain_meta').select('domain, icon')
+    if (error) throw new Error(error.message)
+    const map: Record<string, string> = {}
+    for (const row of data ?? []) if (row.icon) map[row.domain] = row.icon
+    return map
+  } catch (e) {
+    console.warn('[domain_meta] 讀取失敗,改用預設 icon:', e)
+    return {}
+  }
 }
 
 export async function setDomainIcon(domain: string, icon: string): Promise<void> {
