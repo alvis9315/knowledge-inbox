@@ -62,7 +62,7 @@ const liveStars = GALAXY_BG_STARS[liveGalaxy]
 const coverUploadOpen = ref(false)
 const coverVersion = ref(0)
 const hasCover = ref(false)
-async function refreshHasCover() {
+const refreshHasCover = async () => {
   hasCover.value = !!(await loadFile(LOGIN_COVER_KEY))
 }
 refreshHasCover()
@@ -72,7 +72,7 @@ watch(bgControlsOpen, (o) => {
     coverUploadOpen.value = true
   }
 })
-async function onCoverConfirm(file: File) {
+const onCoverConfirm = async (file: File) => {
   try {
     await saveFile(LOGIN_COVER_KEY, file)
     coverVersion.value++
@@ -84,7 +84,7 @@ async function onCoverConfirm(file: File) {
     toast.error('封面儲存失敗,檔案可能太大')
   }
 }
-async function onCoverRemove() {
+const onCoverRemove = async () => {
   await removeFile(LOGIN_COVER_KEY)
   coverVersion.value++
   coverUploadOpen.value = false
@@ -94,7 +94,7 @@ async function onCoverRemove() {
 
 const logoutConfirmOpen = ref(false)
 const loggingOut = ref(false)
-async function doLogout() {
+const doLogout = async () => {
   loggingOut.value = true
   try {
     await auth.logout()
@@ -147,7 +147,7 @@ const darkveilSaved = readCfg('ki-app-darkveil-cfg')
 const silkSaved = readCfg('ki-app-silk-cfg')
 const iridescenceSaved = readCfg('ki-app-iridescence-cfg')
 const letterglitchSaved = readCfg('ki-app-letterglitch-cfg')
-function onBgDone(kind: LiveBgKind, cfg: Record<string, unknown>) {
+const onBgDone = (kind: LiveBgKind, cfg: Record<string, unknown>) => {
   localStorage.setItem(`ki-app-${kind}-cfg`, JSON.stringify(cfg))
   bgControlsOpen.value = false
 }
@@ -167,7 +167,7 @@ const captureOpen = ref(false)
 const newCategoryOpen = ref(false)
 const paletteOpen = ref(false)
 
-function onKey(e: KeyboardEvent) {
+const onKey = (e: KeyboardEvent) => {
   const target = e.target as HTMLElement
   const typing = /^(INPUT|TEXTAREA|SELECT)$/.test(target.tagName) || target.isContentEditable
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {

@@ -25,7 +25,7 @@ export interface EntryInput {
   tags: string[]
 }
 
-export function emptyFilters(): EntryFilters {
+export const emptyFilters = (): EntryFilters => {
   return { search: '', domain: null, type: null, tag: null }
 }
 

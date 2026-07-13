@@ -67,10 +67,10 @@ watch(
 const domainOptions = computed(() => store.domains.map((d) => ({ value: d, label: d })))
 const effectiveDomain = computed(() => (creatingDomain.value ? form.newDomain.trim() : form.domainSel))
 
-function addRow() {
+const addRow = () => {
   subs.value.push({ name: '', icon: '' })
 }
-function removeRow(i: number) {
+const removeRow = (i: number) => {
   if (subs.value.length > 1) subs.value.splice(i, 1)
   else subs.value[0] = { name: '', icon: '' }
 }
@@ -101,12 +101,12 @@ const canSubmit = computed(
 )
 
 /** Stable key from name; CJK names fall back to timestamp+index (批次不撞 key). */
-function toKey(name: string, i: number): string {
+const toKey = (name: string, i: number): string => {
   const base = name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '_').replace(/^_|_$/g, '')
   return base || `cat_${Date.now().toString(36)}_${i}`
 }
 
-async function submit() {
+const submit = async () => {
   if (!canSubmit.value) return
   const domain = effectiveDomain.value
   saving.value = true

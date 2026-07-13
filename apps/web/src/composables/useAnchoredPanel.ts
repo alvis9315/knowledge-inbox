@@ -8,14 +8,14 @@ const EDGE = 12
  * 徹底擺脫彈窗/捲動容器的裁切。空間不足時自動往上開;高度依剩餘空間
  * 動態夾制(面板內部自己捲),四邊永遠留 ≥12px;捲動/縮放跟著重新定位。
  */
-export function useAnchoredPanel(
+export const useAnchoredPanel = (
   anchor: Ref<HTMLElement | null>,
   opts: { matchWidth?: boolean; panelWidth?: number; panelMaxHeight?: number } = {},
-) {
+) => {
   const open = ref(false)
   const style = ref<CSSProperties>({})
 
-  function reposition() {
+  const reposition = () => {
     const el = anchor.value
     if (!el) return
     const r = el.getBoundingClientRect()
@@ -44,7 +44,7 @@ export function useAnchoredPanel(
     }
   }
 
-  function onWindow() {
+  const onWindow = () => {
     if (open.value) reposition()
   }
 

@@ -12,24 +12,24 @@ const overrides = useLocalStorage<Record<string, string>>('ki-domain-theme', {})
 
 /** 首頁(分類總覽/全部/待確認)的主題覆寫 key。 */
 export const HOME_THEME_KEY = '__home__'
-export function homeThemeKey(): string | null {
+export const homeThemeKey = (): string | null => {
   return overrides.value[HOME_THEME_KEY] ?? null
 }
-export function setHomeTheme(key: string | null) {
+export const setHomeTheme = (key: string | null) => {
   const next = { ...overrides.value }
   if (key) next[HOME_THEME_KEY] = key
   else delete next[HOME_THEME_KEY]
   overrides.value = next
 }
 
-export function domainThemeKey(domain: string): string {
+export const domainThemeKey = (domain: string): string => {
   return overrides.value[domain] ?? DEFAULT_DOMAIN_PRESET[domain] ?? 'default'
 }
-export function setDomainTheme(domain: string, key: string) {
+export const setDomainTheme = (domain: string, key: string) => {
   overrides.value = { ...overrides.value, [domain]: key }
 }
 
-function hexToRgba(hex: string, alpha: number): string {
+const hexToRgba = (hex: string, alpha: number): string => {
   const m = hex.replace('#', '')
   const full = m.length === 3 ? m.split('').map((c) => c + c).join('') : m
   const n = parseInt(full, 16)
@@ -41,12 +41,12 @@ const VARS = [
   '--accent', '--accent-fg', '--accent-soft',
 ] as const
 
-function reset() {
+const reset = () => {
   const s = document.documentElement.style
   for (const v of VARS) s.removeProperty(v)
 }
 
-function applyPreset(p: ThemePreset) {
+const applyPreset = (p: ThemePreset) => {
   const s = document.documentElement.style
   s.setProperty('--canvas', p.canvas)
   s.setProperty('--surface', p.surface)
@@ -60,7 +60,7 @@ function applyPreset(p: ThemePreset) {
 }
 
 /** 登入頁選定的背景風格 → App 基底世界主題(頂欄/側欄/主內容跟隨)。 */
-function appBasePreset(): ThemePreset | null {
+const appBasePreset = (): ThemePreset | null => {
   const raw = (localStorage.getItem('ki-login-bg') ?? 'galaxy').replace(/"/g, '')
   const key = raw === 'threads' ? 'ink-threads' : 'space-navy' // galaxy 與 image 都走星空深藍
   return presetByKey(key).preset
@@ -74,7 +74,7 @@ function appBasePreset(): ThemePreset | null {
  * 無 domain(總覽/全部/待確認)或該 domain 未指派世界主題時,
  * 改用「登入風格基底主題」讓整站與登入頁一致。
  */
-export function applyTheme(domain: string | null | undefined, categoryColor?: string | null) {
+export const applyTheme = (domain: string | null | undefined, categoryColor?: string | null) => {
   reset()
   if (!domain) {
     // 首頁若在「主題風格」指定了主題就用它;未指定 → 跟隨登入頁風格。
@@ -91,7 +91,7 @@ export function applyTheme(domain: string | null | undefined, categoryColor?: st
 }
 
 /** Accent-only override (light theme; used by the per-category colour picker). */
-export function applyAccent(color: string | null | undefined) {
+export const applyAccent = (color: string | null | undefined) => {
   const s = document.documentElement.style
   if (!color) {
     s.removeProperty('--accent')

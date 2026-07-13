@@ -45,10 +45,10 @@ let cfgSnapshot: Record<string, unknown> | null = null
 watch(() => props.showControls, (o) => {
   if (o) cfgSnapshot = JSON.parse(JSON.stringify(cfg))
 })
-function ctlDone() {
+const ctlDone = () => {
   emitCtl('controlsDone', JSON.parse(JSON.stringify(cfg)))
 }
-function ctlCancel() {
+const ctlCancel = () => {
   if (cfgSnapshot) Object.assign(cfg, cfgSnapshot)
   emitCtl('controlsCancel')
 }
@@ -110,7 +110,7 @@ void main() {
 }
 `
 
-function hexToRgb(hex: string): [number, number, number] {
+const hexToRgb = (hex: string): [number, number, number] => {
   const h = hex.replace('#', '')
   return [
     parseInt(h.slice(0, 2), 16) / 255,
@@ -119,7 +119,7 @@ function hexToRgb(hex: string): [number, number, number] {
   ]
 }
 
-function onPointerMove(e: PointerEvent) {
+const onPointerMove = (e: PointerEvent) => {
   const c = containerRef.value
   if (!c || !program || !cfg.enableMouseInteraction) return
   const rect = c.getBoundingClientRect()
@@ -127,7 +127,7 @@ function onPointerMove(e: PointerEvent) {
   program.uniforms.uMouse.value[1] = 1.0 - (e.clientY - rect.top) / rect.height
 }
 
-function resize() {
+const resize = () => {
   const c = containerRef.value
   if (!c || !renderer || !program || !gl) return
   renderer.setSize(c.offsetWidth, c.offsetHeight)
@@ -139,7 +139,7 @@ function resize() {
   if (reduceMotion) renderFrame(0)
 }
 
-function renderFrame(t: number) {
+const renderFrame = (t: number) => {
   if (!renderer || !program || !mesh) return
   program.uniforms.uTime.value = t * 0.001
   program.uniforms.uColor.value = new Color(...hexToRgb(cfg.color))
@@ -152,7 +152,7 @@ function renderFrame(t: number) {
   renderer.render({ scene: mesh })
 }
 
-function loop(t: number) {
+const loop = (t: number) => {
   raf = requestAnimationFrame(loop)
   if (!onScreen || document.hidden) return
   renderFrame(t)

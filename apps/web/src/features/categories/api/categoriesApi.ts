@@ -9,7 +9,7 @@ export interface CategoryMeta extends TypeDefinition {
 }
 
 /** Categories ordered by sort_order, enriched with count + recent titles. */
-export async function fetchCategoriesWithMeta(): Promise<CategoryMeta[]> {
+export const fetchCategoriesWithMeta = async (): Promise<CategoryMeta[]> => {
   if (isMock()) return mockDb.categoriesWithMeta()
   const supabase = requireSupabase()
 
@@ -52,7 +52,7 @@ export async function fetchCategoriesWithMeta(): Promise<CategoryMeta[]> {
 }
 
 /** Persist a new 大類別 (domain) order. */
-export async function reorderDomains(orderedDomains: string[]): Promise<void> {
+export const reorderDomains = async (orderedDomains: string[]): Promise<void> => {
   if (isMock()) return mockDb.reorderDomains(orderedDomains)
   const supabase = requireSupabase()
   const { data, error } = await supabase.from('type_definitions').select('key, domain, sort_order')
@@ -72,7 +72,7 @@ export async function reorderDomains(orderedDomains: string[]): Promise<void> {
 }
 
 /** Persist a new category order (array of keys, front to back). */
-export async function reorderCategories(orderedKeys: string[]): Promise<void> {
+export const reorderCategories = async (orderedKeys: string[]): Promise<void> => {
   if (isMock()) return mockDb.reorderCategories(orderedKeys)
   const supabase = requireSupabase()
   await Promise.all(
@@ -91,7 +91,7 @@ export interface NewCategoryInput {
   attrs_schema?: Json
 }
 
-export async function createCategory(input: NewCategoryInput): Promise<void> {
+export const createCategory = async (input: NewCategoryInput): Promise<void> => {
   if (isMock()) return mockDb.createCategory(input)
   const { error } = await requireSupabase()
     .from('type_definitions')
@@ -109,7 +109,7 @@ export async function createCategory(input: NewCategoryInput): Promise<void> {
 }
 
 /** Set a category's accent color (drives per-category theming). */
-export async function setCategoryColor(key: string, color: string): Promise<void> {
+export const setCategoryColor = async (key: string, color: string): Promise<void> => {
   if (isMock()) return mockDb.setCategoryColor(key, color)
   const { error } = await requireSupabase()
     .from('type_definitions')
@@ -123,7 +123,7 @@ export async function setCategoryColor(key: string, color: string): Promise<void
  * Fail-soft:icon 是裝飾性資料,讀取失敗(如 migration 0008 尚未套用)
  * 一律退回空 map 用預設 icon——絕不弄垮整個分類載入。
  */
-export async function fetchDomainIcons(): Promise<Record<string, string>> {
+export const fetchDomainIcons = async (): Promise<Record<string, string>> => {
   if (isMock()) return mockDb.domainIcons()
   try {
     const { data, error } = await requireSupabase().from('domain_meta').select('domain, icon')
@@ -137,7 +137,7 @@ export async function fetchDomainIcons(): Promise<Record<string, string>> {
   }
 }
 
-export async function setDomainIcon(domain: string, icon: string): Promise<void> {
+export const setDomainIcon = async (domain: string, icon: string): Promise<void> => {
   if (isMock()) return mockDb.setDomainIcon(domain, icon)
   const { error } = await requireSupabase()
     .from('domain_meta')

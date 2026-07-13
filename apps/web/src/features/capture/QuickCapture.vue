@@ -28,7 +28,7 @@ const form = reactive({
 })
 
 
-function reset() {
+const reset = () => {
   form.text = ''
   form.type = null
   form.tags = []
@@ -37,7 +37,7 @@ function reset() {
   error.value = null
 }
 
-async function submit() {
+const submit = async () => {
   const text = form.text.trim()
   if (!text) {
     error.value = '請貼上內容'

@@ -37,7 +37,7 @@ const showContent = computed(
   () => props.entry.content && props.entry.content !== props.entry.title && props.entry.content !== props.entry.source_url,
 )
 
-function submit() {
+const submit = () => {
   emit('file', { title: title.value.trim() || props.entry.title, tags: tags.value })
 }
 </script>

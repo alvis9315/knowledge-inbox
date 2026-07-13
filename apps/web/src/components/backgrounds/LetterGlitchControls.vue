@@ -16,7 +16,7 @@ const colors = [
 ] as const
 
 const copied = ref(false)
-function copyProps() {
+const copyProps = () => {
   const c = props.config
   const text = `<KnowledgeLetterGlitch
   color1="${c.color1}"

@@ -2,7 +2,7 @@ import type { EntryWithTags } from '@/features/entries/types'
 
 export type ExportFormat = 'md' | 'json' | 'excel'
 
-function download(filename: string, content: BlobPart, mime: string) {
+const download = (filename: string, content: BlobPart, mime: string) => {
   const blob = new Blob([content], { type: mime })
   const url = URL.createObjectURL(blob)
   const a = document.createElement('a')
@@ -12,12 +12,12 @@ function download(filename: string, content: BlobPart, mime: string) {
   URL.revokeObjectURL(url)
 }
 
-function attrsObject(e: EntryWithTags): Record<string, unknown> {
+const attrsObject = (e: EntryWithTags): Record<string, unknown> => {
   const a = e.attrs
   return a && typeof a === 'object' && !Array.isArray(a) ? (a as Record<string, unknown>) : {}
 }
 
-function toMarkdown(entries: EntryWithTags[]): string {
+const toMarkdown = (entries: EntryWithTags[]): string => {
   return entries
     .map((e) => {
       const attrs = attrsObject(e)
@@ -40,7 +40,7 @@ function toMarkdown(entries: EntryWithTags[]): string {
     .join('\n\n')
 }
 
-async function toExcel(entries: EntryWithTags[], filename: string) {
+const toExcel = async (entries: EntryWithTags[], filename: string) => {
   // Lazy-load SheetJS only when Excel export is actually used.
   const XLSX = await import('xlsx')
   const rows = entries.map((e) => ({
@@ -61,8 +61,8 @@ async function toExcel(entries: EntryWithTags[], filename: string) {
   XLSX.writeFile(wb, filename)
 }
 
-export function useExport() {
-  async function exportEntries(format: ExportFormat, entries: EntryWithTags[], baseName: string) {
+export const useExport = () => {
+  const exportEntries = async (format: ExportFormat, entries: EntryWithTags[], baseName: string) => {
     const safe = baseName.replace(/[^\w一-龥-]+/g, '_') || 'knowledge-inbox'
     if (format === 'json') {
       download(`${safe}.json`, JSON.stringify(entries, null, 2), 'application/json')

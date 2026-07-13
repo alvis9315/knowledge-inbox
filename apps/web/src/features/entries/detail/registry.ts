@@ -13,6 +13,6 @@ const BY_DOMAIN: Record<string, Component> = {
   學習: LearnDetailBody,
 }
 
-export function detailBodyFor(domain: string | undefined | null): Component {
+export const detailBodyFor = (domain: string | undefined | null): Component => {
   return (domain && BY_DOMAIN[domain]) || DefaultDetailBody
 }

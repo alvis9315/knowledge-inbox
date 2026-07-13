@@ -29,7 +29,7 @@ watch(
 )
 const filtered = computed(() => store.byDomain[filterDomain.value] ?? [])
 
-async function pick(key: string, color: string) {
+const pick = async (key: string, color: string) => {
   saving.value = key
   try {
     await setCategoryColor(key, color)

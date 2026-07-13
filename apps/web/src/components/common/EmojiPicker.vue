@@ -19,7 +19,7 @@ const panel = ref<HTMLElement | null>(null)
 const { open, style } = useAnchoredPanel(root, { panelWidth: 320, panelMaxHeight: 400 })
 onClickOutside(root, () => (open.value = false), { ignore: [panel] })
 
-function pick(e: string) {
+const pick = (e: string) => {
   emit('update:modelValue', e)
   open.value = false
 }
@@ -62,7 +62,7 @@ const GROUPS: Array<{ label: string; items: Item[] }> = [
 // 開面板才 lazy-load(獨立 chunk),主包零負擔;失敗也不影響精選面板。
 const fullLib = shallowRef<Item[]>([])
 let fullLibLoading = false
-async function ensureFullLib() {
+const ensureFullLib = async () => {
   if (fullLib.value.length || fullLibLoading) return
   fullLibLoading = true
   try {
@@ -95,7 +95,7 @@ const flatResults = computed(() => {
   }
   return out
 })
-function onSearchInput(v: string) {
+const onSearchInput = (v: string) => {
   // 貼上 emoji = 直接選用;打文字 = 關鍵字過濾
   if (EMOJI_RE.test(v)) {
     emit('update:modelValue', v.trim())

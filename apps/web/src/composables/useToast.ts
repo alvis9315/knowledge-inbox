@@ -16,13 +16,13 @@ export interface ToastItem {
 const items = ref<ToastItem[]>([])
 let seq = 0
 
-function push(type: ToastType, message: string, duration = 3200) {
+const push = (type: ToastType, message: string, duration = 3200) => {
   const id = ++seq
   items.value.push({ id, type, message })
   setTimeout(() => dismiss(id), duration)
 }
 
-export function dismiss(id: number) {
+export const dismiss = (id: number) => {
   items.value = items.value.filter((t) => t.id !== id)
 }
 
@@ -32,6 +32,6 @@ export const toast = {
   info: (msg: string) => push('info', msg),
 }
 
-export function useToastItems() {
+export const useToastItems = () => {
   return items
 }

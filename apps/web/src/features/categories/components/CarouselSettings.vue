@@ -12,7 +12,7 @@ const store = useCategoriesStore()
 const hidden = useLocalStorage<string[]>('ki-carousel-hidden-domains', [])
 const isVisible = (d: string) => !hidden.value.includes(d)
 
-function setVisible(d: string, visible: boolean) {
+const setVisible = (d: string, visible: boolean) => {
   const set = new Set(hidden.value)
   visible ? set.delete(d) : set.add(d)
   hidden.value = [...set]

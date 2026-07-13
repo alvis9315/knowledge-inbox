@@ -61,10 +61,10 @@ let cfgSnapshot: Record<string, unknown> | null = null
 watch(() => props.showControls, (o) => {
   if (o) cfgSnapshot = JSON.parse(JSON.stringify(cfg))
 })
-function ctlDone() {
+const ctlDone = () => {
   emitCtl('controlsDone', JSON.parse(JSON.stringify(cfg)))
 }
-function ctlCancel() {
+const ctlCancel = () => {
   if (cfgSnapshot) Object.assign(cfg, cfgSnapshot)
   emitCtl('controlsCancel')
 }
@@ -143,7 +143,7 @@ let ro: ResizeObserver | null = null
 let io: IntersectionObserver | null = null
 let onScreen = true
 
-function setSize() {
+const setSize = () => {
   const c = containerRef.value
   const cv = canvasRef.value
   if (!c || !cv) return
@@ -152,7 +152,7 @@ function setSize() {
   cv.height = bounding.height
 }
 
-function setLines() {
+const setLines = () => {
   const { width, height } = bounding
   lines = []
   const oWidth = width + 200
@@ -177,7 +177,7 @@ function setLines() {
 // 網格密度改變需要重建點陣。
 watch(() => [cfg.xGap, cfg.yGap], () => { setLines() })
 
-function movePoints(time: number) {
+const movePoints = (time: number) => {
   const sx = cfg.speed
   for (const pts of lines) {
     for (const p of pts) {
@@ -213,13 +213,13 @@ function movePoints(time: number) {
   }
 }
 
-function moved(p: Point, withCursor = true) {
+const moved = (p: Point, withCursor = true) => {
   const x = p.x + p.wave.x + (withCursor ? p.cursor.x : 0)
   const y = p.y + p.wave.y + (withCursor ? p.cursor.y : 0)
   return { x: Math.round(x * 10) / 10, y: Math.round(y * 10) / 10 }
 }
 
-function drawLines() {
+const drawLines = () => {
   if (!ctx) return
   ctx.clearRect(0, 0, bounding.width, bounding.height)
   ctx.beginPath()
@@ -238,7 +238,7 @@ function drawLines() {
   ctx.stroke()
 }
 
-function tick(t: number) {
+const tick = (t: number) => {
   raf = requestAnimationFrame(tick)
   if (!onScreen || document.hidden) return
   mouse.sx += (mouse.x - mouse.sx) * 0.1
@@ -256,7 +256,7 @@ function tick(t: number) {
   drawLines()
 }
 
-function updateMouse(x: number, y: number) {
+const updateMouse = (x: number, y: number) => {
   mouse.x = x - bounding.left
   mouse.y = y - bounding.top
   if (!mouse.set) {
@@ -267,9 +267,9 @@ function updateMouse(x: number, y: number) {
     mouse.set = true
   }
 }
-function onMouseMove(e: MouseEvent) { updateMouse(e.clientX, e.clientY) }
+const onMouseMove = (e: MouseEvent) => { updateMouse(e.clientX, e.clientY) }
 
-function onResize() {
+const onResize = () => {
   setSize()
   setLines()
   if (reduceMotion) { movePoints(0); drawLines() }

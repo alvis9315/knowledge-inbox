@@ -27,7 +27,7 @@ const attrPairs = computed(() => {
     .map(([k, v]) => [k, String(v)] as const)
 })
 
-function open() {
+const open = () => {
   router.push({ name: 'entry-detail', params: { id: props.entry.id } })
 }
 </script>

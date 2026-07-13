@@ -32,11 +32,11 @@ export const GALAXY_BG_STARS: Record<GalaxyBg, { density: number; starTint: stri
 
 const strip = (v: string | null) => (v ?? '').replace(/"/g, '')
 
-export function currentLoginBg(): LoginBg {
+export const currentLoginBg = (): LoginBg => {
   const v = strip(localStorage.getItem(LOGIN_BG_KEY))
   return v === 'threads' || v === 'image' ? v : 'galaxy'
 }
-export function currentGalaxyBg(): GalaxyBg {
+export const currentGalaxyBg = (): GalaxyBg => {
   const v = strip(localStorage.getItem(GALAXY_BG_KEY))
   return v === 'blue' || v === 'nebula' ? v : 'black'
 }

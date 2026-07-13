@@ -43,7 +43,7 @@ const sizeLabel = computed(() =>
   file.value ? `${(file.value.size / 1024 / 1024).toFixed(1)} MB` : '',
 )
 
-function revoke() {
+const revoke = () => {
   if (previewUrl.value) URL.revokeObjectURL(previewUrl.value)
   previewUrl.value = null
 }
@@ -60,7 +60,7 @@ watch(
   },
 )
 
-function pick(f: File | undefined | null) {
+const pick = (f: File | undefined | null) => {
   error.value = null
   if (!f) return
   const okType = props.accept.some((a) => (a.endsWith('/') ? f.type.startsWith(a) : f.type === a))
@@ -78,17 +78,17 @@ function pick(f: File | undefined | null) {
   previewUrl.value = URL.createObjectURL(f)
 }
 
-function onDrop(e: DragEvent) {
+const onDrop = (e: DragEvent) => {
   dragOver.value = false
   pick(e.dataTransfer?.files?.[0])
 }
-function clearFile() {
+const clearFile = () => {
   file.value = null
   error.value = null
   revoke()
   if (inputEl.value) inputEl.value.value = ''
 }
-function confirm() {
+const confirm = () => {
   if (file.value) emit('confirm', file.value)
 }
 </script>

@@ -18,7 +18,7 @@ export const useAuthStore = defineStore('auth', () => {
   const supabaseReady = computed(() => isSupabaseConfigured)
 
   /** Restore a session on app start (called by the router guard). */
-  async function init() {
+  const init = async () => {
     if (ready.value) return
     const saved = localStorage.getItem(STORE_KEY) as AuthMode | null
     if (saved === 'guest') {
@@ -37,14 +37,14 @@ export const useAuthStore = defineStore('auth', () => {
     ready.value = true
   }
 
-  function loginGuest() {
+  const loginGuest = () => {
     mode.value = 'guest'
     email.value = null
     setDataMode('guest')
     localStorage.setItem(STORE_KEY, 'guest')
   }
 
-  async function loginWithPassword(mail: string, password: string) {
+  const loginWithPassword = async (mail: string, password: string) => {
     if (!supabase) throw new Error('尚未設定 Supabase,請先設定或改用訪客登入。')
     const { data, error } = await supabase.auth.signInWithPassword({ email: mail, password })
     if (error) throw new Error(error.message)
@@ -54,7 +54,7 @@ export const useAuthStore = defineStore('auth', () => {
     localStorage.setItem(STORE_KEY, 'supabase')
   }
 
-  async function loginWithGoogle() {
+  const loginWithGoogle = async () => {
     if (!supabase) throw new Error('尚未設定 Supabase,請先設定或改用訪客登入。')
     // Remember intent so init() picks up the session after the OAuth redirect.
     localStorage.setItem(STORE_KEY, 'supabase')
@@ -66,7 +66,7 @@ export const useAuthStore = defineStore('auth', () => {
     // Browser redirects to Google; on return, init() restores the session.
   }
 
-  async function logout() {
+  const logout = async () => {
     // 先清本地狀態(登出立即生效,路由守衛不會再擋),再通知 Supabase
     // 撤銷 session——順序反過來會有競速:導頁瞬間「看起來還登入著」。
     const wasSupabase = mode.value === 'supabase'

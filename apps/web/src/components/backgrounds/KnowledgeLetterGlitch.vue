@@ -53,10 +53,10 @@ let cfgSnapshot: Record<string, unknown> | null = null
 watch(() => props.showControls, (o) => {
   if (o) cfgSnapshot = JSON.parse(JSON.stringify(cfg))
 })
-function ctlDone() {
+const ctlDone = () => {
   emitCtl('controlsDone', JSON.parse(JSON.stringify(cfg)))
 }
-function ctlCancel() {
+const ctlCancel = () => {
   if (cfgSnapshot) Object.assign(cfg, cfgSnapshot)
   emitCtl('controlsCancel')
 }
@@ -95,18 +95,18 @@ const randColor = () => {
 
 // 支援 hex 與 rgb() 兩種格式(漸變中的字色是 rgb 字串;原版只解 hex,
 // 導致漸變做到一半卡住——這裡補上讓 smooth 真正走完)。
-function parseColor(c: string): { r: number; g: number; b: number } | null {
+const parseColor = (c: string): { r: number; g: number; b: number } | null => {
   const rgbM = /^rgb\((\d+),\s*(\d+),\s*(\d+)\)$/.exec(c)
   if (rgbM) return { r: +rgbM[1], g: +rgbM[2], b: +rgbM[3] }
   const hex = c.replace(/^#?([a-f\d])([a-f\d])([a-f\d])$/i, (_, r, g, b) => r + r + g + g + b + b)
   const m = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
   return m ? { r: parseInt(m[1], 16), g: parseInt(m[2], 16), b: parseInt(m[3], 16) } : null
 }
-function lerpColor(a: { r: number; g: number; b: number }, b: { r: number; g: number; b: number }, f: number) {
+const lerpColor = (a: { r: number; g: number; b: number }, b: { r: number; g: number; b: number }, f: number) => {
   return `rgb(${Math.round(a.r + (b.r - a.r) * f)}, ${Math.round(a.g + (b.g - a.g) * f)}, ${Math.round(a.b + (b.b - a.b) * f)})`
 }
 
-function initLetters(columns: number, rows: number) {
+const initLetters = (columns: number, rows: number) => {
   grid = { columns, rows }
   letters = Array.from({ length: columns * rows }, () => ({
     char: randChar(),
@@ -116,7 +116,7 @@ function initLetters(columns: number, rows: number) {
   }))
 }
 
-function resizeCanvas() {
+const resizeCanvas = () => {
   const c = containerRef.value
   const cv = canvasRef.value
   if (!c || !cv) return
@@ -131,7 +131,7 @@ function resizeCanvas() {
   drawLetters()
 }
 
-function drawLetters() {
+const drawLetters = () => {
   const cv = canvasRef.value
   if (!ctx || !cv || letters.length === 0) return
   const { width, height } = cv.getBoundingClientRect()
@@ -144,7 +144,7 @@ function drawLetters() {
   })
 }
 
-function updateLetters() {
+const updateLetters = () => {
   if (letters.length === 0) return
   const updateCount = Math.max(1, Math.floor(letters.length * 0.05))
   for (let i = 0; i < updateCount; i++) {
@@ -162,7 +162,7 @@ function updateLetters() {
   }
 }
 
-function smoothTransitions() {
+const smoothTransitions = () => {
   let needsRedraw = false
   for (const l of letters) {
     if (l.colorProgress < 1) {
@@ -178,7 +178,7 @@ function smoothTransitions() {
   if (needsRedraw) drawLetters()
 }
 
-function animate() {
+const animate = () => {
   raf = requestAnimationFrame(animate)
   if (!onScreen || document.hidden) return
   const now = Date.now()

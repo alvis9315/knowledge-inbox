@@ -36,7 +36,7 @@ const backTo = computed(() =>
 )
 const backLabel = computed(() => (category.value ? `回「${category.value.name}」` : '回總覽'))
 
-async function load() {
+const load = async () => {
   loading.value = true
   error.value = null
   try {
@@ -54,7 +54,7 @@ async function load() {
 onMounted(load)
 watch(() => props.id, load)
 
-async function doExport(format: ExportFormat) {
+const doExport = async (format: ExportFormat) => {
   if (!entry.value) return
   await exportEntries(format, [entry.value], entry.value.title)
   exportOpen.value = false

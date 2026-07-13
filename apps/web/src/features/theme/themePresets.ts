@@ -185,7 +185,7 @@ export const THEME_PRESETS: NamedPreset[] = [
   },
 ]
 
-export function presetByKey(key: string): NamedPreset {
+export const presetByKey = (key: string): NamedPreset => {
   return THEME_PRESETS.find((p) => p.key === key) ?? THEME_PRESETS[0]
 }
 

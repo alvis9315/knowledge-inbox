@@ -17,7 +17,7 @@ const sliders = [
 ] as const
 
 const copied = ref(false)
-function copyProps() {
+const copyProps = () => {
   const c = props.config
   const text = `<KnowledgeDarkVeil
   :hue-shift="${c.hueShift}"

@@ -46,7 +46,7 @@ watch(rows, () => {
 })
 const filingId = ref<string | null>(null)
 
-async function fileReviewed(entry: EntryWithTags, payload: { title: string; tags: string[] }) {
+const fileReviewed = async (entry: EntryWithTags, payload: { title: string; tags: string[] }) => {
   const type = reviewChoice[entry.id]
   if (!type) return
   filingId.value = entry.id
@@ -78,12 +78,12 @@ async function fileReviewed(entry: EntryWithTags, payload: { title: string; tags
 const newCatOpen = ref(false)
 const newCatFor = ref<string | null>(null)
 const newCatPreset = ref<{ domain: string | null; newDomain: boolean }>({ domain: null, newDomain: false })
-function openNewCategory(entryId: string, preset: { domain: string | null; newDomain: boolean }) {
+const openNewCategory = (entryId: string, preset: { domain: string | null; newDomain: boolean }) => {
   newCatFor.value = entryId
   newCatPreset.value = preset
   newCatOpen.value = true
 }
-function onCategoryCreated(key: string) {
+const onCategoryCreated = (key: string) => {
   if (newCatFor.value) reviewChoice[newCatFor.value] = key
 }
 
@@ -118,7 +118,7 @@ const backLink = computed(() => {
 watch(() => store.ready, (r) => r && load(), { immediate: true })
 
 /** vue-draggable-plus writes the reordered array back into `rows`; persist ids. */
-function onReorder() {
+const onReorder = () => {
   persistOrder(rows.value.map((e) => e.id))
 }
 
@@ -127,12 +127,12 @@ const editing = ref<EntryWithTags | null>(null)
 const editOpen = ref(false)
 const saveError = ref<string | null>(null)
 
-function openEdit(entry: EntryWithTags) {
+const openEdit = (entry: EntryWithTags) => {
   editing.value = entry
   saveError.value = null
   editOpen.value = true
 }
-async function handleSave(input: EntryInput, id?: string) {
+const handleSave = async (input: EntryInput, id?: string) => {
   saveError.value = null
   try {
     if (id) await updateEntry(id, input)
@@ -154,7 +154,7 @@ interface ConfirmSpec {
 const confirm = ref<ConfirmSpec | null>(null)
 const confirmBusy = ref(false)
 
-function askRemove(entry: EntryWithTags) {
+const askRemove = (entry: EntryWithTags) => {
   confirm.value = {
     title: '刪除項目',
     message: `確定刪除「${entry.title}」?此動作無法復原。`,
@@ -167,7 +167,7 @@ function askRemove(entry: EntryWithTags) {
     },
   }
 }
-async function handleToggleClosed(entry: EntryWithTags) {
+const handleToggleClosed = async (entry: EntryWithTags) => {
   if (entry.closed) {
     // Reopen — no confirmation needed.
     try {
@@ -192,7 +192,7 @@ async function handleToggleClosed(entry: EntryWithTags) {
     },
   }
 }
-async function runConfirm() {
+const runConfirm = async () => {
   if (!confirm.value) return
   confirmBusy.value = true
   try {
@@ -208,7 +208,7 @@ async function runConfirm() {
 // ── export ──
 const exportOpen = ref(false)
 const exporting = ref(false)
-async function doExport(format: ExportFormat) {
+const doExport = async (format: ExportFormat) => {
   exporting.value = true
   try {
     // Export the whole (filtered) category, not just the current page.

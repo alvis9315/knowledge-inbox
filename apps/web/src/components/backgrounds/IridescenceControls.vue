@@ -15,7 +15,7 @@ const sliders = [
 ] as const
 
 const copied = ref(false)
-function copyProps() {
+const copyProps = () => {
   const c = props.config
   const text = `<KnowledgeIridescence
   color="${c.color}"

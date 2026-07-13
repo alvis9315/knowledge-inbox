@@ -54,10 +54,10 @@ let cfgSnapshot: Record<string, unknown> | null = null
 watch(() => props.showControls, (o) => {
   if (o) cfgSnapshot = JSON.parse(JSON.stringify(cfg))
 })
-function ctlDone() {
+const ctlDone = () => {
   emitCtl('controlsDone', JSON.parse(JSON.stringify(cfg)))
 }
-function ctlCancel() {
+const ctlCancel = () => {
   if (cfgSnapshot) Object.assign(cfg, cfgSnapshot)
   emitCtl('controlsCancel')
 }
@@ -148,7 +148,7 @@ void main(){
 }
 `
 
-function resize() {
+const resize = () => {
   const c = containerRef.value
   if (!c || !renderer || !program) return
   const w = c.clientWidth
@@ -158,7 +158,7 @@ function resize() {
   if (reduceMotion) renderFrame()
 }
 
-function renderFrame() {
+const renderFrame = () => {
   if (!renderer || !program || !mesh) return
   program.uniforms.uTime.value = ((performance.now() - start) / 1000) * cfg.speed
   program.uniforms.uHueShift.value = cfg.hueShift
@@ -169,7 +169,7 @@ function renderFrame() {
   renderer.render({ scene: mesh })
 }
 
-function loop() {
+const loop = () => {
   raf = requestAnimationFrame(loop)
   if (!onScreen || document.hidden) return
   renderFrame()

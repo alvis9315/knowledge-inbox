@@ -16,7 +16,7 @@ const router = useRouter()
 const store = useCategoriesStore()
 const isFood = computed(() => (props.entry.type ? store.typeByKey[props.entry.type]?.domain : null) === '美食')
 
-function open() {
+const open = () => {
   router.push({ name: 'entry-detail', params: { id: props.entry.id } })
 }
 </script>

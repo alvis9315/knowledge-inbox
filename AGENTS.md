@@ -80,6 +80,13 @@ pnpm --filter web typecheck     # vue-tsc 型別檢查
 - TypeScript strict;Vue 3 `<script setup lang="ts">`
 - 路徑別名 `@/` → `apps/web/src/`
 - DB 型別從 `@inbox/shared-types` import,不各自重寫
+- **函式一律 `const` + arrow function**(含 event handler、async、工具函式),
+  不用 `function` 宣告。核心理由:(1) 與 Composition API 的 `const` 宣告
+  風格一致,整檔單一宣告模式;(2) 無 hoisting,依賴關係必然由上而下,
+  閱讀順序 = 執行順序。ESLint `func-style` + `prefer-arrow-callback` 強制;
+  例外僅限第三方型別明確要求 function 宣告,需附 eslint-disable + 原因。
+  ⚠️ 轉換既有 code 時注意 TDZ:`watch(..., { immediate: true })` 等
+  註冊當下同步執行的 callback,引用的函式必須宣告在其上方
 
 ## Git commit 規則
 

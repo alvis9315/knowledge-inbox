@@ -48,7 +48,7 @@ const DOMAIN_RULES: DomainRule[] = [
 // Google Maps:地點名就在 URL path 裡,decode 出來丟進關鍵字評分。
 const MAPS_HOST = /(maps\.app\.goo\.gl|goo\.gl\/maps|google\.[a-z.]+\/maps)/
 
-function extractMapsPlace(url: string): string | null {
+const extractMapsPlace = (url: string): string | null => {
   try {
     const m = /\/maps\/place\/([^/@?]+)/.exec(url)
     if (m) return decodeURIComponent(m[1]).replace(/\+/g, ' ')
@@ -83,14 +83,14 @@ const KEYWORDS: Record<string, string[]> = {
 const LEARNED_KEY = 'ki-learned-kw-v1'
 export type LearnedMap = Record<string, Record<string, number>>
 
-function loadLearned(): LearnedMap {
+const loadLearned = (): LearnedMap => {
   try {
     return JSON.parse(localStorage.getItem(LEARNED_KEY) ?? '{}') as LearnedMap
   } catch {
     return {}
   }
 }
-function saveLearned(m: LearnedMap) {
+const saveLearned = (m: LearnedMap) => {
   localStorage.setItem(LEARNED_KEY, JSON.stringify(m))
 }
 
@@ -101,7 +101,7 @@ const GENERIC_HOSTS =
   /(^|\.)(goo\.gl|google\.[a-z.]+|youtube\.com|youtu\.be|instagram\.com|facebook\.com|fb\.com|threads\.(net|com)|x\.com|twitter\.com|t\.co|bit\.ly|reurl\.cc|tinyurl\.com|lin\.ee|line\.me|maps\.app\.goo\.gl)$/
 
 /** 從文字抽候選詞:hostname(通用網域除外)、拉丁詞、中日韓 2~4 字段。 */
-function extractTerms(text: string): string[] {
+const extractTerms = (text: string): string[] => {
   const terms = new Set<string>()
   const cleaned = text.toLowerCase().replace(/https?:\/\/\S+/g, (m) => {
     try {
@@ -124,7 +124,7 @@ function extractTerms(text: string): string[] {
  * 回饋自學:人工修正(或確認)分類時呼叫,把該文字的詞加權進正確分類。
  * 積木原則第 5 條(AI 建議、人核准)的無 AI 版。
  */
-export function learnFromCorrection(text: string, typeKey: string) {
+export const learnFromCorrection = (text: string, typeKey: string) => {
   const learned = loadLearned()
   const bucket = (learned[typeKey] ??= {})
   for (const term of extractTerms(text)) {
@@ -138,11 +138,11 @@ export function learnFromCorrection(text: string, typeKey: string) {
 
 // ── 自學字典管理(齒輪選單「自學字典」畫面用)──────────────────────────
 /** 讀出完整自學字典(分類 key → 詞 → 權重)。 */
-export function getLearnedDict(): LearnedMap {
+export const getLearnedDict = (): LearnedMap => {
   return loadLearned()
 }
 /** 刪除某分類下學過的一個詞(學錯可修)。 */
-export function removeLearnedTerm(typeKey: string, term: string) {
+export const removeLearnedTerm = (typeKey: string, term: string) => {
   const m = loadLearned()
   if (m[typeKey]) {
     delete m[typeKey][term]
@@ -151,18 +151,18 @@ export function removeLearnedTerm(typeKey: string, term: string) {
   }
 }
 /** 清空某分類的所有自學詞。 */
-export function removeLearnedType(typeKey: string) {
+export const removeLearnedType = (typeKey: string) => {
   const m = loadLearned()
   delete m[typeKey]
   saveLearned(m)
 }
 /** 清空整本自學字典。 */
-export function clearLearned() {
+export const clearLearned = () => {
   localStorage.removeItem(LEARNED_KEY)
 }
 
 // ── 3. 分類主函式 ──────────────────────────────────────────────────────
-export function ruleClassify(text: string, categories: CategoryLike[]): RuleClassification {
+export const ruleClassify = (text: string, categories: CategoryLike[]): RuleClassification => {
   const raw = text.trim()
   let t = raw.toLowerCase()
   let domainScope: string | null = null

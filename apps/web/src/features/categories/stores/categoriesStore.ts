@@ -24,7 +24,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   /** Bumped whenever entries change, so open views can reload. */
   const revision = ref(0)
 
-  async function touch() {
+  const touch = async () => {
     revision.value++
     await reload()
     // 使用者視角:操作後畫面必須是乾淨的成功狀態——reload 失敗也算
@@ -49,7 +49,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   /** Plain TypeDefinition list, for schema-driven forms. */
   const typeDefinitions = computed<TypeDefinition[]>(() => categories.value)
 
-  async function reload() {
+  const reload = async () => {
     loading.value = true
     error.value = null
     try {
@@ -68,7 +68,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
   }
 
-  async function init() {
+  const init = async () => {
     if (ready.value) return
     loading.value = true
     error.value = null
@@ -91,7 +91,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   }
 
   /** Optimistic reorder: reflect immediately, persist async, roll back on error. */
-  async function reorder(orderedKeys: string[]) {
+  const reorder = async (orderedKeys: string[]) => {
     const prev = categories.value
     const byKey = new Map(categories.value.map((c) => [c.key, c]))
     categories.value = orderedKeys.map((k) => byKey.get(k)).filter(Boolean) as CategoryMeta[]
@@ -103,7 +103,7 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
   }
 
-  async function addCategory(input: NewCategoryInput) {
+  const addCategory = async (input: NewCategoryInput) => {
     await createCategory(input)
     await reload()
     // 使用者視角:按「建立」後畫面必須是乾淨的成功狀態——reload 失敗
@@ -112,7 +112,7 @@ export const useCategoriesStore = defineStore('categories', () => {
   }
 
   /** Reorder the 大類別 (domains); reflect immediately, persist, reload. */
-  async function reorderDomains(orderedDomains: string[]) {
+  const reorderDomains = async (orderedDomains: string[]) => {
     const prev = categories.value
     const rank = new Map(orderedDomains.map((d, i) => [d, i]))
     categories.value = [...categories.value].sort((a, b) => {

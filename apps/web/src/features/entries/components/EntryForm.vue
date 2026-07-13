@@ -31,11 +31,11 @@ const form = reactive({
 const attrs = reactive<Record<string, string>>({})
 
 // 營業時間 special-case: a start/end datetime range stored as "起 ~ 迄".
-function splitRange(v: string): [string, string] {
+const splitRange = (v: string): [string, string] => {
   const p = (v || '').split(' ~ ')
   return [p[0] ?? '', p[1] ?? '']
 }
-function joinRange(s: string, e: string): string {
+const joinRange = (s: string, e: string): string => {
   return s || e ? `${s} ~ ${e}` : ''
 }
 const hoursStart = computed({
@@ -72,7 +72,7 @@ watch(
   { immediate: true },
 )
 
-async function submit() {
+const submit = async () => {
   formError.value = null
   if (!form.title.trim()) {
     formError.value = '請填寫標題'

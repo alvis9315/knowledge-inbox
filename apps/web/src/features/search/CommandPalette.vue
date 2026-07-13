@@ -63,15 +63,15 @@ watch(term, (v) => {
   }, 220)
 })
 
-function openEntry(id: string) {
+const openEntry = (id: string) => {
   router.push({ name: 'entry-detail', params: { id } })
   emit('close')
 }
-function openCategory(key: string) {
+const openCategory = (key: string) => {
   router.push({ name: 'category', params: { type: key } })
   emit('close')
 }
-function openDomain(domain: string) {
+const openDomain = (domain: string) => {
   router.push({ name: 'domain', params: { domain } })
   emit('close')
 }

@@ -15,7 +15,7 @@ const RULES: Array<[RegExp, string]> = [
   [/timeout|timed out/i, '連線逾時,請稍後再試'],
 ]
 
-export function humanError(e: unknown, fallback = '操作失敗,請稍後再試'): string {
+export const humanError = (e: unknown, fallback = '操作失敗,請稍後再試'): string => {
   const raw = e instanceof Error ? e.message : String(e)
   console.error('[error]', e)
   // 已經是中文的訊息 = 我們自己拋的人話,直接放行(不被泛化 fallback 蓋掉)。

@@ -30,7 +30,7 @@ const parallaxEl = ref<HTMLElement | null>(null)
 // 使用者自訂封面(IndexedDB;圖/GIF/影片)。version 變動時重新載入。
 const customUrl = ref<string | null>(null)
 const customIsVideo = ref(false)
-async function loadCustom() {
+const loadCustom = async () => {
   const blob = await loadFile(LOGIN_COVER_KEY)
   if (customUrl.value) URL.revokeObjectURL(customUrl.value)
   if (blob) {
@@ -45,7 +45,7 @@ watch(() => props.version, loadCustom)
 
 // Subtle mouse parallax (≤ 8px) — desktop only, off for reduced-motion.
 let raf = 0
-function onMove(e: MouseEvent) {
+const onMove = (e: MouseEvent) => {
   const el = parallaxEl.value
   if (!el) return
   const x = (e.clientX / window.innerWidth - 0.5) * 2 // -1..1
@@ -55,7 +55,7 @@ function onMove(e: MouseEvent) {
     el.style.transform = `translate(${x * -8}px, ${y * -8}px)`
   })
 }
-function motionOn() {
+const motionOn = () => {
   return props.parallax && !reduceMotion.value && !isMobile.value
 }
 onMounted(() => {

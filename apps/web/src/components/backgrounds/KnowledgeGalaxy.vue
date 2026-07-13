@@ -101,7 +101,7 @@ watch(
 )
 
 /** '#rrggbb' (or '#rgb') → [0..1, 0..1, 0..1] for the uStarTint uniform. */
-function hexToRgb01(hex: string): [number, number, number] {
+const hexToRgb01 = (hex: string): [number, number, number] => {
   const m = hex.replace('#', '')
   const full = m.length === 3 ? m.split('').map((c) => c + c).join('') : m
   const n = parseInt(full, 16)
@@ -115,10 +115,10 @@ let cfgSnapshot: Record<string, unknown> | null = null
 watch(() => props.showControls, (o) => {
   if (o) cfgSnapshot = JSON.parse(JSON.stringify(cfg))
 })
-function ctlDone() {
+const ctlDone = () => {
   emitCtl('controlsDone', JSON.parse(JSON.stringify(cfg)))
 }
-function ctlCancel() {
+const ctlCancel = () => {
   if (cfgSnapshot) Object.assign(cfg, cfgSnapshot)
   emitCtl('controlsCancel')
 }
@@ -271,7 +271,7 @@ void main() {
 }
 `
 
-function effectiveDpr() {
+const effectiveDpr = () => {
   const c = containerRef.value
   let dpr = Math.min(window.devicePixelRatio || 1, props.maxDpr)
   if (c) {
@@ -281,7 +281,7 @@ function effectiveDpr() {
   return dpr
 }
 
-function resize() {
+const resize = () => {
   const c = containerRef.value
   if (!c || !renderer || !program) return
   renderer.dpr = effectiveDpr()
@@ -290,7 +290,7 @@ function resize() {
   if (noLoop()) renderOnce()
 }
 
-function syncUniforms() {
+const syncUniforms = () => {
   if (!program) return
   const u = program.uniforms
   u.uDensity.value = cfg.density * densityScale
@@ -306,11 +306,11 @@ function syncUniforms() {
   u.uMouseRepulsion.value = cfg.mouseRepulsion && !coarsePointer ? 1 : 0
 }
 
-function renderOnce() {
+const renderOnce = () => {
   if (renderer && mesh) renderer.render({ scene: mesh })
 }
 
-function loop(now: number) {
+const loop = (now: number) => {
   if (!start) start = now
   const elapsed = (now - start) / 1000
   if (program) {
@@ -329,16 +329,16 @@ function loop(now: number) {
   raf = requestAnimationFrame(loop)
 }
 
-function startLoop() {
+const startLoop = () => {
   if (raf || noLoop() || !visible || !onScreen) return
   raf = requestAnimationFrame(loop)
 }
-function stopLoop() {
+const stopLoop = () => {
   cancelAnimationFrame(raf)
   raf = 0
 }
 
-function onPointerMove(e: PointerEvent) {
+const onPointerMove = (e: PointerEvent) => {
   const c = containerRef.value
   if (!c) return
   const r = c.getBoundingClientRect()
@@ -347,11 +347,11 @@ function onPointerMove(e: PointerEvent) {
   // repulsion 也算互動——只看 mouseInteraction 會把斥力乘成 0。
   targetActive = cfg.mouseInteraction || cfg.mouseRepulsion ? 1 : 0
 }
-function onPointerLeave() {
+const onPointerLeave = () => {
   targetActive = 0
 }
 /** 滑鼠監聽依設定動態掛/卸(可在執行期切換,如登入頁 START 前禁互動)。 */
-function syncMouseListeners() {
+const syncMouseListeners = () => {
   const c = containerRef.value
   if (!c) return
   window.removeEventListener('pointermove', onPointerMove)
@@ -364,7 +364,7 @@ function syncMouseListeners() {
   }
 }
 watch(() => [cfg.mouseInteraction, cfg.mouseRepulsion] as const, syncMouseListeners)
-function onVisibility() {
+const onVisibility = () => {
   visible = document.visibilityState === 'visible'
   visible ? startLoop() : stopLoop()
 }

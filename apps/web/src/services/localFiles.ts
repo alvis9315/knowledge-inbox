@@ -6,7 +6,7 @@
 const DB_NAME = 'ki-files'
 const STORE = 'files'
 
-function openDb(): Promise<IDBDatabase> {
+const openDb = (): Promise<IDBDatabase> => {
   return new Promise((resolve, reject) => {
     const req = indexedDB.open(DB_NAME, 1)
     req.onupgradeneeded = () => req.result.createObjectStore(STORE)
@@ -15,12 +15,12 @@ function openDb(): Promise<IDBDatabase> {
   })
 }
 
-async function tx(mode: IDBTransactionMode) {
+const tx = async (mode: IDBTransactionMode) => {
   const db = await openDb()
   return db.transaction(STORE, mode).objectStore(STORE)
 }
 
-export async function saveFile(key: string, file: Blob): Promise<void> {
+export const saveFile = async (key: string, file: Blob): Promise<void> => {
   const store = await tx('readwrite')
   await new Promise<void>((resolve, reject) => {
     const req = store.put(file, key)
@@ -29,7 +29,7 @@ export async function saveFile(key: string, file: Blob): Promise<void> {
   })
 }
 
-export async function loadFile(key: string): Promise<Blob | null> {
+export const loadFile = async (key: string): Promise<Blob | null> => {
   try {
     const store = await tx('readonly')
     return await new Promise((resolve, reject) => {
@@ -42,7 +42,7 @@ export async function loadFile(key: string): Promise<Blob | null> {
   }
 }
 
-export async function removeFile(key: string): Promise<void> {
+export const removeFile = async (key: string): Promise<void> => {
   const store = await tx('readwrite')
   await new Promise<void>((resolve, reject) => {
     const req = store.delete(key)

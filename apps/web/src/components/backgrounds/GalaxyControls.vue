@@ -38,7 +38,7 @@ const toggles: Array<{ key: keyof GalaxyConfig; label: string }> = [
 const TINT_PRESETS = ['#ffffff', '#bfd7ff', '#9fc5ff', '#ffd9a0', '#f4c430', '#ff9d9d', '#c9a0ff', '#9dffd0']
 
 const copied = ref(false)
-function copyProps() {
+const copyProps = () => {
   const c = props.config
   const text = `<KnowledgeGalaxy
   :density="${c.density}"

@@ -36,7 +36,7 @@ const canCreate = computed(() => {
   return !!t && !props.modelValue.includes(t) && !props.suggestions.includes(t)
 })
 
-function add(tag: string) {
+const add = (tag: string) => {
   const t = tag.trim()
   if (!t || props.modelValue.includes(t)) {
     text.value = ''
@@ -46,12 +46,12 @@ function add(tag: string) {
   text.value = ''
   inputEl.value?.focus()
 }
-function removeAt(i: number) {
+const removeAt = (i: number) => {
   const next = [...props.modelValue]
   next.splice(i, 1)
   emit('update:modelValue', next)
 }
-function onKeydown(e: KeyboardEvent) {
+const onKeydown = (e: KeyboardEvent) => {
   // IME(注音/拼音)組字中,按鍵屬於輸入法:Backspace 是刪注音符號、
   // Enter 是選字確認,元件不得攔截(組字期間 v-model 也尚未更新)。
   if (e.isComposing || e.keyCode === 229) return

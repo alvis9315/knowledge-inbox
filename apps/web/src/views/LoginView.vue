@@ -41,11 +41,11 @@ const showThreadsControls = ref(false)
 const uploadOpen = ref(false)
 const coverVersion = ref(0)
 const hasCover = ref(false)
-async function refreshHasCover() {
+const refreshHasCover = async () => {
   hasCover.value = !!(await loadFile(LOGIN_COVER_KEY))
 }
 refreshHasCover()
-async function onCoverConfirm(file: File) {
+const onCoverConfirm = async (file: File) => {
   try {
     await saveFile(LOGIN_COVER_KEY, file)
     coverVersion.value++
@@ -57,7 +57,7 @@ async function onCoverConfirm(file: File) {
     toast.error('封面儲存失敗,檔案可能太大')
   }
 }
-async function onCoverRemove() {
+const onCoverRemove = async () => {
   await removeFile(LOGIN_COVER_KEY)
   coverVersion.value++
   uploadOpen.value = false
@@ -88,7 +88,7 @@ const scrambleStr = (n: number) => Array.from({ length: n }, glyph).join('')
  * A 亂碼一路往右長滿 → B 從頭逐字抹除(尾端持續跳動)到清空
  * → 0.3s 黑場 → C 反向(右→左)拼裝成完整標題 → START。
  */
-function runDecode() {
+const runDecode = () => {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     stage.value = 'form'
     return
@@ -112,7 +112,7 @@ function runDecode() {
   }, 40)
 }
 /** B:抹除從頭開始,剩餘尾段持續跳動(nbsp 佔位,零位移)。 */
-function phaseErase() {
+const phaseErase = () => {
   let k = 0
   introTimer = window.setInterval(() => {
     k++
@@ -128,7 +128,7 @@ function phaseErase() {
 }
 /** C:0.2s 全行純亂碼 → 從中間向兩側顯現;兩側亂碼「向外滑動」
  * (持久亂碼串開窗位移:左段每幀左移一格、右段右移一格,邊緣滑出消失)。 */
-function phaseAssemble() {
+const phaseAssemble = () => {
   titleHidden.value = false
   const PRE = 5 // 5 幀 × 40ms ≈ 0.2s 純亂碼
   const center = Math.floor((N - 1) / 2)
@@ -158,7 +158,7 @@ function phaseAssemble() {
   }, 40)
 }
 /** 點畫面跳過打字,直接到 START。 */
-function skipTyping() {
+const skipTyping = () => {
   if (stage.value !== 'typing') return
   clearInterval(introTimer)
   display.value = TITLE_TEXT
@@ -168,7 +168,7 @@ function skipTyping() {
   stage.value = 'start'
 }
 /** 按 START:glitch 退場 → 登入卡片進場。 */
-function enterApp() {
+const enterApp = () => {
   stage.value = 'leaving' // 縮小淡出(不用 glitch,無限抖動很干擾)
   setTimeout(() => (stage.value = 'form'), 350)
 }
@@ -176,7 +176,7 @@ const assembled = computed(() => stage.value === 'start' || stage.value === 'lea
 const TITLE_CHARS = TITLE_TEXT.split('').map((c) => (c === ' ' ? '\u00A0' : c))
 
 // 控制面板:點面板外自動關閉(點面板本身或切換鈕不關)。
-function onDocClick(e: MouseEvent) {
+const onDocClick = (e: MouseEvent) => {
   const t = e.target as HTMLElement
   if (t.closest('.galaxy-controls, .threads-controls, [data-controls-toggle]')) return
   showGalaxyControls.value = false
@@ -187,7 +187,7 @@ function onDocClick(e: MouseEvent) {
 // 鎖定動畫(避免和 START 對焦框互搶)。僅精準指標裝置啟用。
 const finePointer = window.matchMedia('(pointer: fine)').matches
 const cursorEl = ref<HTMLElement | null>(null)
-function onCursorMove(e: PointerEvent) {
+const onCursorMove = (e: PointerEvent) => {
   if (cursorEl.value) {
     cursorEl.value.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`
   }
@@ -209,11 +209,11 @@ const password = ref('')
 const error = ref<string | null>(null)
 const busy = ref(false)
 
-function guest() {
+const guest = () => {
   auth.loginGuest()
   router.push('/')
 }
-async function withPassword() {
+const withPassword = async () => {
   error.value = null
   busy.value = true
   try {
@@ -225,7 +225,7 @@ async function withPassword() {
     busy.value = false
   }
 }
-async function withGoogle() {
+const withGoogle = async () => {
   error.value = null
   try {
     await auth.loginWithGoogle()

@@ -26,7 +26,7 @@ const filtered = computed(() => {
   return t ? tags.value.filter((x) => x.name.toLowerCase().includes(t)) : tags.value
 })
 
-async function load() {
+const load = async () => {
   loading.value = true
   error.value = null
   try {
@@ -39,7 +39,7 @@ async function load() {
 }
 watch(() => props.open, (o) => o && load())
 
-async function doAdd() {
+const doAdd = async () => {
   const n = newTag.value.trim()
   if (!n) return
   // 已存在(含隱藏中)→ 明確告知,不默默吞掉。
@@ -59,11 +59,11 @@ async function doAdd() {
   }
 }
 
-function startEdit(t: TagDetail) {
+const startEdit = (t: TagDetail) => {
   editing.value = t.name
   editValue.value = t.name
 }
-async function saveEdit(oldName: string) {
+const saveEdit = async (oldName: string) => {
   const nn = editValue.value.trim()
   editing.value = null
   if (!nn || nn === oldName) return
@@ -75,7 +75,7 @@ async function saveEdit(oldName: string) {
     error.value = humanError(e, '標籤操作失敗,請稍後再試')
   }
 }
-async function toggleHidden(t: TagDetail) {
+const toggleHidden = async (t: TagDetail) => {
   try {
     await setTagHidden(t.name, !t.hidden)
     await load()

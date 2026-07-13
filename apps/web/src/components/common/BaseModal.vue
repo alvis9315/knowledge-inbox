@@ -13,7 +13,7 @@ const maxW: Record<string, string> = {
   xl: 'max-w-3xl',
 }
 
-function onKey(e: KeyboardEvent) {
+const onKey = (e: KeyboardEvent) => {
   if (e.key === 'Escape' && props.open) emit('close')
 }
 onMounted(() => window.addEventListener('keydown', onKey))

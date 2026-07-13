@@ -17,10 +17,10 @@ const DEFAULT_ICONS: Record<string, string> = {
 
 const overrides = ref<Record<string, string>>({})
 
-export function setDomainIconOverrides(map: Record<string, string>) {
+export const setDomainIconOverrides = (map: Record<string, string>) => {
   overrides.value = map
 }
 
-export function domainIcon(domain: string): string {
+export const domainIcon = (domain: string): string => {
   return overrides.value[domain] ?? DEFAULT_ICONS[domain] ?? '📁'
 }

@@ -9,7 +9,7 @@ const props = defineProps<{ config: ThreadsConfig; closable?: boolean }>()
 const emit = defineEmits<{ done: []; cancel: [] }>()
 
 const copied = ref(false)
-function copyProps() {
+const copyProps = () => {
   const c = props.config
   const text = `<KnowledgeThreads
   :amplitude="${c.amplitude}"

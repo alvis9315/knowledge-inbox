@@ -4,6 +4,6 @@ export const SCOPE_PENDING = '__pending__'
 
 export const PAGE_SIZE = 30
 
-export function isRealCategory(type: string): boolean {
+export const isRealCategory = (type: string): boolean => {
   return type !== SCOPE_ALL && type !== SCOPE_PENDING
 }

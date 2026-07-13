@@ -6,7 +6,7 @@ import type { EntryWithTags } from '@/features/entries/types'
 
 const props = defineProps<{ entry: EntryWithTags }>()
 
-function attr(key: string): string {
+const attr = (key: string): string => {
   const a = props.entry.attrs
   if (a && typeof a === 'object' && !Array.isArray(a)) {
     const v = (a as Record<string, unknown>)[key]

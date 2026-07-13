@@ -16,7 +16,7 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured
   : null
 
 /** Narrow helper: throws a clear error instead of a null-deref when unconfigured. */
-export function requireSupabase(): SupabaseClient {
+export const requireSupabase = (): SupabaseClient => {
   if (!supabase) {
     throw new Error(
       'Supabase is not configured. Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in apps/web/.env',

@@ -5,7 +5,7 @@ import { SCOPE_ALL } from '@/features/entries/constants'
 defineProps<{ tags: string[] }>()
 const router = useRouter()
 
-function go(t: string) {
+const go = (t: string) => {
   router.push({ name: 'browse', params: { type: SCOPE_ALL }, query: { tag: t } })
 }
 </script>

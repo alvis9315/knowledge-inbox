@@ -48,7 +48,7 @@ const searchResults = computed(() => {
     .slice(0, 50)
 })
 
-function toggle() {
+const toggle = () => {
   open.value = !open.value
   if (open.value) {
     term.value = ''
@@ -56,22 +56,22 @@ function toggle() {
     expanded.value = selected.value?.domain ?? null
   }
 }
-function toggleDomain(d: string) {
+const toggleDomain = (d: string) => {
   expanded.value = expanded.value === d ? null : d
 }
-function pick(key: string) {
+const pick = (key: string) => {
   emit('update:modelValue', key)
   open.value = false
 }
-function clear() {
+const clear = () => {
   emit('update:modelValue', null)
   open.value = false
 }
-function createSub(domain: string) {
+const createSub = (domain: string) => {
   emit('createSub', domain)
   open.value = false
 }
-function createDomain() {
+const createDomain = () => {
   emit('createDomain')
   open.value = false
 }

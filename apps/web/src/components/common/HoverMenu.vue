@@ -6,11 +6,11 @@ import { ref } from 'vue'
 const open = ref(false)
 let timer: ReturnType<typeof setTimeout> | undefined
 
-function show() {
+const show = () => {
   clearTimeout(timer)
   open.value = true
 }
-function scheduleHide() {
+const scheduleHide = () => {
   clearTimeout(timer)
   timer = setTimeout(() => (open.value = false), 160)
 }

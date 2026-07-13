@@ -149,7 +149,7 @@ const MAJORS: MajorSpec[] = [
 // Display order of 大類別(國內旅遊 最後、日本旅遊 在其上)。
 const DOMAIN_ORDER = ['美食', '學習', '求職', '攝影', '社群', '日本旅遊', '國內旅遊']
 
-export function seedCategories(): TypeDefinition[] {
+export const seedCategories = (): TypeDefinition[] => {
   const out: TypeDefinition[] = []
   let order = 0
   const majors = [...MAJORS].sort(
@@ -178,14 +178,14 @@ export function seedCategories(): TypeDefinition[] {
 }
 
 let idc = 0
-function makeEntry(
+const makeEntry = (
   type: string,
   title: string,
   summary: string,
   attrs: Record<string, unknown>,
   tags: string[],
   status: 'filed' | 'pending_review' = 'filed',
-): EntryWithTags {
+): EntryWithTags => {
   idc += 1
   const now = new Date(Date.now() - idc * 3600_000).toISOString()
   return {
@@ -207,7 +207,7 @@ function makeEntry(
   }
 }
 
-export function seedEntries(): EntryWithTags[] {
+export const seedEntries = (): EntryWithTags[] => {
   return [
     makeEntry('food_cafe', '興波咖啡 Simple Kaffa', '世界冠軍咖啡師的店,手沖與甜點都強', { 城市: '台北', 價位: '$$', 推薦品項: '手沖耶加雪菲' }, ['咖啡', '台北', '手沖']),
     makeEntry('food_cafe', '學校咖啡館', '老屋改建的安靜咖啡廳,適合工作', { 城市: '台北', 價位: '$$' }, ['咖啡', '不限時']),

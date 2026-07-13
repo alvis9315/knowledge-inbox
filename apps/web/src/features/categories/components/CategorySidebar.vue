@@ -32,16 +32,16 @@ watch(
 
 // 預設全部展開:只記「被收合的」,沒記到 = 展開。
 const collapsedDomains = useLocalStorage<Record<string, boolean>>('ki-collapsed-domains-v2', {})
-function toggleDomain(d: string) {
+const toggleDomain = (d: string) => {
   collapsedDomains.value = { ...collapsedDomains.value, [d]: !collapsedDomains.value[d] }
 }
-function persistOrder() {
+const persistOrder = () => {
   store.reorder(groups.value.flatMap((g) => g.items.map((c) => c.key)))
 }
-function persistDomainOrder() {
+const persistDomainOrder = () => {
   store.reorderDomains(groups.value.map((g) => g.domain))
 }
-function domainCount(g: Group) {
+const domainCount = (g: Group) => {
   return g.items.reduce((n, c) => n + c.count, 0)
 }
 </script>

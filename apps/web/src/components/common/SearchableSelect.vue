@@ -39,15 +39,15 @@ const filtered = computed(() => {
   return props.options.filter((o) => o.label.toLowerCase().includes(t))
 })
 
-function toggle() {
+const toggle = () => {
   open.value = !open.value
   if (open.value) term.value = ''
 }
-function pick(value: string) {
+const pick = (value: string) => {
   emit('update:modelValue', value)
   open.value = false
 }
-function clear() {
+const clear = () => {
   emit('update:modelValue', null)
   open.value = false
 }

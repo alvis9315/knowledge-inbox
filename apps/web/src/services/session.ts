@@ -10,7 +10,7 @@ import { isMock } from './dataMode'
  * real email auth (Phase 1.5) — see docs/security-guideline.md. Enable
  * "Anonymous sign-ins" in Supabase → Authentication → Providers first.
  */
-export async function ensureSession(): Promise<void> {
+export const ensureSession = async (): Promise<void> => {
   if (isMock() || !supabase) return
   const { data } = await supabase.auth.getSession()
   if (data.session) return

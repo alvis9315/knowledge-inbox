@@ -5,7 +5,7 @@ import type { EntryWithTags, SortMode } from '@/features/entries/types'
 import { humanError } from '@/utils/humanError'
 
 /** State + actions for a category's paginated, sortable, searchable entry list. */
-export function useCategoryEntries(type: Ref<string>, revision: Ref<number>) {
+export const useCategoryEntries = (type: Ref<string>, revision: Ref<number>) => {
   const rows = ref<EntryWithTags[]>([])
   const total = ref(0)
   const page = ref(1)
@@ -18,7 +18,7 @@ export function useCategoryEntries(type: Ref<string>, revision: Ref<number>) {
 
   let searchTimer: ReturnType<typeof setTimeout> | undefined
 
-  async function load() {
+  const load = async () => {
     loading.value = true
     error.value = null
     try {
@@ -56,7 +56,7 @@ export function useCategoryEntries(type: Ref<string>, revision: Ref<number>) {
   })
 
   /** Persist a manually dragged order (optimistic — rows already mutated by caller). */
-  async function persistOrder(orderedIds: string[]) {
+  const persistOrder = async (orderedIds: string[]) => {
     try {
       await reorderEntries(orderedIds)
     } catch (e) {

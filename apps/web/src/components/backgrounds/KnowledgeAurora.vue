@@ -52,10 +52,10 @@ let cfgSnapshot: Record<string, unknown> | null = null
 watch(() => props.showControls, (o) => {
   if (o) cfgSnapshot = JSON.parse(JSON.stringify(cfg))
 })
-function ctlDone() {
+const ctlDone = () => {
   emitCtl('controlsDone', JSON.parse(JSON.stringify(cfg)))
 }
-function ctlCancel() {
+const ctlCancel = () => {
   if (cfgSnapshot) Object.assign(cfg, cfgSnapshot)
   emitCtl('controlsCancel')
 }
@@ -179,7 +179,7 @@ void main() {
 }
 `
 
-function hexToRgb(hex: string): [number, number, number] {
+const hexToRgb = (hex: string): [number, number, number] => {
   const h = hex.replace('#', '')
   return [
     parseInt(h.slice(0, 2), 16) / 255,
@@ -188,7 +188,7 @@ function hexToRgb(hex: string): [number, number, number] {
   ]
 }
 
-function resize() {
+const resize = () => {
   const c = containerRef.value
   if (!c || !renderer || !program) return
   renderer.setSize(c.clientWidth, c.clientHeight)
@@ -196,7 +196,7 @@ function resize() {
   if (reduceMotion) renderFrame(0)
 }
 
-function renderFrame(t: number) {
+const renderFrame = (t: number) => {
   if (!renderer || !program || !mesh) return
   program.uniforms.uTime.value = t * 0.01 * cfg.speed * 0.1
   program.uniforms.uAmplitude.value = cfg.amplitude
@@ -205,7 +205,7 @@ function renderFrame(t: number) {
   renderer.render({ scene: mesh })
 }
 
-function loop(t: number) {
+const loop = (t: number) => {
   raf = requestAnimationFrame(loop)
   if (!onScreen || document.hidden) return
   renderFrame(t)

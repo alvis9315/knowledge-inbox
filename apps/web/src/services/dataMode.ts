@@ -11,11 +11,11 @@ import { isSupabaseConfigured } from './supabaseClient'
 // 否則任何時序/HMR 重評估都會把已登入者打回假資料(慘痛教訓)。
 const _mock = ref(localStorage.getItem('ki-auth-mode') !== 'supabase')
 
-export function setDataMode(mode: 'guest' | 'supabase') {
+export const setDataMode = (mode: 'guest' | 'supabase') => {
   _mock.value = mode === 'guest' || !isSupabaseConfigured
 }
 
-export function isMock(): boolean {
+export const isMock = (): boolean => {
   return _mock.value
 }
 

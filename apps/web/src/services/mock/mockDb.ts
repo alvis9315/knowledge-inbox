@@ -25,7 +25,7 @@ export interface TagDetail {
   count: number
 }
 
-function load(): MockState {
+const load = (): MockState => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
     if (raw) return JSON.parse(raw) as MockState
@@ -37,7 +37,7 @@ function load(): MockState {
   return seeded
 }
 
-function save(state: MockState) {
+const save = (state: MockState) => {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state))
   } catch {
@@ -65,12 +65,12 @@ if (!state.domainOrder) {
   save(state)
 }
 
-function persist() {
+const persist = () => {
   save(state)
 }
 
 /** Add any tag names not yet in the registry (called when entries gain tags). */
-function registerTags(names: string[]) {
+const registerTags = (names: string[]) => {
   for (const n of names) {
     if (n && !state.tags!.some((t) => t.name === n)) state.tags!.push({ name: n, hidden: false })
   }
@@ -79,7 +79,7 @@ function registerTags(names: string[]) {
 const clone = <T>(v: T): T => JSON.parse(JSON.stringify(v))
 
 // ── Categories ─────────────────────────────────────────────────────
-function withMeta(cat: TypeDefinition): CategoryMeta {
+const withMeta = (cat: TypeDefinition): CategoryMeta => {
   const mine = state.entries
     .filter((e) => e.type === cat.key)
     .sort((a, b) => (a.created_at < b.created_at ? 1 : -1))
@@ -302,9 +302,9 @@ export const mockDb = {
 
 // sort_order lives on the persisted category objects even though the shared
 // TypeDefinition type doesn't declare it (it's a DB column, added by migration).
-function sortOrderOf(c: TypeDefinition): number {
+const sortOrderOf = (c: TypeDefinition): number => {
   return (c as unknown as { sort_order?: number }).sort_order ?? 0
 }
-function setSortOrder(c: TypeDefinition, v: number) {
+const setSortOrder = (c: TypeDefinition, v: number) => {
   ;(c as unknown as { sort_order?: number }).sort_order = v
 }

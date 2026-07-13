@@ -21,12 +21,12 @@ interface Parts {
 
 const pad = (n: number) => String(n).padStart(2, '0')
 
-function parse(v: string): Parts | null {
+const parse = (v: string): Parts | null => {
   const m = /^(\d{4})-(\d{2})-(\d{2})\s+(\d{2}):(\d{2})$/.exec(v.trim())
   if (!m) return null
   return { y: +m[1], m: +m[2], d: +m[3], h: +m[4], min: +m[5] }
 }
-function format(p: Parts): string {
+const format = (p: Parts): string => {
   return `${p.y}-${pad(p.m)}-${pad(p.d)} ${pad(p.h)}:${pad(p.min)}`
 }
 
@@ -59,33 +59,33 @@ const cells = computed(() => {
   return out
 })
 
-function shiftMonth(delta: number) {
+const shiftMonth = (delta: number) => {
   let m = view.value.m + delta
   let y = view.value.y
   if (m < 1) { m = 12; y-- }
   if (m > 12) { m = 1; y++ }
   view.value = { y, m }
 }
-function shiftYear(delta: number) {
+const shiftYear = (delta: number) => {
   view.value = { ...view.value, y: view.value.y + delta }
 }
 
-function commit(next: Parts) {
+const commit = (next: Parts) => {
   sel.value = next
   emit('update:modelValue', format(next))
 }
-function pickDay(d: number) {
+const pickDay = (d: number) => {
   const base = sel.value ?? { y: view.value.y, m: view.value.m, d, h: 9, min: 0 }
   commit({ ...base, y: view.value.y, m: view.value.m, d })
 }
-function setTime(h: number, min: number) {
+const setTime = (h: number, min: number) => {
   const base = sel.value ?? { y: view.value.y, m: view.value.m, d: now.getDate(), h, min }
   commit({ ...base, h, min })
 }
-function isSelected(d: number) {
+const isSelected = (d: number) => {
   return sel.value && sel.value.y === view.value.y && sel.value.m === view.value.m && sel.value.d === d
 }
-function clear() {
+const clear = () => {
   sel.value = null
   emit('update:modelValue', '')
   open.value = false

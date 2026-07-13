@@ -44,7 +44,7 @@ const sorted = computed(() => {
 const canDrag = computed(() => sortMode.value === 'manual' && view.value === 'grid')
 
 /** Masonry 大小分級:項目越多的子類別卡越大(相對於本大類別最大值)。 */
-function masonrySpan(c: CategoryMeta): string {
+const masonrySpan = (c: CategoryMeta): string => {
   const max = Math.max(1, ...items.value.map((x) => x.count))
   const ratio = c.count / max
   if (ratio >= 0.66 && c.count > 1) return 'sm:col-span-2 sm:row-span-2'
@@ -53,7 +53,7 @@ function masonrySpan(c: CategoryMeta): string {
 }
 
 /** Persist: rebuild the full ordered key list with this domain's new order. */
-function persistOrder() {
+const persistOrder = () => {
   const ordered = store.domains.flatMap((d) =>
     d === props.domain ? items.value.map((c) => c.key) : (store.byDomain[d] ?? []).map((c) => c.key),
   )

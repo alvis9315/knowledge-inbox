@@ -9,7 +9,7 @@ const totalPages = computed(() => Math.max(1, Math.ceil(props.total / props.page
 const from = computed(() => (props.total === 0 ? 0 : (props.page - 1) * props.pageSize + 1))
 const to = computed(() => Math.min(props.page * props.pageSize, props.total))
 
-function go(p: number) {
+const go = (p: number) => {
   if (p >= 1 && p <= totalPages.value) emit('update:page', p)
 }
 </script>

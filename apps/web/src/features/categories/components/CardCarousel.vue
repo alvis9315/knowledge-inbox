@@ -36,7 +36,7 @@ const [emblaRef, emblaApi] = emblaCarouselVue({ loop: true, dragFree: true, alig
   }),
 ])
 
-function sync() {
+const sync = () => {
   const api = emblaApi.value
   if (!api) return
   const auto = api.plugins().autoScroll

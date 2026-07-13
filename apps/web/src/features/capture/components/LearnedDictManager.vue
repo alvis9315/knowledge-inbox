@@ -23,7 +23,7 @@ const dict = ref<LearnedMap>({})
 const search = ref('')
 const confirmClearAll = ref(false)
 
-function load() {
+const load = () => {
   dict.value = getLearnedDict()
 }
 watch(() => props.open, (o) => o && load())
@@ -53,17 +53,17 @@ const groups = computed<Group[]>(() => {
 })
 const isEmpty = computed(() => Object.keys(dict.value).length === 0)
 
-function delTerm(typeKey: string, term: string) {
+const delTerm = (typeKey: string, term: string) => {
   removeLearnedTerm(typeKey, term)
   load()
   toast.success(`已刪除「${term}」`)
 }
-function delType(g: Group) {
+const delType = (g: Group) => {
   removeLearnedType(g.typeKey)
   load()
   toast.success(`已清空「${g.label}」的自學詞`)
 }
-function doClearAll() {
+const doClearAll = () => {
   clearLearned()
   confirmClearAll.value = false
   load()

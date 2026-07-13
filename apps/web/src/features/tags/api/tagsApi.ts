@@ -3,7 +3,7 @@ import { requireSupabase } from '@/services/supabaseClient'
 import { isMock } from '@/services/dataMode'
 import { mockDb } from '@/services/mock/mockDb'
 
-export async function fetchTags(): Promise<Tag[]> {
+export const fetchTags = async (): Promise<Tag[]> => {
   const { data, error } = await requireSupabase()
     .from('tags')
     .select('*')
@@ -13,7 +13,7 @@ export async function fetchTags(): Promise<Tag[]> {
 }
 
 /** Just the (non-hidden) tag names — used by the tag filter dropdown. */
-export async function fetchAllTagNames(): Promise<string[]> {
+export const fetchAllTagNames = async (): Promise<string[]> => {
   if (isMock()) return mockDb.allTags()
   const { data, error } = await requireSupabase()
     .from('tags')
@@ -31,7 +31,7 @@ export interface TagDetail {
 }
 
 /** All tags with usage counts + hidden flag (for the tag manager). */
-export async function fetchTagsDetailed(): Promise<TagDetail[]> {
+export const fetchTagsDetailed = async (): Promise<TagDetail[]> => {
   if (isMock()) return mockDb.listTags()
   const { data, error } = await requireSupabase()
     .from('tags')
@@ -45,7 +45,7 @@ export async function fetchTagsDetailed(): Promise<TagDetail[]> {
   }))
 }
 
-export async function addTag(name: string): Promise<void> {
+export const addTag = async (name: string): Promise<void> => {
   if (isMock()) return mockDb.addTag(name)
   const { error } = await requireSupabase()
     .from('tags')
@@ -53,7 +53,7 @@ export async function addTag(name: string): Promise<void> {
   if (error) throw new Error(error.message)
 }
 
-export async function renameTag(oldName: string, next: string): Promise<void> {
+export const renameTag = async (oldName: string, next: string): Promise<void> => {
   if (isMock()) return mockDb.renameTag(oldName, next)
   // entry_tags reference tags by id, so renaming the tag row propagates everywhere.
   const { error } = await requireSupabase()
@@ -63,14 +63,14 @@ export async function renameTag(oldName: string, next: string): Promise<void> {
   if (error) throw new Error(error.message)
 }
 
-export async function setTagHidden(name: string, hidden: boolean): Promise<void> {
+export const setTagHidden = async (name: string, hidden: boolean): Promise<void> => {
   if (isMock()) return mockDb.setTagHidden(name, hidden)
   const { error } = await requireSupabase().from('tags').update({ hidden }).eq('name', name)
   if (error) throw new Error(error.message)
 }
 
 /** Ensure a set of tag names exist; return their ids. */
-export async function ensureTags(names: string[]): Promise<string[]> {
+export const ensureTags = async (names: string[]): Promise<string[]> => {
   const clean = [...new Set(names.map((n) => n.trim()).filter(Boolean))]
   if (clean.length === 0) return []
 

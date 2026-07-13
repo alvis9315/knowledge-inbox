@@ -11,18 +11,18 @@ const emit = defineEmits<{ close: [] }>()
 
 const store = useCategoriesStore()
 
-function preview(key: string) {
+const preview = (key: string) => {
   const p = THEME_PRESETS.find((x) => x.key === key)?.preset
   return p ? { bg: p.canvas, accent: p.accent } : { bg: '#f6f7f9', accent: '#2563eb' }
 }
-function change(domain: string, key: string) {
+const change = (domain: string, key: string) => {
   setDomainTheme(domain, key)
   if (props.activeDomain === domain) applyTheme(domain) // reflect live if we're in it
 }
 
 const PRESET_OPTIONS = THEME_PRESETS.map((p) => ({ value: p.key, label: p.label }))
 const HOME_OPTIONS = [{ value: '__follow__', label: '跟隨登入頁' }, ...PRESET_OPTIONS]
-function changeHome(key: string) {
+const changeHome = (key: string) => {
   setHomeTheme(key === '__follow__' ? null : key)
   if (props.activeDomain == null) applyTheme(null) // 正在首頁就即時反映
 }
