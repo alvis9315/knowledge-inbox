@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import { LayoutGrid, List, LayoutDashboard, Search, Download } from 'lucide-vue-next'
+import SearchableSelect from '@/components/common/SearchableSelect.vue'
+
+const SORT_OPTIONS = [
+  { value: 'manual', label: '手動排序(可拖曳)' },
+  { value: 'newest', label: '最新' },
+  { value: 'title', label: '標題' },
+]
 import type { SortMode, ViewMode } from '@/features/entries/types'
 
 const view = defineModel<ViewMode>('view', { required: true })
@@ -24,16 +31,15 @@ defineEmits<{ export: [] }>()
     </div>
 
     <!-- sort -->
-    <select
-      v-if="!simple"
-      v-model="sort"
-      class="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-      aria-label="排序"
-    >
-      <option value="manual">手動排序(可拖曳)</option>
-      <option value="newest">最新</option>
-      <option value="title">標題</option>
-    </select>
+    <div v-if="!simple" class="w-44">
+      <SearchableSelect
+        :model-value="sort"
+        :options="SORT_OPTIONS"
+        :searchable="false"
+        :clearable="false"
+        @update:model-value="sort = ($event ?? 'manual') as SortMode"
+      />
+    </div>
 
     <!-- view toggle -->
     <div v-if="!simple" class="flex rounded-lg border border-line p-0.5">

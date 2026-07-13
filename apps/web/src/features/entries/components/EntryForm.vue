@@ -4,6 +4,8 @@ import { parseAttrField, type Json } from '@inbox/shared-types'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseInput from '@/components/common/BaseInput.vue'
 import DateTimePicker from '@/components/common/DateTimePicker.vue'
+import SearchableSelect from '@/components/common/SearchableSelect.vue'
+import CategoryCascader from '@/features/categories/components/CategoryCascader.vue'
 import TagInput from '@/components/common/TagInput.vue'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import type { EntryInput, EntryWithTags } from '@/features/entries/types'
@@ -70,12 +72,6 @@ watch(
   { immediate: true },
 )
 
-const groupedTypes = computed(() => {
-  const groups: Record<string, typeof store.typeDefinitions> = {}
-  for (const t of store.typeDefinitions) (groups[t.domain] ??= []).push(t)
-  return groups
-})
-
 async function submit() {
   formError.value = null
   if (!form.title.trim()) {
@@ -111,15 +107,7 @@ async function submit() {
 
     <label class="block">
       <span class="mb-1 block text-sm font-medium text-slate-700">類型</span>
-      <select
-        v-model="form.type"
-        class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
-      >
-        <option :value="null">未分類</option>
-        <optgroup v-for="(list, domain) in groupedTypes" :key="domain" :label="domain">
-          <option v-for="t in list" :key="t.key" :value="t.key">{{ t.name }}</option>
-        </optgroup>
-      </select>
+      <CategoryCascader v-model="form.type" placeholder="未分類" />
     </label>
 
     <!-- schema-driven attribute fields -->
@@ -141,14 +129,14 @@ async function submit() {
         </div>
         <label v-else class="block">
           <span class="mb-1 block text-sm font-medium text-slate-700">{{ field.key }}</span>
-          <select
+          <SearchableSelect
             v-if="field.kind === 'enum'"
-            v-model="attrs[field.key]"
-            class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2 text-sm focus:border-accent-500 focus:outline-none focus:ring-1 focus:ring-accent-500"
-          >
-            <option value="">—</option>
-            <option v-for="opt in field.options" :key="opt" :value="opt">{{ opt }}</option>
-          </select>
+            :model-value="attrs[field.key] || null"
+            :options="(field.options ?? []).map((o: string) => ({ value: o, label: o }))"
+            :searchable="false"
+            placeholder="—"
+            @update:model-value="attrs[field.key] = $event ?? ''"
+          />
           <input
             v-else
             v-model="attrs[field.key]"

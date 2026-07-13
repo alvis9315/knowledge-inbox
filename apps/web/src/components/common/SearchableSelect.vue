@@ -16,10 +16,12 @@ const props = withDefaults(
     options: SelectOption[]
     placeholder?: string
     clearable?: boolean
+    /** 簡單選項(如排序模式)可關掉搜尋框。 */
+    searchable?: boolean
     /** 提供時,搜尋框右側出現 ＋ 按鈕(如「新增分類」),點擊 emit('action')。 */
     actionTitle?: string
   }>(),
-  { placeholder: '請選擇', clearable: true, actionTitle: undefined },
+  { placeholder: '請選擇', clearable: true, searchable: true, actionTitle: undefined },
 )
 const emit = defineEmits<{ 'update:modelValue': [value: string | null]; action: [] }>()
 
@@ -76,11 +78,12 @@ function clear() {
         v-if="open"
         ref="panel"
         :style="style"
-        class="overflow-hidden rounded-lg border border-line bg-surface shadow-lg"
+        class="ss-panel overflow-hidden rounded-lg border border-line bg-surface shadow-lg"
       >
-        <div class="flex shrink-0 items-center gap-2 border-b border-line px-3">
-          <Search :size="14" class="text-muted" />
+        <div v-if="searchable || actionTitle" class="flex shrink-0 items-center gap-2 border-b border-line px-3">
+          <Search v-if="searchable" :size="14" class="text-muted" />
           <input
+            v-if="searchable"
             v-model="term"
             autofocus
             placeholder="搜尋…"

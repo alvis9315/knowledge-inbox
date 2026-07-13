@@ -2,6 +2,7 @@
 import { computed, ref, watch } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { CalendarDays, ChevronLeft, ChevronRight, X } from 'lucide-vue-next'
+import SearchableSelect from '@/components/common/SearchableSelect.vue'
 
 // Modern, minimal, self-contained date + time picker. v-model is a
 // "YYYY-MM-DD HH:mm" string (empty = unset). Reusable anywhere.
@@ -31,7 +32,11 @@ function format(p: Parts): string {
 
 const open = ref(false)
 const root = ref<HTMLElement | null>(null)
-onClickOutside(root, () => (open.value = false))
+onClickOutside(root, (e) => {
+  // 時/分下拉 Teleport 到 body(.ss-panel),點它不算外點。
+  if ((e.target as HTMLElement).closest('.ss-panel')) return
+  open.value = false
+})
 
 const now = new Date()
 const sel = ref<Parts | null>(parse(props.modelValue))
@@ -136,21 +141,25 @@ const minutes = Array.from({ length: 12 }, (_, i) => i * 5)
       <!-- time -->
       <div class="mt-3 flex items-center gap-2 border-t border-line pt-3">
         <span class="text-xs text-muted">時間</span>
-        <select
-          class="rounded-md border border-line bg-surface px-2 py-1 text-sm text-ink focus:outline-none"
-          :value="sel?.h ?? 9"
-          @change="setTime(+($event.target as HTMLSelectElement).value, sel?.min ?? 0)"
-        >
-          <option v-for="h in hours" :key="h" :value="h">{{ pad(h) }}</option>
-        </select>
+        <div class="w-20">
+          <SearchableSelect
+            :model-value="String(sel?.h ?? 9)"
+            :options="hours.map((h) => ({ value: String(h), label: pad(h) }))"
+            :searchable="false"
+            :clearable="false"
+            @update:model-value="setTime(+($event ?? 9), sel?.min ?? 0)"
+          />
+        </div>
         <span class="text-muted">:</span>
-        <select
-          class="rounded-md border border-line bg-surface px-2 py-1 text-sm text-ink focus:outline-none"
-          :value="sel?.min ?? 0"
-          @change="setTime(sel?.h ?? 9, +($event.target as HTMLSelectElement).value)"
-        >
-          <option v-for="mn in minutes" :key="mn" :value="mn">{{ pad(mn) }}</option>
-        </select>
+        <div class="w-20">
+          <SearchableSelect
+            :model-value="String(sel?.min ?? 0)"
+            :options="minutes.map((mn) => ({ value: String(mn), label: pad(mn) }))"
+            :searchable="false"
+            :clearable="false"
+            @update:model-value="setTime(sel?.h ?? 9, +($event ?? 0))"
+          />
+        </div>
         <button class="ml-auto text-xs text-accent hover:underline" @click="open = false">完成</button>
       </div>
     </div>

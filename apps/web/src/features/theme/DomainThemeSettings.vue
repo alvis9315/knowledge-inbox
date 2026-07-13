@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import BaseModal from '@/components/common/BaseModal.vue'
+import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { domainIcon } from '@/features/categories/domainIcons'
 import { THEME_PRESETS } from './themePresets'
@@ -18,6 +19,8 @@ function change(domain: string, key: string) {
   setDomainTheme(domain, key)
   if (props.activeDomain === domain) applyTheme(domain) // reflect live if we're in it
 }
+
+const PRESET_OPTIONS = THEME_PRESETS.map((p) => ({ value: p.key, label: p.label }))
 </script>
 
 <template>
@@ -35,13 +38,15 @@ function change(domain: string, key: string) {
         >
           <span class="h-2.5 w-2.5 rounded-full" :style="{ background: preview(domainThemeKey(d)).accent }" />
         </span>
-        <select
-          :value="domainThemeKey(d)"
-          class="ml-auto rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-          @change="change(d, ($event.target as HTMLSelectElement).value)"
-        >
-          <option v-for="p in THEME_PRESETS" :key="p.key" :value="p.key">{{ p.label }}</option>
-        </select>
+        <div class="ml-auto w-40">
+          <SearchableSelect
+            :model-value="domainThemeKey(d)"
+            :options="PRESET_OPTIONS"
+            :searchable="false"
+            :clearable="false"
+            @update:model-value="change(d, $event ?? 'default')"
+          />
+        </div>
       </div>
     </div>
   </BaseModal>

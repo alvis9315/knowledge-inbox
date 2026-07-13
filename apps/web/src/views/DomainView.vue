@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
-import { LayoutGrid, LayoutDashboard } from 'lucide-vue-next'
+import { LayoutGrid, List, LayoutDashboard, ChevronRight } from 'lucide-vue-next'
+import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import LoadingState from '@/components/common/LoadingState.vue'
 import CategoryCard from '@/features/categories/components/CategoryCard.vue'
 import { domainIcon } from '@/features/categories/domainIcons'
@@ -14,7 +15,13 @@ const store = useCategoriesStore()
 // ── 篩選/排序/視圖(比照項目清單) ──
 type SortMode = 'manual' | 'name' | 'count'
 const sortMode = ref<SortMode>('manual')
-const view = ref<'grid' | 'masonry'>('grid')
+const view = ref<'grid' | 'list' | 'masonry'>('grid')
+
+const SORT_OPTIONS = [
+  { value: 'manual', label: '手動排序(可拖曳)' },
+  { value: 'name', label: '名稱' },
+  { value: 'count', label: '筆數多 → 少' },
+]
 
 // Local mirror for drag reorder (VueDraggable needs a writable array).
 const items = ref<CategoryMeta[]>([])
@@ -66,15 +73,15 @@ function persistOrder() {
 
       <!-- 排序 + 視圖切換 -->
       <div class="ml-auto flex items-center gap-2">
-        <select
-          v-model="sortMode"
-          class="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-          aria-label="排序"
-        >
-          <option value="manual">手動排序(可拖曳)</option>
-          <option value="name">名稱</option>
-          <option value="count">筆數多 → 少</option>
-        </select>
+        <div class="w-44">
+          <SearchableSelect
+            :model-value="sortMode"
+            :options="SORT_OPTIONS"
+            :searchable="false"
+            :clearable="false"
+            @update:model-value="sortMode = ($event ?? 'manual') as SortMode"
+          />
+        </div>
         <div class="flex rounded-lg border border-line p-0.5">
           <button
             class="rounded-md p-1.5"
@@ -83,6 +90,14 @@ function persistOrder() {
             @click="view = 'grid'"
           >
             <LayoutGrid :size="16" />
+          </button>
+          <button
+            class="rounded-md p-1.5"
+            :class="view === 'list' ? 'bg-accent-soft text-accent' : 'text-muted hover:text-ink'"
+            aria-label="列表模式"
+            @click="view = 'list'"
+          >
+            <List :size="16" />
           </button>
           <button
             class="rounded-md p-1.5"
@@ -111,6 +126,21 @@ function persistOrder() {
         <div v-for="cat in sorted" :key="cat.key" :class="masonrySpan(cat)">
           <CategoryCard :category="cat" />
         </div>
+      </div>
+
+      <!-- 清單模式 -->
+      <div v-else-if="view === 'list'" class="flex flex-col gap-2">
+        <RouterLink
+          v-for="cat in sorted"
+          :key="cat.key"
+          :to="{ name: 'category', params: { type: cat.key } }"
+          class="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+        >
+          <span class="text-xl leading-none">{{ cat.icon || '🏷️' }}</span>
+          <span class="flex-1 truncate font-medium text-ink">{{ cat.name }}</span>
+          <span class="shrink-0 rounded-full bg-canvas px-2 py-0.5 text-xs text-muted">{{ cat.count }} 筆</span>
+          <ChevronRight :size="15" class="shrink-0 text-muted" />
+        </RouterLink>
       </div>
 
       <!-- 網格(手動模式可整卡拖曳;順序同步側欄 + 首頁) -->
