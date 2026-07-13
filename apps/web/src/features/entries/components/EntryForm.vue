@@ -4,6 +4,7 @@ import { parseAttrField, type Json } from '@inbox/shared-types'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseInput from '@/components/common/BaseInput.vue'
 import DateTimePicker from '@/components/common/DateTimePicker.vue'
+import TagInput from '@/components/common/TagInput.vue'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import type { EntryInput, EntryWithTags } from '@/features/entries/types'
 
@@ -21,7 +22,7 @@ const form = reactive({
   content: props.entry?.content ?? '',
   source_url: props.entry?.source_url ?? '',
   status: props.entry?.status ?? ('filed' as 'filed' | 'pending_review'),
-  tagsText: (props.entry?.tags ?? []).join(', '),
+  tags: [...(props.entry?.tags ?? [])] as string[],
 })
 
 // attrs is schema-driven: keyed by the selected type's attrs_schema.
@@ -92,7 +93,7 @@ async function submit() {
     source_url: form.source_url.trim() || null,
     attrs: cleanedAttrs,
     status: form.status,
-    tags: form.tagsText.split(',').map((t) => t.trim()).filter(Boolean),
+    tags: form.tags,
   }
 
   saving.value = true
@@ -171,7 +172,10 @@ async function submit() {
       />
     </label>
 
-    <BaseInput v-model="form.tagsText" label="標籤(逗號分隔)" placeholder="高雄, 咖啡, 待訪" />
+    <label class="block">
+      <span class="mb-1 block text-sm font-medium text-slate-700">標籤</span>
+      <TagInput v-model="form.tags" :suggestions="store.tagNames" placeholder="高雄、咖啡、待訪…(Enter 或點選)" />
+    </label>
 
     <label class="flex items-center gap-2 text-sm text-slate-600">
       <input

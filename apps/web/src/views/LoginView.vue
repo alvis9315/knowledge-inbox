@@ -27,8 +27,14 @@ const nebulaBg =
 
 const BG: Record<GalaxyBg, string> = {
   black: 'radial-gradient(circle at 50% 50%, #0a0a14 0%, #000 82%)',
-  blue: 'radial-gradient(circle at 50% 50%, #12224e 0%, #0b1636 36%, #070d24 64%, #03050f 100%)',
+  blue: 'radial-gradient(circle at 50% 50%, #0e1b40 0%, #091229 36%, #05091c 64%, #02040c 100%)',
   nebula: nebulaBg,
+}
+// 每個底色掛自己的星星參數(使用者調校定案 2026-07-13)。
+const BG_STARS: Record<GalaxyBg, { density: number; starTint: string; glow: number }> = {
+  black: { density: 0.9, starTint: '#ffffff', glow: 0.35 },
+  blue: { density: 2.1, starTint: '#37598b', glow: 0.65 },
+  nebula: { density: 0.5, starTint: '#3282ec', glow: 0.35 },
 }
 const bgOptions: Array<{ key: GalaxyBg; label: string }> = [
   { key: 'black', label: '黑底' },
@@ -36,6 +42,7 @@ const bgOptions: Array<{ key: GalaxyBg; label: string }> = [
   { key: 'nebula', label: '夜幕藍星雲' },
 ]
 const galaxyBgCss = computed(() => BG[galaxyBg.value])
+const galaxyStars = computed(() => BG_STARS[galaxyBg.value])
 const titleClass = computed(() => (bg.value === 'threads' ? 'title-threads' : 'title-galaxy'))
 const showGalaxyControls = ref(false)
 const showThreadsControls = ref(false)
@@ -82,8 +89,9 @@ async function withGoogle() {
       :background="galaxyBgCss"
       :show-controls="showGalaxyControls"
       :focal="[0.5, 0.5]"
-      :density="0.9"
-      :glow-intensity="0.35"
+      :density="galaxyStars.density"
+      :star-tint="galaxyStars.starTint"
+      :glow-intensity="galaxyStars.glow"
       :saturation="0.15"
       :hue-shift="210"
       :twinkle-intensity="0.3"

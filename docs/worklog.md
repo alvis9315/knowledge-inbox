@@ -1,5 +1,26 @@
 # Worklog
 
+## 2026-07-13 — Supabase Phase 0 上線 + 審核畫面完整版 + TagInput/EmojiPicker
+
+- **Supabase Phase 0 完成**:專案(Tokyo)、migrations 0001–0006 套用(SQL Editor)、Email 帳號登入實測、第一筆資料進雲端;`apps/web/.env` 填妥(gitignored)。
+- **migration 0007**:移除技術/生活佔位 seed,種入使用者定案分類樹(7 大類/63 子類,含 icon/color/attrs/sort_order),冪等 upsert。心法:雲端 DB=分類樹活正本,0007 只是初始種子。
+- **scripts/export-taxonomy.mjs**:一鍵把雲端分類樹匯出成 `taxonomy_snapshot.sql`(需根目錄 .env 的 service_role key;災難重建用)。
+- **審核畫面完整版**(ReviewItem):標題可編輯、來源連結(新分頁)、建立時間、詳情捷徑、內容摘要、建議 chip、分類選擇+**快捷新增分類**(＋,建立後自動選入)、**TagInput** 標籤、歸檔/刪除;待確認頁工具列 simple 化(只留搜尋)。
+- **TagInput**(chips+combobox,三處統一:審核列/EntryForm/QuickCapture):Enter/逗號生成膠囊、可搜尋現有標籤點選、「建立『x』」選項、Backspace 刪末顆。
+- **NewCategoryModal v2**:大類別下拉選現有+旁邊 ＋ 切「建立新大類別」模式(不埋選單底);**EmojiPicker**(精選分組網格、自由輸入置頂);彈窗 lg。
+- **分類器修正**:hostname 一次學會(+3/全額計分);**通用網域黑名單**(maps/goo.gl/YT/IG/FB…不進自學字典,防過度泛化)。
+- 設計原則(記入長期記憶):互動設計「能給便利就給」,摩擦只留給破壞性操作。
+- 驗證:typecheck ✅、build ✅。
+
+## 2026-07-13 — 分類器 v2(無 AI)+ 待確認審核畫面 + AI 策略定調
+
+- **AI 策略定調**(`docs/ai-strategy.md`):自用期不接付費 AI API;規則分類 + og metadata;盈利期再接(OpenRouter);中間態 BYOK。含連結類型 extractor 對照表(YT oEmbed / Maps URL 店名 / IG 登入牆 / 短網址+SSRF)與 CORS 硬限制(URL 擷取需 Edge Function,mock 只能做網域判斷)。
+- **規則分類器 v2**(`features/capture/ruleClassifier.ts`,mock/supabase 共用、純前端零成本):
+  ①網域對照表(youtube/IG/threads/tabelog/104/github…→ 大類別+子分類 nameHint,不硬編 key;Google Maps 從 URL path 抽店名進評分)②關鍵字加權字典(自 mockDb 遷移並擴充)③**回饋自學**:`learnFromCorrection` 抽詞(hostname/拉丁詞/CJK bigram)加權入 localStorage(`ki-learned-kw-v1`),分類時併入評分。回傳含 `reason`(命中原因)。
+- `classify.ts` 改用規則分類器;移除 mockDb.classify。
+- **待確認審核畫面**:`ReviewItem.vue` + CategoryView 待確認 scope 改渲染審核列(分類器建議 chip + SearchableSelect 改分類 + 歸檔/刪除);歸檔時寫回 status=filed 並觸發回饋自學。
+- 驗證:typecheck ✅、build ✅。
+
 ## 2026-07-13 — 登入頁底圖三路線 + Star Color 控制
 
 - **仙女座結論**:shader/漸層做不出照片級螺旋星系(硬限制);依「UI 元件調查」md 採**寫實圖片底 + 輕量動效**路線。

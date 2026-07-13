@@ -5,6 +5,8 @@ import type { SortMode, ViewMode } from '@/features/entries/types'
 const view = defineModel<ViewMode>('view', { required: true })
 const sort = defineModel<SortMode>('sort', { required: true })
 const search = defineModel<string>('search', { required: true })
+// simple: 只留搜尋——待確認審核頁用(排序/視圖/匯出對審核版型不適用)。
+withDefaults(defineProps<{ simple?: boolean }>(), { simple: false })
 defineEmits<{ export: [] }>()
 </script>
 
@@ -23,6 +25,7 @@ defineEmits<{ export: [] }>()
 
     <!-- sort -->
     <select
+      v-if="!simple"
       v-model="sort"
       class="rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
       aria-label="排序"
@@ -33,7 +36,7 @@ defineEmits<{ export: [] }>()
     </select>
 
     <!-- view toggle -->
-    <div class="flex rounded-lg border border-line p-0.5">
+    <div v-if="!simple" class="flex rounded-lg border border-line p-0.5">
       <button
         class="rounded-md p-1.5"
         :class="view === 'card' ? 'bg-accent-soft text-accent' : 'text-muted hover:text-ink'"
@@ -53,6 +56,7 @@ defineEmits<{ export: [] }>()
     </div>
 
     <button
+      v-if="!simple"
       class="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-sm text-muted hover:bg-surface hover:text-ink"
       @click="$emit('export')"
     >

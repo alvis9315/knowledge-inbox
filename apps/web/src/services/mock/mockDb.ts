@@ -281,42 +281,9 @@ export const mockDb = {
     }
     persist()
   },
-
-  /**
-   * Heuristic classifier (stand-in for Claude Haiku until the API is wired).
-   * Matches the text against category names / domains and returns the best guess.
-   */
-  classify(text: string): { type: string | null; confidence: number } {
-    const t = text.toLowerCase()
-    let best: { key: string; score: number } | null = null
-    for (const c of state.categories) {
-      let score = 0
-      if (t.includes(c.name.toLowerCase())) score += 3
-      if (t.includes(c.domain.toLowerCase())) score += 1
-      for (const w of KEYWORDS[c.key] ?? []) if (t.includes(w)) score += 2
-      if (score > 0 && (!best || score > best.score)) best = { key: c.key, score }
-    }
-    if (!best) return { type: null, confidence: 0.3 }
-    return { type: best.key, confidence: Math.min(0.95, 0.6 + best.score * 0.1) }
-  },
 }
-
-// A few extra keyword hints for the mock classifier.
-const KEYWORDS: Record<string, string[]> = {
-  food_cafe: ['咖啡', 'cafe', '拿鐵', '手沖'],
-  food_drinks: ['手搖', '珍奶', '奶茶', '飲料'],
-  food_japanese: ['壽司', '拉麵', '日料', '生魚片'],
-  learn_ai: ['ai', 'llm', 'claude', 'gpt', 'mcp', 'prompt', 'agent'],
-  learn_frontend: ['vue', 'react', 'css', '前端', 'tailwind'],
-  learn_backend: ['api', 'spring', 'node', '後端', 'server'],
-  learn_database: ['sql', 'postgres', 'mysql', '資料庫', 'pgvector'],
-  job_interview: ['面試', 'interview'],
-  job_resume: ['履歷', 'resume', 'cv'],
-  photo_lighting: ['打光', '燈', '光'],
-  photo_lens: ['鏡頭', 'mm', 'lens'],
-  social_ig_copy: ['ig', '文案', 'caption'],
-  social_shortvideo: ['reels', '短影音', 'tiktok', 'shorts'],
-}
+// NOTE: the old mock keyword classifier moved to features/capture/ruleClassifier.ts
+// (規則分類器 v2 — shared by mock AND supabase modes; see docs/ai-strategy.md).
 
 // sort_order lives on the persisted category objects even though the shared
 // TypeDefinition type doesn't declare it (it's a DB column, added by migration).

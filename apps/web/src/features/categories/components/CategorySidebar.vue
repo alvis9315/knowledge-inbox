@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { VueDraggable } from 'vue-draggable-plus'
 import { useLocalStorage } from '@vueuse/core'
-import { Inbox, Clock, Plus, ChevronRight, GripVertical } from 'lucide-vue-next'
+import { Inbox, Clock, Plus, ChevronRight } from 'lucide-vue-next'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { domainIcon } from '@/features/categories/domainIcons'
 import { SCOPE_ALL, SCOPE_PENDING } from '@/features/entries/constants'
@@ -75,7 +75,7 @@ function domainCount(g: Group) {
     <!-- Expanded: compact top toolbar (全部 / 待確認 / +) then the tree -->
     <template v-else>
       <div class="flex items-center gap-1 px-1 pb-1">
-        <span class="mr-auto pl-4 text-xs font-semibold uppercase tracking-wide text-muted">Menu</span>
+        <span class="mr-auto pl-2.5 text-xs font-semibold uppercase tracking-wide text-muted">Menu</span>
         <RouterLink :to="{ name: 'browse', params: { type: SCOPE_ALL } }" class="icon-nav" active-class="nav-active" title="全部">
           <Inbox :size="17" />
         </RouterLink>
@@ -88,18 +88,15 @@ function domainCount(g: Group) {
       </div>
       <div class="mb-1 border-t border-line" />
 
+      <!-- Whole-row draggable (no grip handle) — same feel as the subcategory items. -->
       <VueDraggable
         v-model="groups"
         :animation="150"
-        handle=".domain-grip"
         class="flex flex-1 flex-col gap-1 overflow-y-auto thin-scroll"
         @update="persistDomainOrder"
       >
         <div v-for="group in groups" :key="group.domain" class="flex flex-col">
-          <div class="group flex items-center rounded-lg transition-transform hover:scale-[1.02] hover:bg-canvas">
-            <span class="domain-grip flex h-8 w-4 shrink-0 cursor-grab items-center justify-center text-transparent group-hover:text-muted">
-              <GripVertical :size="13" />
-            </span>
+          <div class="group flex cursor-grab items-center rounded-lg pl-1 transition-transform hover:scale-[1.02] hover:bg-canvas">
             <button
               class="flex h-8 w-7 shrink-0 items-center justify-center rounded-lg text-muted hover:text-ink"
               :aria-label="`展開 ${group.domain}`"

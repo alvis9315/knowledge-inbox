@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { Mesh, Program, Renderer, Triangle } from 'ogl'
 import GalaxyControls from './GalaxyControls.vue'
 
@@ -85,6 +85,18 @@ const cfg = reactive<GalaxyConfig>({
   autoCenterRepulsion: props.autoCenterRepulsion,
   starTint: props.starTint,
 })
+
+// Follow prop-preset swaps at runtime (e.g. the login page gives each backdrop
+// swatch its own star settings). Uniforms update in place — no context rebuild.
+// The control panel still edits cfg directly on top of whatever preset is live.
+watch(
+  () => [props.density, props.starTint, props.glowIntensity] as const,
+  ([density, starTint, glowIntensity]) => {
+    cfg.density = density
+    cfg.starTint = starTint
+    cfg.glowIntensity = glowIntensity
+  },
+)
 
 /** '#rrggbb' (or '#rgb') → [0..1, 0..1, 0..1] for the uStarTint uniform. */
 function hexToRgb01(hex: string): [number, number, number] {

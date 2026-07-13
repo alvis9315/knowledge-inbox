@@ -1,0 +1,74 @@
+# AI 接入策略 — 兩條路線與無 API 替代方案
+
+- 建立日期:2026-07-13
+- 背景:與友人(同樣做「丟連結即處理」知識整合系統、有 BYOK 與付費串 API 實戰經驗)討論後定調。
+- 關聯文件:`docs/security/ai-cost-abuse-supabase.md`(接 API 時的資安/成本控管)
+
+## 定調(2026-07-13)
+
+1. **自用期不接付費 AI API**。分類/摘要走無 AI 替代方案(見下)。
+2. **盈利/多人期再接**:届時走 `docs/security/` 那份規範(成本硬上限、Kill Switch…);考慮 **OpenRouter** 聚合(一個 key 多家模型、量大較省)。
+3. **中間態備案:BYOK**(使用者填自己的 key 用我們的系統)——多人但不想自付成本時的選項;坑:key 驗證、額度歸屬、錯誤歸咎、代管責任,真要走再細規劃。
+4. 架構不變:`classifyText` 介面當初即為抽換設計,路線切換不動呼叫端。
+
+## 無 AI API 替代方案(按投報率)
+
+### 1. 規則分類器 v2(第一優先)
+- **網域 → 分類對照表**:連結型輸入主力(youtube→社群、tabelog→美食、github→學習、104→求職…)。
+- **關鍵字加權字典**:每子分類掛權重詞,取最高分;低分 → `pending_review`(沿用 confidence 分流)。
+- **回饋自學**:待確認畫面的人工修正寫入 `classification_feedback`,自動把該文字關鍵詞加權進字典 → 越用越準。積木原則第 5 條的無 AI 版。
+
+### 2. URL metadata 擷取(無 LLM 的標題/摘要)
+- 抓 `og:title` / `og:description` / `meta keywords` 當標題與摘要,純 HTML 解析。
+- 需 server 端 fetch → SSRF 防護仍要(規模較小);配合網域表,「丟連結自動歸檔」體驗約八成。
+
+### 3. 本地 embedding 相似度(加強層,非第一步)
+- `transformers.js` 瀏覽器跑量化多語 embedding(如 multilingual-e5-small ~30MB),輸入與子分類描述算相似度。
+- 零 API 費、隱私佳、可接 pgvector;缺點:首載模型較大、中文短文本準度中等。
+
+### 4. 本地 LLM(Ollama)— 自用限定
+- Owner 模式在本機打 `localhost:11434`,品質近雲端小模型、免費。
+- 限制:僅自己電腦開著時可用,部署 demo 用不到。自用期選配。
+
+## 對照表
+
+| | 現在(自用) | 未來(盈利) |
+|---|---|---|
+| 分類 | 規則 v2 + (選)embedding | Claude / OpenRouter |
+| 標題/摘要 | og metadata | LLM 摘要 |
+| 多人不自費 | — | BYOK |
+| 資安 | SSRF(若開 URL 擷取) | `docs/security/` 全套 |
+
+## 連結類型 extractor 對照(2026-07-13 補)
+
+架構:**per-網域 extractor registry**(設定當資料管理),通用 fallback = og tags → `<title>` → URL 字串。
+
+| 類型 | 做法 | 備註 |
+|---|---|---|
+| 一般網頁/部落格 | og:title/description,無則 title+readability | 最容易 |
+| YouTube | 官方 oEmbed(免費無 key)→ 標題/頻道/縮圖 | 一個 GET |
+| Google Maps | 展開短網址 → 店名在最終 URL path,decode 即得 | 評分/營業時間才需 Places API,先不用 |
+| IG / Threads / FB | **登入牆,抓不到內容**(接付費 API 也一樣) | URL 即分類訊號:→社群+@帳號;摘要靠使用者補 |
+| X/Twitter | 官方 oEmbed 拿推文文字 | 尚可用 |
+| 電商(蝦皮…) | og,反爬兇則 fallback | 看臉 |
+| 短網址 | 先 follow redirect 展開再分流 | 注意 SSRF |
+
+**硬限制**:URL 擷取必須 server 端(瀏覽器 CORS 擋跨域抓頁)→ 此功能依賴 Supabase Edge Function,**純前端 mock 模式做不到**(mock 只能做 URL 字串網域判斷)。
+
+## 分類器優化 roadmap(2026-07-13,回答「要不要建網址對應表」)
+
+丟連結辨識**不必也不該窮舉所有網站**——對應表分兩層,一層手寫、一層自己長:
+
+1. **靜態種子表**(`ruleClassifier.ts` 的 `DOMAIN_RULES`):只放大宗網站(YT/IG/tabelog/104/github…),遇到常用新站值得時再手動補一條。
+2. **自學表(自動長出來的)**:未知網站(如 figurelist.co)第一次進待確認 → 人工指定分類 → `learnFromCorrection` 把 **hostname 以強權重**記進 localStorage → **同網站下次直接自動歸檔**。用得越久,你的個人網址對應表越完整——不用手維護。
+   - 2026-07-13 修正:hostname 學習權重 +3、評分吃全額(原本要修正 3 次才自動,現在 1 次)。
+
+後續優化順序:
+- [ ] **自學字典管理 UI**(齒輪選單):檢視/刪除已學的網址對應與關鍵詞(學錯可修)。
+- [ ] 接 Supabase 後把自學權重搬進 DB(`classification_feedback`)→ 跨裝置、不怕清瀏覽器。
+- [ ] Edge Function og 擷取上線後,**網頁標題/描述也進評分**(現在只有 URL 字串)→ 命中率大幅提升。
+- [ ] (選配)Ollama 第三層:規則沒把握的才丟本地 LLM。
+
+## 友人系統的模式(參考)
+
+友人 = 可收費產品 → 大膽串付費 API(品質優先),菜單圖片擷取為雲端 vision 模型(Fable 是開發工具寫 code,非 runtime);非自建 LLM。我們自用期對應解:規則 + 本地 Ollama(RTX 4070 跑 7B 級綽綽有餘;vision 任務 qwen2.5-vl 亦可,品質次於雲端)。

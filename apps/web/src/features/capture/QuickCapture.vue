@@ -3,6 +3,7 @@ import { reactive, ref } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
+import TagInput from '@/components/common/TagInput.vue'
 import { createEntry } from '@/features/entries/api/entriesApi'
 import { classifyText } from '@/features/capture/classify'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
@@ -18,14 +19,14 @@ const error = ref<string | null>(null)
 const form = reactive({
   text: '',
   type: null as string | null,
-  tagsText: '',
+  tags: [] as string[],
   pending: false,
 })
 
 function reset() {
   form.text = ''
   form.type = null
-  form.tagsText = ''
+  form.tags = []
   form.pending = false
   advanced.value = false
   error.value = null
@@ -63,7 +64,7 @@ async function submit() {
       source_url: isUrl ? text : null,
       attrs: {},
       status,
-      tags: form.tagsText.split(',').map((t) => t.trim()).filter(Boolean),
+      tags: form.tags,
     })
     await store.touch()
     reset()
@@ -112,12 +113,10 @@ async function submit() {
             </option>
           </select>
         </label>
-        <input
-          v-model="form.tagsText"
-          type="text"
-          placeholder="標籤,逗號分隔"
-          class="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink placeholder:text-muted focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-        />
+        <label class="block">
+          <span class="mb-1 block text-xs font-medium text-muted">標籤</span>
+          <TagInput v-model="form.tags" :suggestions="store.tagNames" />
+        </label>
       </div>
 
       <p v-if="error" class="text-sm text-red-600">{{ error }}</p>

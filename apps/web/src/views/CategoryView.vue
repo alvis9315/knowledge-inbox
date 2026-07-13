@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, toRef, watch } from 'vue'
+import { computed, reactive, ref, toRef, watch } from 'vue'
 import { useRoute, RouterLink } from 'vue-router'
 import { VueDraggable } from 'vue-draggable-plus'
 import { FileText, Braces, Sheet, ArrowLeft } from 'lucide-vue-next'
@@ -13,6 +13,9 @@ import EntryCard from '@/features/entries/components/EntryCard.vue'
 import EntryListItem from '@/features/entries/components/EntryListItem.vue'
 import EntryToolbar from '@/features/entries/components/EntryToolbar.vue'
 import EntryForm from '@/features/entries/components/EntryForm.vue'
+import ReviewItem from '@/features/entries/components/ReviewItem.vue'
+import NewCategoryModal from '@/features/categories/components/NewCategoryModal.vue'
+import { learnFromCorrection } from '@/features/capture/ruleClassifier'
 import { useCategoryEntries } from '@/features/entries/composables/useCategoryEntries'
 import { useExport, type ExportFormat } from '@/features/entries/composables/useExport'
 import { updateEntry, deleteEntry, setEntryClosed, fetchEntriesPage } from '@/features/entries/api/entriesApi'
@@ -32,6 +35,51 @@ const { rows, total, page, sort, search, tag, includeClosed, loading, error, loa
 
 const view = ref<ViewMode>('card')
 const isFoodCategory = computed(() => store.typeByKey[props.type]?.domain === '美食')
+const isReview = computed(() => props.type === SCOPE_PENDING)
+
+// ── 待確認審核:每列選定的分類(預設 = 分類器建議)──
+const reviewChoice = reactive<Record<string, string | null>>({})
+watch(rows, () => {
+  for (const e of rows.value) if (!(e.id in reviewChoice)) reviewChoice[e.id] = e.type
+})
+const filingId = ref<string | null>(null)
+
+async function fileReviewed(entry: EntryWithTags, payload: { title: string; tags: string[] }) {
+  const type = reviewChoice[entry.id]
+  if (!type) return
+  filingId.value = entry.id
+  try {
+    await updateEntry(entry.id, {
+      title: payload.title,
+      type,
+      summary: entry.summary,
+      content: entry.content,
+      source_url: entry.source_url,
+      attrs: entry.attrs,
+      status: 'filed',
+      tags: payload.tags,
+    })
+    // 回饋自學:人核准的分類把這段文字的詞加權進字典(越用越準)。
+    learnFromCorrection(`${payload.title} ${entry.content ?? ''}`, type)
+    await store.touch()
+    await load()
+  } catch (e) {
+    window.alert(e instanceof Error ? e.message : String(e))
+  } finally {
+    filingId.value = null
+  }
+}
+
+// 快捷新增分類(審核列的 ＋):建立後自動選進該列。
+const newCatOpen = ref(false)
+const newCatFor = ref<string | null>(null)
+function openNewCategory(entryId: string) {
+  newCatFor.value = entryId
+  newCatOpen.value = true
+}
+function onCategoryCreated(key: string) {
+  if (newCatFor.value) reviewChoice[newCatFor.value] = key
+}
 
 // Tag filter (searchable dropdown). ?tag= (a clicked tag) drives it, even when
 // we're already on this page.
@@ -188,7 +236,7 @@ async function doExport(format: ExportFormat) {
 
     <div class="flex flex-wrap items-center gap-3">
       <div class="min-w-56 flex-1">
-        <EntryToolbar v-model:view="view" v-model:sort="sort" v-model:search="search" @export="exportOpen = true" />
+        <EntryToolbar v-model:view="view" v-model:sort="sort" v-model:search="search" :simple="isReview" @export="exportOpen = true" />
       </div>
       <div v-if="tagOptions.length" class="flex items-center gap-2">
         <span class="shrink-0 text-sm text-muted">標籤</span>
@@ -212,9 +260,23 @@ async function doExport(format: ExportFormat) {
       :empty="!loading && !error && rows.length === 0"
       empty-text="這個分類還沒有項目。"
     >
+      <!-- Review mode (待確認): suggestion + human confirm/correct → feedback learning -->
+      <div v-if="isReview" class="flex flex-col gap-3">
+        <ReviewItem
+          v-for="entry in rows"
+          :key="entry.id"
+          v-model="reviewChoice[entry.id]"
+          :entry="entry"
+          :busy="filingId === entry.id"
+          @file="fileReviewed(entry, $event)"
+          @remove="askRemove(entry)"
+          @new-category="openNewCategory(entry.id)"
+        />
+      </div>
+
       <!-- Card mode -->
       <VueDraggable
-        v-if="view === 'card'"
+        v-else-if="view === 'card'"
         v-model="rows"
         :disabled="!canDrag"
         :animation="150"
@@ -270,6 +332,9 @@ async function doExport(format: ExportFormat) {
         <BaseButton variant="secondary" :disabled="exporting" @click="doExport('excel')"><Sheet :size="15" /> Excel</BaseButton>
       </div>
     </BaseModal>
+
+    <!-- quick-add category from a review row -->
+    <NewCategoryModal :open="newCatOpen" @close="newCatOpen = false" @created="onCategoryCreated" />
 
     <!-- confirm (delete / 歇業) -->
     <BaseConfirm
