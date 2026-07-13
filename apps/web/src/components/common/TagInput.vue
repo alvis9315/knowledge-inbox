@@ -52,6 +52,9 @@ function removeAt(i: number) {
   emit('update:modelValue', next)
 }
 function onKeydown(e: KeyboardEvent) {
+  // IME(注音/拼音)組字中,按鍵屬於輸入法:Backspace 是刪注音符號、
+  // Enter 是選字確認,元件不得攔截(組字期間 v-model 也尚未更新)。
+  if (e.isComposing || e.keyCode === 229) return
   if (e.key === 'Enter') {
     e.preventDefault()
     if (text.value.trim()) add(text.value)

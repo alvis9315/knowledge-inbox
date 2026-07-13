@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
+import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useLocalStorage } from '@vueuse/core'
 import { PanelLeft, Search, PlusCircle, Menu, X, Power, Settings, Tag, SwatchBook, Droplet, Image as ImageIcon } from 'lucide-vue-next'
@@ -21,9 +21,11 @@ import { toast } from '@/composables/useToast'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { useAuthStore } from '@/features/auth/stores/authStore'
 import { isMock } from '@/services/dataMode'
-import KnowledgeGalaxy from '@/components/backgrounds/KnowledgeGalaxy.vue'
-import KnowledgeThreads from '@/components/backgrounds/KnowledgeThreads.vue'
-import GalaxyImageBackground from '@/components/backgrounds/GalaxyImageBackground.vue'
+// 活背景(WebGL/OGL)按需載入:主題用到哪種才抓哪個 chunk,
+// 之後主題風格擴到 20 種活背景也不會撐爆主包。
+const KnowledgeGalaxy = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeGalaxy.vue'))
+const KnowledgeThreads = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeThreads.vue'))
+const GalaxyImageBackground = defineAsyncComponent(() => import('@/components/backgrounds/GalaxyImageBackground.vue'))
 import BackgroundSettings from '@/features/theme/BackgroundSettings.vue'
 import { topbarOpacity, sidebarOpacity, cardOpacity, entryOpacity, cardGlass, chromeBg } from '@/features/theme/chromeOpacity'
 import {
