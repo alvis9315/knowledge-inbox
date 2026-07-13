@@ -16,4 +16,6 @@ export const BG_COMPONENTS: Partial<Record<LiveBgKind, Component>> = {
   silk: defineAsyncComponent(() => import('./KnowledgeSilk.vue')),
   iridescence: defineAsyncComponent(() => import('./KnowledgeIridescence.vue')),
   letterglitch: defineAsyncComponent(() => import('./KnowledgeLetterGlitch.vue')),
+  lightning: defineAsyncComponent(() => import('./KnowledgeLightning.vue')),
+  liquidchrome: defineAsyncComponent(() => import('./KnowledgeLiquidChrome.vue')),
 }

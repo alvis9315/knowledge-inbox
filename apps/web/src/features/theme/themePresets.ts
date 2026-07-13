@@ -7,6 +7,7 @@
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
+  | 'lightning' | 'liquidchrome'
 
 export interface ThemePreset {
   canvas: string
@@ -171,6 +172,26 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0a120d', surface: '#101a14', elevated: '#15221b', line: '#23392c',
       ink: '#dcf5e8', muted: '#8bb59e', accent: '#61dca3', accentFg: '#0a120d',
       accentSoft: 'rgba(97, 220, 163, 0.16)',
+    },
+  },
+  {
+    key: 'storm-lightning',
+    label: '閃電(活背景)',
+    liveBg: 'lightning',
+    preset: {
+      canvas: '#070a16', surface: '#0e1326', elevated: '#141a36', line: '#232c52',
+      ink: '#e6ebff', muted: '#8e9cc8', accent: '#6d84ff', accentFg: '#070a16',
+      accentSoft: 'rgba(109, 132, 255, 0.16)',
+    },
+  },
+  {
+    key: 'liquid-chrome',
+    label: '液態鉻(活背景)',
+    liveBg: 'liquidchrome',
+    preset: {
+      canvas: '#0b0e15', surface: '#131722', elevated: '#1a1f2e', line: '#2a3044',
+      ink: '#e9edf5', muted: '#98a2b8', accent: '#8fa8d0', accentFg: '#0b0e15',
+      accentSoft: 'rgba(143, 168, 208, 0.16)',
     },
   },
   {
