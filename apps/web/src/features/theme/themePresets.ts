@@ -7,7 +7,7 @@
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
-  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb'
+  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma'
 
 export interface ThemePreset {
   canvas: string
@@ -222,6 +222,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#08060f', surface: '#110d1e', elevated: '#17122a', line: '#2a2245',
       ink: '#ece6fa', muted: '#a195c2', accent: '#9c74ff', accentFg: '#08060f',
       accentSoft: 'rgba(156, 116, 255, 0.16)',
+    },
+  },
+  {
+    key: 'plasma-flow',
+    label: '電漿(活背景)',
+    liveBg: 'plasma',
+    preset: {
+      canvas: '#070a12', surface: '#0e1322', elevated: '#141b34', line: '#243052',
+      ink: '#e8edfb', muted: '#8f9dc4', accent: '#7d97e0', accentFg: '#070a12',
+      accentSoft: 'rgba(125, 151, 224, 0.16)',
     },
   },
   {
