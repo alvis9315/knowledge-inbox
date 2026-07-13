@@ -660,11 +660,15 @@ async function withGoogle() {
   font-size: clamp(2.5rem, 7.6vw, 8.5rem) !important;
   transform: translateY(-9vh);
 }
-/* SplitText:逐字上彈進場 */
+/* SplitText:逐字上彈進場。
+   注意:父層 background-clip:text 傳不進 inline-block 子元素(字會只剩
+   text-shadow 的糊影),逐字 span 必須自帶實色填色。 */
 .split-ch {
   opacity: 0;
   transform: translateY(0.55em);
   animation: split-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.15) forwards;
+  color: #cfe8ff;
+  -webkit-text-fill-color: #cfe8ff;
 }
 @keyframes split-in {
   to { opacity: 1; transform: translateY(0); }
