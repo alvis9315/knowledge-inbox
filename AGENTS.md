@@ -36,6 +36,20 @@
 5. 資料 mapping / formatting 不塞在 view;Pinia store 不當垃圾桶
 6. 即使 MVP,也維持 App / layouts / views / features / components/common / services / router 邊界
 
+## Lazy loading 防呆(2026-07-14 活背景災區教訓)
+
+lazy 的機制是**動態 import**(Vite 見 `() => import(...)` 自動切 chunk、用到才下載);
+vite.config 的 `manualChunks` 只能分組不能延遲,unplugin auto-import 只是省打字,兩者都不是 lazy。
+
+1. **路由一律 lazy**:router 的 component 必為 `() => import('@/views/X.vue')`
+2. **重型元件必用 `defineAsyncComponent`**:WebGL/canvas(活背景)、重 lib 的元件、
+   條件渲染且非首屏必經的大塊功能。判斷基準:該元件(含其依賴)> ~20KB 或非多數人首屏會用到
+3. **大型資料/lib 用函式內 `await import()`**:已做 xlsx(匯出才載)、emojibase(開面板才載);
+   之後同類(字型檔、大字典、重演算法)照此模式
+4. **輕量元件不要 async**:小 modal(幾 KB)async 只會多一次網路 round-trip,沒收益
+5. **新增每種主題活背景時,只准以 `defineAsyncComponent` 掛進 AppShell**(主包零成長是硬指標)
+6. 驗收方式:`vite build` 看產物清單,新功能的重依賴必須出現在獨立 chunk,不得混進 `index-*.js`
+
 ## UI / CSS 防呆
 
 1. UI 樣式統一 Tailwind CSS v4,不混用其他 UI library
