@@ -16,6 +16,15 @@ import { applyTheme } from '@/features/theme/useCategoryTheme'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { useAuthStore } from '@/features/auth/stores/authStore'
 import { isMock } from '@/services/dataMode'
+import KnowledgeGalaxy from '@/components/backgrounds/KnowledgeGalaxy.vue'
+import KnowledgeThreads from '@/components/backgrounds/KnowledgeThreads.vue'
+import GalaxyImageBackground from '@/components/backgrounds/GalaxyImageBackground.vue'
+import {
+  GALAXY_BG_CSS,
+  GALAXY_BG_STARS,
+  currentLoginBg,
+  currentGalaxyBg,
+} from '@/features/theme/loginBackdrop'
 
 const store = useCategoriesStore()
 const auth = useAuthStore()
@@ -25,6 +34,12 @@ const settingsOpen = ref(false)
 const tagsOpen = ref(false)
 const domainThemeOpen = ref(false)
 const mock = computed(() => isMock())
+
+// 登入頁選定的「活背景」鋪滿整站(AppShell 掛載時讀定;換風格 = 回登入頁換)。
+const liveBg = currentLoginBg()
+const liveGalaxy = currentGalaxyBg()
+const liveGalaxyCss = GALAXY_BG_CSS[liveGalaxy]
+const liveStars = GALAXY_BG_STARS[liveGalaxy]
 
 const logoutConfirmOpen = ref(false)
 const loggingOut = ref(false)
@@ -91,7 +106,39 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <div class="flex h-full flex-col overflow-hidden">
+  <div class="relative flex h-full flex-col overflow-hidden">
+    <!-- 登入頁同款活背景(fixed 鋪滿;介面表層半透明讓它透出) -->
+    <div class="fixed inset-0 -z-10" aria-hidden="true">
+      <KnowledgeGalaxy
+        v-if="liveBg === 'galaxy'"
+        class="absolute inset-0"
+        :background="liveGalaxyCss"
+        :focal="[0.5, 0.5]"
+        :density="liveStars.density"
+        :star-tint="liveStars.starTint"
+        :glow-intensity="liveStars.glow"
+        :saturation="0.15"
+        :hue-shift="210"
+        :twinkle-intensity="0.3"
+        :rotation-speed="0.09"
+        :repulsion-strength="0"
+        :auto-center-repulsion="0"
+        :star-speed="0.65"
+        :speed="0.9"
+        :mouse-interaction="false"
+        :mouse-repulsion="false"
+        :transparent="true"
+      />
+      <KnowledgeThreads
+        v-else-if="liveBg === 'threads'"
+        class="absolute inset-0"
+        :color="[0.55, 0.72, 1.0]"
+        :amplitude="2.3"
+        :distance="0"
+        :enable-mouse-interaction="false"
+      />
+      <GalaxyImageBackground v-else class="absolute inset-0" :parallax="false" />
+    </div>
     <!-- Fixed top bar -->
     <header
       class="relative z-30 flex h-14 shrink-0 items-center gap-2 border-b border-line bg-surface/90 px-3 backdrop-blur sm:px-4"
@@ -161,14 +208,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <!-- Thin bar reflecting the active category's color. -->
     <div class="h-0.5 shrink-0 bg-accent transition-colors" />
 
-    <div v-if="mock" class="shrink-0 border-b border-line bg-surface px-4 py-1.5 text-center text-xs text-muted">
+    <div v-if="mock" class="shrink-0 border-b border-line bg-surface/70 px-4 py-1.5 text-center text-xs text-muted backdrop-blur">
       訪客 / Demo 模式 — 使用本機假資料,變更只存在這個瀏覽器,不會影響雲端。
     </div>
 
     <div class="flex min-h-0 flex-1 overflow-hidden">
       <!-- Desktop sidebar (fixed height, its own scroll — never moves the page) -->
       <aside
-        class="relative hidden h-full shrink-0 flex-col overflow-hidden border-r border-line bg-surface transition-[width] duration-300 ease-in-out md:flex"
+        class="relative hidden h-full shrink-0 flex-col overflow-hidden border-r border-line bg-surface/75 backdrop-blur-md transition-[width] duration-300 ease-in-out md:flex"
         :class="collapsed ? 'w-14' : 'w-60'"
       >
         <div class="min-h-0 flex-1 overflow-y-auto thin-scroll">
