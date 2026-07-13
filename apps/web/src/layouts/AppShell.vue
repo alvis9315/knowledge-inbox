@@ -275,7 +275,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           <Tag :size="16" /> 標籤管理
         </button>
         <button class="menu-item" @click="bgSettingsOpen = true">
-          <ImageIcon :size="16" /> 透明度調整
+          <ImageIcon :size="16" /> 玻璃感
         </button>
       </HoverMenu>
     </header>
