@@ -1,5 +1,13 @@
 # Worklog
 
+## 2026-07-13 — 登入頁底圖三路線 + Star Color 控制
+
+- **仙女座結論**:shader/漸層做不出照片級螺旋星系(硬限制);依「UI 元件調查」md 採**寫實圖片底 + 輕量動效**路線。
+- **GalaxyImageBackground**(新):`<picture>`(avif/webp/jpg)+ 深色遮罩(手機加重)+ 14s 呼吸縮放 + ≤8px 滑鼠視差(手機/reduced-motion 關)+ 無圖檔優雅退回漸層。登入頁右下第三選項「圖片」;圖檔放 `public/images/login-galaxy.*`(建議自生 AI 圖或 NASA 公有領域,避開 Apple 壁紙版權)。
+- **星空第三底色**改「夜幕藍星雲」:深夜藍底 + 4 團有機星雲色暈(靛/紫/青/藍)+ SVG feTurbulence 細顆粒噪點層(避免平滑霧面、給顆粒感);key 升 v4。
+- **Star Color 控制**:shader 加 `uStarTint`(乘進星色,白=中性不影響);面板加色彩選擇器 + 8 快選色票;複製 props 帶 `star-tint`。
+- 驗證:typecheck ✅、build ✅。
+
 ## 2026-07-13 — 首頁改大類別破題 + 側欄/favicon/命名一批
 
 - **首頁「分類總覽」改為大類別破題**:輪播從 63 張子分類卡改成 ~7 張大類別卡(`DomainCard`,點進 domain view)。輪播抽成通用 slot 版 `CardCarousel`(取代 `CategoryCarousel`);`CarouselSettings` 顯示開關改以大分類為單位(`ki-carousel-hidden-domains`)。

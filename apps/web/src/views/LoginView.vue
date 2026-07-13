@@ -5,26 +5,38 @@ import { useLocalStorage } from '@vueuse/core'
 import { Sparkles, ArrowRight, LogIn, SlidersHorizontal } from 'lucide-vue-next'
 import KnowledgeGalaxy from '@/components/backgrounds/KnowledgeGalaxy.vue'
 import KnowledgeThreads from '@/components/backgrounds/KnowledgeThreads.vue'
+import GalaxyImageBackground from '@/components/backgrounds/GalaxyImageBackground.vue'
 import { useAuthStore } from '@/features/auth/stores/authStore'
 
-const bg = useLocalStorage<'galaxy' | 'threads'>('ki-login-bg', 'galaxy')
+const bg = useLocalStorage<'galaxy' | 'threads' | 'image'>('ki-login-bg', 'galaxy')
 
 // Galaxy backdrop colour — three testable options.
 type GalaxyBg = 'black' | 'blue' | 'nebula'
-const galaxyBg = useLocalStorage<GalaxyBg>('ki-login-galaxy-bg-v2', 'black')
+const galaxyBg = useLocalStorage<GalaxyBg>('ki-login-galaxy-bg-v4', 'black')
+
+// 夜幕藍星雲:深夜藍底 + 有機分佈的星雲色暈(靛藍/紫/青)+ 細顆粒噪點層
+// (SVG feTurbulence,給背景真實粒子質感、避免平滑霧面)。crisp 星點由 shader
+// 疊上。噪點層放最上、以 140px 平鋪、低不透明度。
+const nebulaBg =
+  `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.07'/%3E%3C/svg%3E") 0 0 / 140px 140px repeat,` +
+  `radial-gradient(ellipse 42% 36% at 28% 32%, rgba(84,118,220,0.16) 0%, transparent 60%),` +
+  `radial-gradient(ellipse 48% 42% at 72% 64%, rgba(122,82,192,0.15) 0%, transparent 62%),` +
+  `radial-gradient(ellipse 40% 30% at 60% 20%, rgba(56,150,180,0.10) 0%, transparent 60%),` +
+  `radial-gradient(ellipse 55% 46% at 40% 78%, rgba(48,96,170,0.10) 0%, transparent 64%),` +
+  `radial-gradient(ellipse 122% 112% at 50% 50%, #0c1b40 0%, #0a1533 40%, #070f26 72%, #04091a 100%)`
+
 const BG: Record<GalaxyBg, string> = {
   black: 'radial-gradient(circle at 50% 50%, #0a0a14 0%, #000 82%)',
   blue: 'radial-gradient(circle at 50% 50%, #12224e 0%, #0b1636 36%, #070d24 64%, #03050f 100%)',
-  nebula:
-    'radial-gradient(ellipse 82% 56% at 50% 50%, #fbe4d2 0%, #f2d9c3 5%, #dfbca9 11%, #dbb0a0 16%, #a26b66 21%, #967786 26%, #83718b 32%, #858baf 37%, #3a3f77 42%, #3667aa 47%, #ddf0ff 53%, #4e94d0 58%, #1c6cb3 63%, #15559d 68%, #0e4585 74%, #14336a 79%, #142752 84%, #0d1834 89%, #0c1125 95%, #0b0b17 100%)',
+  nebula: nebulaBg,
 }
 const bgOptions: Array<{ key: GalaxyBg; label: string }> = [
   { key: 'black', label: '黑底' },
   { key: 'blue', label: '深邃藍' },
-  { key: 'nebula', label: '星雲多彩' },
+  { key: 'nebula', label: '夜幕藍星雲' },
 ]
 const galaxyBgCss = computed(() => BG[galaxyBg.value])
-const titleClass = computed(() => (bg.value === 'galaxy' ? 'title-galaxy' : 'title-threads'))
+const titleClass = computed(() => (bg.value === 'threads' ? 'title-threads' : 'title-galaxy'))
 const showGalaxyControls = ref(false)
 const showThreadsControls = ref(false)
 
@@ -85,7 +97,7 @@ async function withGoogle() {
       :transparent="true"
     />
     <KnowledgeThreads
-      v-else
+      v-else-if="bg === 'threads'"
       class="absolute inset-0"
       :show-controls="showThreadsControls"
       :color="[0.55, 0.72, 1.0]"
@@ -93,6 +105,7 @@ async function withGoogle() {
       :distance="0"
       :enable-mouse-interaction="true"
     />
+    <GalaxyImageBackground v-else class="absolute inset-0" />
 
     <!-- galaxy backdrop colour swatches -->
     <div v-if="bg === 'galaxy'" class="absolute bottom-4 left-4 z-20 flex items-center gap-2">
@@ -139,6 +152,11 @@ async function withGoogle() {
         :class="bg === 'threads' ? 'bg-white text-slate-900' : 'text-white/70 hover:text-white'"
         @click="bg = 'threads'"
       >線條</button>
+      <button
+        class="rounded-full px-3 py-1 transition"
+        :class="bg === 'image' ? 'bg-white text-slate-900' : 'text-white/70 hover:text-white'"
+        @click="bg = 'image'"
+      >圖片</button>
     </div>
 
     <div

@@ -32,6 +32,9 @@ const toggles: Array<{ key: keyof GalaxyConfig; label: string }> = [
   { key: 'disableAnimation', label: 'Disable Animation' },
 ]
 
+// Star glow tint quick-picks (white = neutral / official look).
+const TINT_PRESETS = ['#ffffff', '#bfd7ff', '#9fc5ff', '#ffd9a0', '#f4c430', '#ff9d9d', '#c9a0ff', '#9dffd0']
+
 const copied = ref(false)
 function copyProps() {
   const c = props.config
@@ -46,6 +49,7 @@ function copyProps() {
   :auto-center-repulsion="${c.autoCenterRepulsion}"
   :star-speed="${c.starSpeed}"
   :speed="${c.speed}"
+  star-tint="${c.starTint}"
   :mouse-interaction="${c.mouseInteraction}"
   :mouse-repulsion="${c.mouseRepulsion}"
 />`
@@ -76,6 +80,31 @@ function copyProps() {
         {{ t.label }}
         <input v-model="(config as any)[t.key]" type="checkbox" class="accent-white" />
       </label>
+
+      <!-- Star glow colour: picker + quick swatches (white = neutral) -->
+      <div class="flex flex-col gap-1.5 rounded-lg bg-white/5 px-3 py-2 text-xs text-white/80">
+        <span class="flex items-center justify-between">
+          Star Color
+          <span class="font-mono text-white">{{ config.starTint }}</span>
+        </span>
+        <div class="flex items-center gap-1.5">
+          <input
+            v-model="(config as any).starTint"
+            type="color"
+            class="h-6 w-8 shrink-0 cursor-pointer rounded border border-white/20 bg-transparent"
+            aria-label="星星光暈顏色"
+          />
+          <button
+            v-for="c in TINT_PRESETS"
+            :key="c"
+            class="h-4 w-4 shrink-0 rounded-full border border-white/25 transition hover:scale-125"
+            :class="config.starTint === c ? 'ring-1 ring-white' : ''"
+            :style="{ background: c }"
+            :aria-label="`星色 ${c}`"
+            @click="(config as any).starTint = c"
+          />
+        </div>
+      </div>
 
       <label
         v-for="s in sliders"

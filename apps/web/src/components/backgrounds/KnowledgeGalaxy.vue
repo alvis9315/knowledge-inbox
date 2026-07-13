@@ -23,6 +23,8 @@ export interface GalaxyConfig {
   twinkleIntensity: number
   rotationSpeed: number
   autoCenterRepulsion: number
+  /** Hex tint multiplied into every star's colour. '#ffffff' = neutral. */
+  starTint: string
 }
 
 interface KnowledgeGalaxyProps extends Partial<GalaxyConfig> {
@@ -55,6 +57,7 @@ const props = withDefaults(defineProps<KnowledgeGalaxyProps>(), {
   twinkleIntensity: 0.3,
   rotationSpeed: 0.1,
   autoCenterRepulsion: 0,
+  starTint: '#ffffff',
   transparent: true,
   mouseSmoothing: 0.05,
   maxDpr: 2,
@@ -80,7 +83,17 @@ const cfg = reactive<GalaxyConfig>({
   twinkleIntensity: props.twinkleIntensity,
   rotationSpeed: props.rotationSpeed,
   autoCenterRepulsion: props.autoCenterRepulsion,
+  starTint: props.starTint,
 })
+
+/** '#rrggbb' (or '#rgb') → [0..1, 0..1, 0..1] for the uStarTint uniform. */
+function hexToRgb01(hex: string): [number, number, number] {
+  const m = hex.replace('#', '')
+  const full = m.length === 3 ? m.split('').map((c) => c + c).join('') : m
+  const n = parseInt(full, 16)
+  if (Number.isNaN(n)) return [1, 1, 1]
+  return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]
+}
 
 const containerRef = ref<HTMLDivElement | null>(null)
 const hasWebGlError = ref(false)
@@ -129,6 +142,7 @@ uniform float uSpeed;
 uniform vec2 uMouse;
 uniform float uGlowIntensity;
 uniform float uSaturation;
+uniform vec3 uStarTint;
 uniform float uMouseRepulsion;
 uniform float uTwinkleIntensity;
 uniform float uRotationSpeed;
@@ -184,6 +198,7 @@ vec3 StarLayer(vec2 uv) {
       float sat = length(base - vec3(dot(base, vec3(0.299, 0.587, 0.114)))) * uSaturation;
       float val = max(max(base.r, base.g), base.b);
       base = hsv2rgb(vec3(hue, sat, val));
+      base *= uStarTint; // colour tint; white = neutral
       vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
       float star = Star(gv - offset - pad, flareSize);
       float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
@@ -253,6 +268,7 @@ function syncUniforms() {
   u.uSpeed.value = cfg.speed * speedScale
   u.uGlowIntensity.value = cfg.glowIntensity
   u.uSaturation.value = cfg.saturation
+  u.uStarTint.value = hexToRgb01(cfg.starTint)
   u.uTwinkleIntensity.value = cfg.twinkleIntensity
   u.uRotationSpeed.value = cfg.rotationSpeed
   u.uRepulsionStrength.value = cfg.repulsionStrength
@@ -334,6 +350,7 @@ onMounted(() => {
         uMouse: { value: [0.5, 0.5] as number[] },
         uGlowIntensity: { value: cfg.glowIntensity },
         uSaturation: { value: cfg.saturation },
+        uStarTint: { value: hexToRgb01(cfg.starTint) },
         uMouseRepulsion: { value: cfg.mouseRepulsion ? 1 : 0 },
         uTwinkleIntensity: { value: cfg.twinkleIntensity },
         uRotationSpeed: { value: cfg.rotationSpeed },
