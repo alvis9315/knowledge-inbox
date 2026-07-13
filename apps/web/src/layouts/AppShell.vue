@@ -63,7 +63,7 @@ watch(
   },
   { immediate: true },
 )
-const collapsed = useLocalStorage('ki-sidebar-collapsed', false)
+const collapsed = useLocalStorage('ki-sidebar-collapsed-v2', false) // 預設展開
 const mobileOpen = ref(false)
 const captureOpen = ref(false)
 const newCategoryOpen = ref(false)
@@ -104,7 +104,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <Menu :size="18" />
       </button>
       <button
-        class="hidden h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-canvas hover:text-ink md:inline-flex"
+        class="-ml-0.5 hidden h-9 w-9 items-center justify-center rounded-lg text-muted hover:bg-canvas hover:text-ink sm:-ml-1.5 md:inline-flex"
         aria-label="收合側欄"
         @click="collapsed = !collapsed"
       >

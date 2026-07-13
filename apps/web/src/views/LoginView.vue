@@ -575,8 +575,6 @@ async function withGoogle() {
   pointer-events: none;
   z-index: 95;
   will-change: transform;
-  /* 與背景做差值:壓到白色按鈕自動變深、深空維持亮色——任何底色都有對比 */
-  mix-blend-mode: difference;
 }
 /* 官方 TargetCursor 的持續旋轉(2s/圈);位移在外層,旋轉放內層互不干擾 */
 .tc-spin {
@@ -594,8 +592,9 @@ async function withGoogle() {
   position: absolute;
   width: 9px;
   height: 9px;
-  /* difference 混合下用純白,反色後對比最大(深空≈白、白鈕上≈黑) */
+  /* 純白主體 + 深色細描邊:深空是白、白色按鈕上靠描邊維持可見 */
   border: 0 solid #ffffff;
+  filter: drop-shadow(0 0 1.5px rgba(10, 15, 30, 0.9));
 }
 .tc-corner.tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
 .tc-corner.tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
@@ -610,6 +609,7 @@ async function withGoogle() {
   margin: -2px 0 0 -2px;
   border-radius: 9999px;
   background: #ffffff;
+  box-shadow: 0 0 2px rgba(10, 15, 30, 0.9);
 }
 
 /* TrueFocus 對焦框(hover 由外縮入;移開向外擴散淡出) */
