@@ -4,7 +4,7 @@ import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { domainIcon } from '@/features/categories/domainIcons'
 import { THEME_PRESETS } from './themePresets'
-import { applyTheme, domainThemeKey, setDomainTheme } from './useCategoryTheme'
+import { applyTheme, domainThemeKey, setDomainTheme, homeThemeKey, setHomeTheme } from './useCategoryTheme'
 
 const props = defineProps<{ open: boolean; activeDomain?: string | null }>()
 const emit = defineEmits<{ close: [] }>()
@@ -21,6 +21,11 @@ function change(domain: string, key: string) {
 }
 
 const PRESET_OPTIONS = THEME_PRESETS.map((p) => ({ value: p.key, label: p.label }))
+const HOME_OPTIONS = [{ value: '__follow__', label: '跟隨登入頁' }, ...PRESET_OPTIONS]
+function changeHome(key: string) {
+  setHomeTheme(key === '__follow__' ? null : key)
+  if (props.activeDomain == null) applyTheme(null) // 正在首頁就即時反映
+}
 </script>
 
 <template>
@@ -31,6 +36,20 @@ const PRESET_OPTIONS = THEME_PRESETS.map((p) => ({ value: p.key, label: p.label 
       <li>· 子類別若另設主色,只覆蓋主色,底色文字仍照這裡</li>
     </ul>
     <div class="flex max-h-[60vh] flex-col gap-2 overflow-y-auto thin-scroll">
+      <!-- 首頁導覽(總覽/全部/待確認)的主題;未指定=跟隨登入頁 -->
+      <div class="flex items-center gap-3 rounded-xl border border-line bg-canvas px-3 py-2.5">
+        <span class="text-lg">🏠</span>
+        <span class="w-24 shrink-0 truncate text-sm font-medium text-ink">首頁導覽</span>
+        <div class="ml-auto w-40">
+          <SearchableSelect
+            :model-value="homeThemeKey() ?? '__follow__'"
+            :options="HOME_OPTIONS"
+            :searchable="false"
+            :clearable="false"
+            @update:model-value="changeHome($event ?? '__follow__')"
+          />
+        </div>
+      </div>
       <div v-for="d in store.domains" :key="d" class="flex items-center gap-3 rounded-lg bg-canvas px-3 py-2">
         <span class="text-lg">{{ domainIcon(d) }}</span>
         <span class="w-24 shrink-0 truncate text-sm font-medium text-ink">{{ d }}</span>

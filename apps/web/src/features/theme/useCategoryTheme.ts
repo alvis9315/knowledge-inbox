@@ -10,6 +10,18 @@ import { DEFAULT_DOMAIN_PRESET, presetByKey, type ThemePreset } from './themePre
 // Per-大類別 preset overrides (domain → preset key).
 const overrides = useLocalStorage<Record<string, string>>('ki-domain-theme', {})
 
+/** 首頁(分類總覽/全部/待確認)的主題覆寫 key。 */
+export const HOME_THEME_KEY = '__home__'
+export function homeThemeKey(): string | null {
+  return overrides.value[HOME_THEME_KEY] ?? null
+}
+export function setHomeTheme(key: string | null) {
+  const next = { ...overrides.value }
+  if (key) next[HOME_THEME_KEY] = key
+  else delete next[HOME_THEME_KEY]
+  overrides.value = next
+}
+
 export function domainThemeKey(domain: string): string {
   return overrides.value[domain] ?? DEFAULT_DOMAIN_PRESET[domain] ?? 'default'
 }
@@ -64,9 +76,11 @@ function appBasePreset(): ThemePreset | null {
  */
 export function applyTheme(domain: string | null | undefined, categoryColor?: string | null) {
   reset()
-  const base = appBasePreset()
   if (!domain) {
-    if (base) applyPreset(base)
+    // 首頁若在「主題風格」指定了主題就用它;未指定 → 跟隨登入頁風格。
+    const hk = homeThemeKey()
+    const preset = hk ? presetByKey(hk).preset : appBasePreset()
+    if (preset) applyPreset(preset)
     if (categoryColor) applyAccent(categoryColor)
     return
   }

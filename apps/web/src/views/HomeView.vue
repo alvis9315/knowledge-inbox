@@ -54,7 +54,7 @@ const bottomRow = computed(() => {
   <section class="flex min-h-0 flex-1 flex-col gap-4">
     <div class="flex shrink-0 flex-wrap items-end justify-between gap-3">
       <div>
-        <h1 class="text-xl font-semibold text-ink">分類總覽</h1>
+        <h1 class="text-xl font-semibold text-ink">首頁導覽</h1>
         <p class="text-sm text-muted">
           {{ cards.length }} / {{ store.domains.length }} 個大分類 · 點卡片查看該類別
         </p>

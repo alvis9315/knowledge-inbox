@@ -12,7 +12,7 @@ import DomainThemeSettings from '@/features/theme/DomainThemeSettings.vue'
 import TagManager from '@/features/tags/components/TagManager.vue'
 import HoverMenu from '@/components/common/HoverMenu.vue'
 import BaseConfirm from '@/components/common/BaseConfirm.vue'
-import { applyTheme, domainThemeKey } from '@/features/theme/useCategoryTheme'
+import { applyTheme, domainThemeKey, homeThemeKey } from '@/features/theme/useCategoryTheme'
 import { presetByKey, type LiveBgKind } from '@/features/theme/themePresets'
 import { activeLiveBg, bgControlsOpen } from '@/features/theme/liveBgControls'
 import FileUploadModal from '@/components/common/FileUploadModal.vue'
@@ -115,7 +115,10 @@ const activeDomain = computed(() => themeContext.value.domain)
 const activeLive = computed<LiveBgKind | null>(() => {
   if (route.name === 'entry-detail') return null
   const d = themeContext.value.domain
-  if (d === null) return liveBg
+  if (d === null) {
+    const hk = homeThemeKey()
+    return hk ? (presetByKey(hk).liveBg ?? null) : liveBg
+  }
   return presetByKey(domainThemeKey(d)).liveBg ?? null
 })
 watch(activeLive, (v) => (activeLiveBg.value = v), { immediate: true })
