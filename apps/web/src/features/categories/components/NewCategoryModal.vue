@@ -8,6 +8,7 @@ import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import { setDomainIcon } from '@/features/categories/api/categoriesApi'
 import { domainIcon } from '@/features/categories/domainIcons'
 import { toast } from '@/composables/useToast'
+import { humanError } from '@/utils/humanError'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 
 /**
@@ -136,7 +137,7 @@ async function submit() {
     )
     emit('close')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    error.value = humanError(e, '建立失敗,請稍後再試')
   } finally {
     saving.value = false
   }

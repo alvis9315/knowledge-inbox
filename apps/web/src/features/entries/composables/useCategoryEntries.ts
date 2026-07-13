@@ -2,6 +2,7 @@ import { ref, watch, type Ref } from 'vue'
 import { fetchEntriesPage, reorderEntries } from '@/features/entries/api/entriesApi'
 import { PAGE_SIZE } from '@/features/entries/constants'
 import type { EntryWithTags, SortMode } from '@/features/entries/types'
+import { humanError } from '@/utils/humanError'
 
 /** State + actions for a category's paginated, sortable, searchable entry list. */
 export function useCategoryEntries(type: Ref<string>, revision: Ref<number>) {
@@ -33,7 +34,7 @@ export function useCategoryEntries(type: Ref<string>, revision: Ref<number>) {
       rows.value = res.rows
       total.value = res.total
     } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e)
+      error.value = humanError(e, '載入項目失敗,請重新整理再試')
     } finally {
       loading.value = false
     }
@@ -59,7 +60,7 @@ export function useCategoryEntries(type: Ref<string>, revision: Ref<number>) {
     try {
       await reorderEntries(orderedIds)
     } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e)
+      error.value = humanError(e, '排序儲存失敗,請重新整理再試')
       await load()
     }
   }

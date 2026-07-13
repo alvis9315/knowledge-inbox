@@ -12,6 +12,7 @@ import { useExport, type ExportFormat } from '@/features/entries/composables/use
 import { applyTheme } from '@/features/theme/useCategoryTheme'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import type { EntryWithTags } from '@/features/entries/types'
+import { humanError } from '@/utils/humanError'
 
 const props = defineProps<{ id: string }>()
 const store = useCategoriesStore()
@@ -45,7 +46,7 @@ async function load() {
     // Apply the entry's 大類別 world theme (covers deep-links to a detail page).
     applyTheme(category.value?.domain, category.value?.color)
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    error.value = humanError(e, '載入項目失敗,請重新整理再試')
   } finally {
     loading.value = false
   }

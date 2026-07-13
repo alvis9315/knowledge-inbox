@@ -5,6 +5,7 @@ import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import { addTag, fetchTagsDetailed, renameTag, setTagHidden, type TagDetail } from '@/features/tags/api/tagsApi'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
+import { humanError } from '@/utils/humanError'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: [] }>()
@@ -29,7 +30,7 @@ async function load() {
   try {
     tags.value = await fetchTagsDetailed()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    error.value = humanError(e, '標籤操作失敗,請稍後再試')
   } finally {
     loading.value = false
   }
@@ -45,7 +46,7 @@ async function doAdd() {
     await load()
     await store.reload()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    error.value = humanError(e, '標籤操作失敗,請稍後再試')
   }
 }
 
@@ -62,7 +63,7 @@ async function saveEdit(oldName: string) {
     await load()
     await store.touch() // entries' tags changed
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    error.value = humanError(e, '標籤操作失敗,請稍後再試')
   }
 }
 async function toggleHidden(t: TagDetail) {
@@ -71,7 +72,7 @@ async function toggleHidden(t: TagDetail) {
     await load()
     await store.reload()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    error.value = humanError(e, '標籤操作失敗,請稍後再試')
   }
 }
 </script>

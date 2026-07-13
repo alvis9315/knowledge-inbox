@@ -13,6 +13,7 @@ import {
 } from '@/features/categories/api/categoriesApi'
 import { fetchAllTagNames } from '@/features/tags/api/tagsApi'
 import { setDomainIconOverrides } from '@/features/categories/domainIcons'
+import { humanError } from '@/utils/humanError'
 
 export const useCategoriesStore = defineStore('categories', () => {
   const categories = ref<CategoryMeta[]>([])
@@ -58,7 +59,7 @@ export const useCategoriesStore = defineStore('categories', () => {
       tagNames.value = tags
       setDomainIconOverrides(icons)
     } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e)
+      error.value = humanError(e, '載入資料失敗,請重新整理再試')
     } finally {
       loading.value = false
     }
@@ -80,7 +81,7 @@ export const useCategoriesStore = defineStore('categories', () => {
       setDomainIconOverrides(icons)
       ready.value = true
     } catch (e) {
-      error.value = e instanceof Error ? e.message : String(e)
+      error.value = humanError(e, '載入資料失敗,請重新整理再試')
     } finally {
       loading.value = false
     }
@@ -95,13 +96,16 @@ export const useCategoriesStore = defineStore('categories', () => {
       await reorderCategories(orderedKeys)
     } catch (e) {
       categories.value = prev
-      error.value = e instanceof Error ? e.message : String(e)
+      error.value = humanError(e, '排序儲存失敗,已還原原本順序')
     }
   }
 
   async function addCategory(input: NewCategoryInput) {
     await createCategory(input)
     await reload()
+    // 使用者視角:按「建立」後畫面必須是乾淨的成功狀態——reload 失敗
+    // 也算整個流程失敗,往上拋讓呼叫端顯示失敗訊息,不得默默吞掉。
+    if (error.value) throw new Error(error.value)
   }
 
   /** Reorder the 大類別 (domains); reflect immediately, persist, reload. */
@@ -117,7 +121,7 @@ export const useCategoriesStore = defineStore('categories', () => {
       await reorderDomainsApi(orderedDomains)
     } catch (e) {
       categories.value = prev
-      error.value = e instanceof Error ? e.message : String(e)
+      error.value = humanError(e, '排序儲存失敗,已還原原本順序')
     }
   }
 

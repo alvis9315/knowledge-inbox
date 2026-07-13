@@ -9,6 +9,7 @@ import { createEntry } from '@/features/entries/api/entriesApi'
 import { classifyText } from '@/features/capture/classify'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { toast } from '@/composables/useToast'
+import { humanError } from '@/utils/humanError'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: []; saved: [] }>()
@@ -78,7 +79,7 @@ async function submit() {
     emit('saved')
     emit('close')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    error.value = humanError(e, '儲存失敗,請稍後再試')
   } finally {
     saving.value = false
   }

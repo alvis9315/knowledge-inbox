@@ -7,6 +7,7 @@ import KnowledgeGalaxy from '@/components/backgrounds/KnowledgeGalaxy.vue'
 import KnowledgeThreads from '@/components/backgrounds/KnowledgeThreads.vue'
 import GalaxyImageBackground from '@/components/backgrounds/GalaxyImageBackground.vue'
 import { useAuthStore } from '@/features/auth/stores/authStore'
+import { humanError } from '@/utils/humanError'
 
 const bg = useLocalStorage<'galaxy' | 'threads' | 'image'>('ki-login-bg', 'galaxy')
 
@@ -66,7 +67,7 @@ async function withPassword() {
     await auth.loginWithPassword(email.value.trim(), password.value)
     router.push('/')
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    error.value = humanError(e, '登入失敗,請稍後再試')
   } finally {
     busy.value = false
   }
@@ -76,7 +77,7 @@ async function withGoogle() {
   try {
     await auth.loginWithGoogle()
   } catch (e) {
-    error.value = e instanceof Error ? e.message : String(e)
+    error.value = humanError(e, '登入失敗,請稍後再試')
   }
 }
 </script>

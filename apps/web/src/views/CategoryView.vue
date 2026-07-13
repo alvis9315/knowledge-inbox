@@ -17,6 +17,7 @@ import ReviewItem from '@/features/entries/components/ReviewItem.vue'
 import NewCategoryModal from '@/features/categories/components/NewCategoryModal.vue'
 import { learnFromCorrection } from '@/features/capture/ruleClassifier'
 import { toast } from '@/composables/useToast'
+import { humanError } from '@/utils/humanError'
 import { useCategoryEntries } from '@/features/entries/composables/useCategoryEntries'
 import { useExport, type ExportFormat } from '@/features/entries/composables/useExport'
 import { updateEntry, deleteEntry, setEntryClosed, fetchEntriesPage } from '@/features/entries/api/entriesApi'
@@ -67,7 +68,7 @@ async function fileReviewed(entry: EntryWithTags, payload: { title: string; tags
     const c = store.typeByKey[type]
     toast.success(`已歸檔到「${c ? `${c.domain} / ${c.name}` : type}」`)
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : String(e))
+    toast.error(humanError(e, '歸檔失敗,請稍後再試'))
   } finally {
     filingId.value = null
   }
@@ -139,7 +140,7 @@ async function handleSave(input: EntryInput, id?: string) {
     await store.touch()
     await load()
   } catch (e) {
-    saveError.value = e instanceof Error ? e.message : String(e)
+    saveError.value = humanError(e, '儲存失敗,請稍後再試')
   }
 }
 // ── confirm (delete / 歇業) via a modern modal ──
@@ -193,7 +194,7 @@ async function runConfirm() {
     await confirm.value.action()
     confirm.value = null
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : String(e))
+    toast.error(humanError(e, '操作失敗,請稍後再試'))
   } finally {
     confirmBusy.value = false
   }
@@ -217,7 +218,7 @@ async function doExport(format: ExportFormat) {
     exportOpen.value = false
     toast.success(`已匯出「${heading.value.name}」`)
   } catch (e) {
-    toast.error(e instanceof Error ? e.message : String(e))
+    toast.error(humanError(e, '匯出失敗,請稍後再試'))
   } finally {
     exporting.value = false
   }
