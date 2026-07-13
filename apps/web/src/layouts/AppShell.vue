@@ -22,17 +22,10 @@ import { toast } from '@/composables/useToast'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { useAuthStore } from '@/features/auth/stores/authStore'
 import { isMock } from '@/services/dataMode'
-// 活背景(WebGL/OGL)按需載入:主題用到哪種才抓哪個 chunk,
-// 之後主題風格擴到 20 種活背景也不會撐爆主包。
-const KnowledgeGalaxy = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeGalaxy.vue'))
-const KnowledgeThreads = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeThreads.vue'))
+// 活背景改 registry 驅動(見 backgrounds/registry.ts):
+// 全部 async chunk 按需載入;image 因控制器=上傳 modal 仍為特例。
+import { BG_COMPONENTS } from '@/components/backgrounds/registry'
 const GalaxyImageBackground = defineAsyncComponent(() => import('@/components/backgrounds/GalaxyImageBackground.vue'))
-const KnowledgeAurora = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeAurora.vue'))
-const KnowledgeWaves = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeWaves.vue'))
-const KnowledgeDarkVeil = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeDarkVeil.vue'))
-const KnowledgeSilk = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeSilk.vue'))
-const KnowledgeIridescence = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeIridescence.vue'))
-const KnowledgeLetterGlitch = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeLetterGlitch.vue'))
 import BackgroundSettings from '@/features/theme/BackgroundSettings.vue'
 import { topbarOpacity, sidebarOpacity, cardOpacity, entryOpacity, cardGlass, chromeBg } from '@/features/theme/chromeOpacity'
 import {
@@ -139,16 +132,36 @@ const bgSettingsOpen = ref(false)
 const readCfg = (k: string) => {
   try { return JSON.parse(localStorage.getItem(k) ?? 'null') ?? {} } catch { return {} }
 }
-const galaxySaved = readCfg('ki-app-galaxy-cfg')
-const threadsSaved = readCfg('ki-app-threads-cfg')
-const auroraSaved = readCfg('ki-app-aurora-cfg')
-const wavesSaved = readCfg('ki-app-waves-cfg')
-const darkveilSaved = readCfg('ki-app-darkveil-cfg')
-const silkSaved = readCfg('ki-app-silk-cfg')
-const iridescenceSaved = readCfg('ki-app-iridescence-cfg')
-const letterglitchSaved = readCfg('ki-app-letterglitch-cfg')
-const onBgDone = (kind: LiveBgKind, cfg: Record<string, unknown>) => {
-  localStorage.setItem(`ki-app-${kind}-cfg`, JSON.stringify(cfg))
+// App 場景的基準 props(蓋過元件自身預設;galaxy 依登入頁選擇動態決定),
+// 使用者調過的參數(localStorage)再蓋在最上層。
+const BG_BASE_PROPS: Partial<Record<LiveBgKind, Record<string, unknown>>> = {
+  galaxy: {
+    background: liveGalaxyCss,
+    focal: [0.5, 0.5],
+    density: liveStars.density,
+    starTint: liveStars.starTint,
+    glowIntensity: liveStars.glow,
+    saturation: 0.15,
+    hueShift: 210,
+    twinkleIntensity: 0.3,
+    rotationSpeed: 0.09,
+    repulsionStrength: 0,
+    autoCenterRepulsion: 0,
+    starSpeed: 0.65,
+    speed: 0.9,
+    mouseInteraction: false,
+    mouseRepulsion: false,
+    transparent: true,
+  },
+  threads: { color: [0.55, 0.72, 1.0], amplitude: 2.3, distance: 0, enableMouseInteraction: false },
+}
+const activeBgProps = computed<Record<string, unknown>>(() => {
+  const kind = activeLive.value
+  if (!kind || kind === 'image') return {}
+  return { ...(BG_BASE_PROPS[kind] ?? {}), ...readCfg(`ki-app-${kind}-cfg`) }
+})
+const onBgDone = (cfg: Record<string, unknown>) => {
+  if (activeLive.value) localStorage.setItem(`ki-app-${activeLive.value}-cfg`, JSON.stringify(cfg))
   bgControlsOpen.value = false
 }
 watch(
@@ -204,88 +217,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <!-- 調參時背景層升到最上層(全螢幕預覽),平時墊在內容底下 -->
     <div v-if="liveBgActive" class="fixed inset-0" :class="bgControlsOpen ? 'z-40' : '-z-10'" :aria-hidden="!bgControlsOpen">
 
-      <KnowledgeGalaxy
-        v-if="activeLive === 'galaxy'"
+      <!-- registry 驅動:kind → 元件,props = 基準 + 使用者調參(localStorage) -->
+      <component
+        :is="BG_COMPONENTS[activeLive]"
+        v-if="activeLive && activeLive !== 'image' && BG_COMPONENTS[activeLive]"
+        :key="activeLive"
         class="absolute inset-0"
-        :background="liveGalaxyCss"
-        :focal="[0.5, 0.5]"
-        :density="liveStars.density"
-        :star-tint="liveStars.starTint"
-        :glow-intensity="liveStars.glow"
-        :saturation="0.15"
-        :hue-shift="210"
-        :twinkle-intensity="0.3"
-        :rotation-speed="0.09"
-        :repulsion-strength="0"
-        :auto-center-repulsion="0"
-        :star-speed="0.65"
-        :speed="0.9"
-        :mouse-interaction="false"
-        :mouse-repulsion="false"
-        :transparent="true"
+        v-bind="activeBgProps"
         :show-controls="bgControlsOpen"
-        v-bind="galaxySaved"
-        @controls-done="onBgDone('galaxy', $event)"
-        @controls-cancel="bgControlsOpen = false"
-      />
-      <KnowledgeThreads
-        v-else-if="activeLive === 'threads'"
-        class="absolute inset-0"
-        :color="[0.55, 0.72, 1.0]"
-        :amplitude="2.3"
-        :distance="0"
-        :enable-mouse-interaction="false"
-        :show-controls="bgControlsOpen"
-        v-bind="threadsSaved"
-        @controls-done="onBgDone('threads', $event)"
-        @controls-cancel="bgControlsOpen = false"
-      />
-      <KnowledgeAurora
-        v-else-if="activeLive === 'aurora'"
-        class="absolute inset-0"
-        :show-controls="bgControlsOpen"
-        v-bind="auroraSaved"
-        @controls-done="onBgDone('aurora', $event)"
-        @controls-cancel="bgControlsOpen = false"
-      />
-      <KnowledgeWaves
-        v-else-if="activeLive === 'waves'"
-        class="absolute inset-0"
-        :show-controls="bgControlsOpen"
-        v-bind="wavesSaved"
-        @controls-done="onBgDone('waves', $event)"
-        @controls-cancel="bgControlsOpen = false"
-      />
-      <KnowledgeDarkVeil
-        v-else-if="activeLive === 'darkveil'"
-        class="absolute inset-0"
-        :show-controls="bgControlsOpen"
-        v-bind="darkveilSaved"
-        @controls-done="onBgDone('darkveil', $event)"
-        @controls-cancel="bgControlsOpen = false"
-      />
-      <KnowledgeSilk
-        v-else-if="activeLive === 'silk'"
-        class="absolute inset-0"
-        :show-controls="bgControlsOpen"
-        v-bind="silkSaved"
-        @controls-done="onBgDone('silk', $event)"
-        @controls-cancel="bgControlsOpen = false"
-      />
-      <KnowledgeIridescence
-        v-else-if="activeLive === 'iridescence'"
-        class="absolute inset-0"
-        :show-controls="bgControlsOpen"
-        v-bind="iridescenceSaved"
-        @controls-done="onBgDone('iridescence', $event)"
-        @controls-cancel="bgControlsOpen = false"
-      />
-      <KnowledgeLetterGlitch
-        v-else-if="activeLive === 'letterglitch'"
-        class="absolute inset-0"
-        :show-controls="bgControlsOpen"
-        v-bind="letterglitchSaved"
-        @controls-done="onBgDone('letterglitch', $event)"
+        @controls-done="onBgDone"
         @controls-cancel="bgControlsOpen = false"
       />
       <GalaxyImageBackground v-else-if="activeLive === 'image'" class="absolute inset-0" :parallax="false" :version="coverVersion" />
