@@ -136,7 +136,7 @@ function persistOrder() {
           v-for="cat in sorted"
           :key="cat.key"
           :to="{ name: 'category', params: { type: cat.key } }"
-          class="flex items-center gap-3 rounded-xl border border-line bg-surface px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+          class="flex items-center gap-3 rounded-xl border border-line card-bg px-4 py-3 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
         >
           <span class="text-xl leading-none">{{ cat.icon || '🏷️' }}</span>
           <span class="flex-1 truncate font-medium text-ink">{{ cat.name }}</span>

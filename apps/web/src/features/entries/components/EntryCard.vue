@@ -35,7 +35,7 @@ function open() {
 <template>
   <article
     v-tilt
-    class="flex cursor-pointer flex-col gap-3 rounded-xl border border-line bg-surface p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+    class="flex cursor-pointer flex-col gap-3 rounded-xl border border-line entry-bg p-4 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
     :class="draggable ? 'cursor-grab active:cursor-grabbing' : ''"
     @click="open"
   >

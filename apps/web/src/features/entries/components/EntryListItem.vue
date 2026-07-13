@@ -23,7 +23,7 @@ function open() {
 
 <template>
   <div
-    class="flex cursor-pointer items-center gap-3 rounded-lg border border-line bg-surface px-3 py-2.5 transition hover:bg-canvas"
+    class="flex cursor-pointer items-center gap-3 rounded-lg border border-line entry-bg px-3 py-2.5 transition hover:bg-canvas"
     :class="draggable ? 'cursor-grab active:cursor-grabbing' : ''"
     @click="open"
   >

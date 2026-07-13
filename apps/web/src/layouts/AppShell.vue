@@ -25,7 +25,7 @@ import KnowledgeGalaxy from '@/components/backgrounds/KnowledgeGalaxy.vue'
 import KnowledgeThreads from '@/components/backgrounds/KnowledgeThreads.vue'
 import GalaxyImageBackground from '@/components/backgrounds/GalaxyImageBackground.vue'
 import BackgroundSettings from '@/features/theme/BackgroundSettings.vue'
-import { topbarOpacity, sidebarOpacity, chromeBg } from '@/features/theme/chromeOpacity'
+import { topbarOpacity, sidebarOpacity, cardOpacity, entryOpacity, chromeBg } from '@/features/theme/chromeOpacity'
 import {
   GALAXY_BG_CSS,
   GALAXY_BG_STARS,
@@ -47,17 +47,6 @@ const liveBg = currentLoginBg()
 const liveGalaxy = currentGalaxyBg()
 const liveGalaxyCss = GALAXY_BG_CSS[liveGalaxy]
 const liveStars = GALAXY_BG_STARS[liveGalaxy]
-// 活背景解析:無大類別頁 = 登入頁選擇;大類別頁 = 該大類別「主題風格」
-// 若指定 liveBg(星空/線條/圖片)則鋪對應活背景,否則純世界配色。
-const activeLive = computed<LiveBgKind | null>(() => {
-  if (route.name === 'entry-detail') return null
-  const d = themeContext.value.domain
-  if (d === null) return liveBg
-  return presetByKey(domainThemeKey(d)).liveBg ?? null
-})
-watch(activeLive, (v) => (activeLiveBg.value = v), { immediate: true })
-const liveBgActive = computed(() => activeLive.value !== null)
-const bgSettingsOpen = ref(false)
 
 // 圖片活背景:控制器按鈕 = 開上傳封面(直觀、不佔版面)。
 const coverUploadOpen = ref(false)
@@ -120,6 +109,18 @@ const themeContext = computed<{ domain: string | null; color: string | null }>((
   return { domain: null, color: null }
 })
 const activeDomain = computed(() => themeContext.value.domain)
+
+// 活背景解析:無大類別頁 = 登入頁選擇;大類別頁 = 該大類別「主題風格」
+// 若指定 liveBg(星空/線條/圖片)則鋪對應活背景,否則純世界配色。
+const activeLive = computed<LiveBgKind | null>(() => {
+  if (route.name === 'entry-detail') return null
+  const d = themeContext.value.domain
+  if (d === null) return liveBg
+  return presetByKey(domainThemeKey(d)).liveBg ?? null
+})
+watch(activeLive, (v) => (activeLiveBg.value = v), { immediate: true })
+const liveBgActive = computed(() => activeLive.value !== null)
+const bgSettingsOpen = ref(false)
 watch(
   [themeContext, () => store.categories],
   () => {
@@ -158,7 +159,10 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 </script>
 
 <template>
-  <div class="relative flex h-full flex-col overflow-hidden">
+  <div
+    class="relative flex h-full flex-col overflow-hidden"
+    :style="{ '--card-alpha': liveBgActive ? String(cardOpacity) : '100', '--entry-alpha': liveBgActive ? String(entryOpacity) : '100' }"
+  >
     <!-- 登入頁同款活背景(fixed 鋪滿;介面表層半透明讓它透出) -->
     <!-- 調參時背景層升到最上層(全螢幕預覽),平時墊在內容底下 -->
     <div v-if="liveBgActive" class="fixed inset-0" :class="bgControlsOpen ? 'z-40' : '-z-10'" :aria-hidden="!bgControlsOpen">
@@ -268,7 +272,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           <Tag :size="16" /> 標籤管理
         </button>
         <button class="menu-item" @click="bgSettingsOpen = true">
-          <ImageIcon :size="16" /> 介面背景
+          <ImageIcon :size="16" /> 透明度調整
         </button>
       </HoverMenu>
     </header>

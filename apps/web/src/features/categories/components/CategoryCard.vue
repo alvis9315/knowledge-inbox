@@ -9,7 +9,7 @@ defineProps<{ category: CategoryMeta }>()
   <RouterLink
     v-tilt
     :to="{ name: 'category', params: { type: category.key } }"
-    class="flex h-full w-full flex-col gap-2 rounded-xl border border-line bg-surface p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
+    class="flex h-full w-full flex-col gap-2 rounded-xl border border-line card-bg p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
   >
     <div class="flex items-center justify-between">
       <span class="text-2xl leading-none">{{ category.icon || '🏷️' }}</span>
