@@ -30,7 +30,7 @@ export function emptyFilters(): EntryFilters {
 }
 
 export type SortMode = 'manual' | 'newest' | 'title'
-export type ViewMode = 'card' | 'list'
+export type ViewMode = 'card' | 'list' | 'masonry'
 
 export interface PageQuery {
   type: string

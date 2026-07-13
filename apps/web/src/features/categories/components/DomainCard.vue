@@ -17,6 +17,7 @@ defineProps<{
 
 <template>
   <RouterLink
+    v-tilt
     :to="{ name: 'domain', params: { domain: card.domain } }"
     class="flex h-full w-full flex-col gap-2 rounded-xl border border-line bg-surface p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
   >

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { LayoutGrid, List, Search, Download } from 'lucide-vue-next'
+import { LayoutGrid, List, LayoutDashboard, Search, Download } from 'lucide-vue-next'
 import type { SortMode, ViewMode } from '@/features/entries/types'
 
 const view = defineModel<ViewMode>('view', { required: true })
@@ -52,6 +52,15 @@ defineEmits<{ export: [] }>()
         @click="view = 'list'"
       >
         <List :size="16" />
+      </button>
+      <button
+        class="rounded-md p-1.5"
+        :class="view === 'masonry' ? 'bg-accent-soft text-accent' : 'text-muted hover:text-ink'"
+        aria-label="瀑布流模式"
+        title="瀑布流(內容多的卡自然較大)"
+        @click="view = 'masonry'"
+      >
+        <LayoutDashboard :size="16" />
       </button>
     </div>
 

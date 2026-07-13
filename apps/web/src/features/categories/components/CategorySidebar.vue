@@ -116,17 +116,18 @@ function domainCount(g: Group) {
           </div>
 
           <VueDraggable
-            v-show="expandedDomains[group.domain]"
+            v-if="expandedDomains[group.domain]"
             v-model="group.items"
             :animation="150"
             class="ml-3 flex flex-col gap-0.5 border-l border-line pl-1"
             @update="persistOrder"
           >
             <RouterLink
-              v-for="cat in group.items"
+              v-for="(cat, i) in group.items"
               :key="cat.key"
               :to="{ name: 'category', params: { type: cat.key } }"
-              class="nav-item cursor-grab transition-transform hover:scale-[1.02]" active-class="nav-active"
+              class="nav-item menu-stagger cursor-grab transition-transform hover:scale-[1.02]" active-class="nav-active"
+              :style="{ animationDelay: `${Math.min(i, 14) * 28}ms` }"
             >
               <span class="shrink-0 text-sm leading-none">{{ cat.icon || '🏷️' }}</span>
               <span class="flex-1 truncate">{{ cat.name }}</span>
@@ -172,5 +173,15 @@ function domainCount(g: Group) {
   background: var(--accent-soft);
   color: var(--accent);
   font-weight: 600;
+}
+
+/* StaggeredMenu(react-bits)式展開:子項逐一滑入 */
+.menu-stagger {
+  opacity: 0;
+  transform: translateX(-10px);
+  animation: menu-stagger-in 0.24s ease-out forwards;
+}
+@keyframes menu-stagger-in {
+  to { opacity: 1; transform: translateX(0); }
 }
 </style>

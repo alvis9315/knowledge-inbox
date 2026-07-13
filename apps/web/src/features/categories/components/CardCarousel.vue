@@ -32,7 +32,7 @@ const [emblaRef, emblaApi] = emblaCarouselVue({ loop: true, dragFree: true, alig
     speed: 1.2,
     direction: props.direction,
     stopOnInteraction: false,
-    stopOnMouseEnter: false,
+    stopOnMouseEnter: true, // 滑鼠停在該排 → 該排暫停
   }),
 ])
 

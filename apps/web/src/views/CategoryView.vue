@@ -306,6 +306,19 @@ async function doExport(format: ExportFormat) {
         />
       </VueDraggable>
 
+      <!-- Masonry mode(自然瀑布流:內容多的卡自然較高;不支援拖曳) -->
+      <div v-else-if="view === 'masonry'" class="columns-1 gap-4 md:columns-2 lg:columns-3">
+        <div v-for="entry in rows" :key="entry.id" class="mb-4 break-inside-avoid">
+          <EntryCard
+            :entry="entry"
+            :draggable="false"
+            @edit="openEdit"
+            @remove="askRemove"
+            @toggle-closed="handleToggleClosed"
+          />
+        </div>
+      </div>
+
       <!-- List mode -->
       <VueDraggable
         v-else

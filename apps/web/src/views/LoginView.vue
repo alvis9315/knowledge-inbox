@@ -423,7 +423,7 @@ async function withGoogle() {
     >
     <div
       v-if="stage === 'form'"
-      class="relative z-10 w-full max-w-sm rounded-3xl border border-white/15 bg-white/10 p-8 shadow-2xl backdrop-blur-xl"
+      class="relative z-10 w-full max-w-sm rounded-3xl border border-white/10 bg-white/5 p-8 shadow-2xl backdrop-blur-xl"
     >
       <div class="mb-7 text-center">
         <h1 class="text-4xl" :class="titleClass">Knowledge Inbox</h1>
