@@ -81,7 +81,7 @@ const KEYWORDS: Record<string, string[]> = {
 
 // ── 回饋自學權重(localStorage)─────────────────────────────────────────
 const LEARNED_KEY = 'ki-learned-kw-v1'
-type LearnedMap = Record<string, Record<string, number>>
+export type LearnedMap = Record<string, Record<string, number>>
 
 function loadLearned(): LearnedMap {
   try {
@@ -134,6 +134,31 @@ export function learnFromCorrection(text: string, typeKey: string) {
     bucket[term] = Math.min((bucket[term] ?? 0) + inc, 8)
   }
   saveLearned(learned)
+}
+
+// ── 自學字典管理(齒輪選單「自學字典」畫面用)──────────────────────────
+/** 讀出完整自學字典(分類 key → 詞 → 權重)。 */
+export function getLearnedDict(): LearnedMap {
+  return loadLearned()
+}
+/** 刪除某分類下學過的一個詞(學錯可修)。 */
+export function removeLearnedTerm(typeKey: string, term: string) {
+  const m = loadLearned()
+  if (m[typeKey]) {
+    delete m[typeKey][term]
+    if (Object.keys(m[typeKey]).length === 0) delete m[typeKey]
+    saveLearned(m)
+  }
+}
+/** 清空某分類的所有自學詞。 */
+export function removeLearnedType(typeKey: string) {
+  const m = loadLearned()
+  delete m[typeKey]
+  saveLearned(m)
+}
+/** 清空整本自學字典。 */
+export function clearLearned() {
+  localStorage.removeItem(LEARNED_KEY)
 }
 
 // ── 3. 分類主函式 ──────────────────────────────────────────────────────

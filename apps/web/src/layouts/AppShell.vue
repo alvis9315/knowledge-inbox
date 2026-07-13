@@ -2,7 +2,7 @@
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useLocalStorage } from '@vueuse/core'
-import { PanelLeft, Search, PlusCircle, Menu, X, Power, Settings, Tag, SwatchBook, Droplet, Image as ImageIcon } from 'lucide-vue-next'
+import { PanelLeft, Search, PlusCircle, Menu, X, Power, Settings, Tag, SwatchBook, Droplet, Image as ImageIcon, BrainCircuit } from 'lucide-vue-next'
 import CategorySidebar from '@/features/categories/components/CategorySidebar.vue'
 import QuickCapture from '@/features/capture/QuickCapture.vue'
 import NewCategoryModal from '@/features/categories/components/NewCategoryModal.vue'
@@ -10,6 +10,7 @@ import CommandPalette from '@/features/search/CommandPalette.vue'
 import CategoryThemeSettings from '@/features/theme/CategoryThemeSettings.vue'
 import DomainThemeSettings from '@/features/theme/DomainThemeSettings.vue'
 import TagManager from '@/features/tags/components/TagManager.vue'
+import LearnedDictManager from '@/features/capture/components/LearnedDictManager.vue'
 import HoverMenu from '@/components/common/HoverMenu.vue'
 import BaseConfirm from '@/components/common/BaseConfirm.vue'
 import { applyTheme, domainThemeKey, homeThemeKey } from '@/features/theme/useCategoryTheme'
@@ -45,6 +46,7 @@ const route = useRoute()
 const router = useRouter()
 const settingsOpen = ref(false)
 const tagsOpen = ref(false)
+const learnedDictOpen = ref(false)
 const domainThemeOpen = ref(false)
 const mock = computed(() => isMock())
 
@@ -333,6 +335,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <button class="menu-item" @click="tagsOpen = true">
           <Tag :size="16" /> 標籤管理
         </button>
+        <button class="menu-item" @click="learnedDictOpen = true">
+          <BrainCircuit :size="16" /> 自學字典
+        </button>
         <button class="menu-item" @click="bgSettingsOpen = true">
           <ImageIcon :size="16" /> 玻璃感
         </button>
@@ -402,6 +407,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <CategoryThemeSettings :open="settingsOpen" :active-type="activeType" @close="settingsOpen = false" />
     <DomainThemeSettings :open="domainThemeOpen" :active-domain="activeDomain" @close="domainThemeOpen = false" />
     <TagManager :open="tagsOpen" @close="tagsOpen = false" />
+    <LearnedDictManager :open="learnedDictOpen" @close="learnedDictOpen = false" />
     <BackgroundSettings :open="bgSettingsOpen" @close="bgSettingsOpen = false" />
     <FileUploadModal
       :open="coverUploadOpen"
