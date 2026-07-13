@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
-import { Plus, Undo2 } from 'lucide-vue-next'
+import { computed, reactive, ref, watch } from 'vue'
+import { Undo2 } from 'lucide-vue-next'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import BaseInput from '@/components/common/BaseInput.vue'
 import EmojiPicker from '@/components/common/EmojiPicker.vue'
+import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 
 const props = defineProps<{ open: boolean }>()
@@ -32,6 +33,8 @@ watch(
     }
   },
 )
+
+const domainOptions = computed(() => store.domains.map((d) => ({ value: d, label: d })))
 
 /** Derive a stable snake_case-ish key from the name (fallback to timestamp). */
 function toKey(name: string): string {
@@ -88,23 +91,17 @@ async function submit() {
               <Undo2 :size="12" /> 改選現有
             </button>
           </span>
-          <!-- 選現有 + 旁邊一顆 ＋(建立新大類別),不埋在選單裡 -->
-          <div v-if="!creatingDomain" class="flex items-center gap-2">
-            <select
-              v-model="form.domainSel"
-              class="h-10 min-w-0 flex-1 rounded-lg border border-line bg-surface px-3 text-sm text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-            >
-              <option v-for="d in store.domains" :key="d" :value="d">{{ d }}</option>
-            </select>
-            <button
-              type="button"
-              class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-lg border border-line text-muted transition hover:bg-canvas hover:text-ink"
-              title="建立新大類別"
-              @click="creatingDomain = true"
-            >
-              <Plus :size="16" />
-            </button>
-          </div>
+          <!-- 可搜尋下拉;＋ 在搜尋框右側(同審核列的分類選擇邏輯) -->
+          <SearchableSelect
+            v-if="!creatingDomain"
+            :model-value="form.domainSel"
+            :options="domainOptions"
+            :clearable="false"
+            placeholder="選擇大類別…"
+            action-title="建立新大類別"
+            @update:model-value="form.domainSel = $event ?? ''"
+            @action="creatingDomain = true"
+          />
           <input
             v-else
             v-model="form.newDomain"

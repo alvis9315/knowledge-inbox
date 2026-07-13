@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
-import { ChevronDown, Search, Check, X } from 'lucide-vue-next'
+import { ChevronDown, Search, Check, X, Plus } from 'lucide-vue-next'
 
 export interface SelectOption {
   value: string
@@ -15,10 +15,12 @@ const props = withDefaults(
     options: SelectOption[]
     placeholder?: string
     clearable?: boolean
+    /** 提供時,搜尋框右側出現 ＋ 按鈕(如「新增分類」),點擊 emit('action')。 */
+    actionTitle?: string
   }>(),
-  { placeholder: '請選擇', clearable: true },
+  { placeholder: '請選擇', clearable: true, actionTitle: undefined },
 )
-const emit = defineEmits<{ 'update:modelValue': [value: string | null] }>()
+const emit = defineEmits<{ 'update:modelValue': [value: string | null]; action: [] }>()
 
 const open = ref(false)
 const term = ref('')
@@ -78,6 +80,15 @@ function clear() {
           placeholder="搜尋…"
           class="w-full bg-transparent py-2 text-sm text-ink placeholder:text-muted focus:outline-none"
         />
+        <button
+          v-if="actionTitle"
+          type="button"
+          class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-md border border-line text-muted transition hover:bg-canvas hover:text-ink"
+          :title="actionTitle"
+          @click.stop="emit('action'); open = false"
+        >
+          <Plus :size="13" />
+        </button>
       </div>
       <ul class="max-h-60 overflow-y-auto py-1 thin-scroll">
         <li v-if="filtered.length === 0" class="px-3 py-2 text-sm text-muted">找不到符合項目</li>

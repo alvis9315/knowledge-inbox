@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
-import { Check, Trash2, Wand2, ExternalLink, Plus, Clock } from 'lucide-vue-next'
+import { Check, Trash2, Wand2, ExternalLink, Clock } from 'lucide-vue-next'
 import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import TagInput from '@/components/common/TagInput.vue'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
@@ -91,16 +91,11 @@ function submit() {
           :model-value="modelValue"
           :options="typeOptions"
           placeholder="選擇分類…"
+          action-title="找不到?新增分類"
           @update:model-value="emit('update:modelValue', $event)"
+          @action="emit('newCategory')"
         />
       </div>
-      <button
-        class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-lg border border-line text-muted transition hover:bg-canvas hover:text-ink"
-        title="找不到?新增分類"
-        @click="emit('newCategory')"
-      >
-        <Plus :size="15" />
-      </button>
       <div class="min-w-48 flex-1">
         <TagInput v-model="tags" :suggestions="store.tagNames" placeholder="標籤:台北市、大安區…(Enter 或點選)" />
       </div>

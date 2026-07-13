@@ -1,9 +1,10 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { computed, reactive, ref } from 'vue'
 import { ChevronDown } from 'lucide-vue-next'
 import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import TagInput from '@/components/common/TagInput.vue'
+import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import { createEntry } from '@/features/entries/api/entriesApi'
 import { classifyText } from '@/features/capture/classify'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
@@ -22,6 +23,10 @@ const form = reactive({
   tags: [] as string[],
   pending: false,
 })
+
+const typeOptions = computed(() =>
+  store.categories.map((c) => ({ value: c.key, label: `${c.icon || '🏷️'} ${c.domain} / ${c.name}` })),
+)
 
 function reset() {
   form.text = ''
@@ -102,16 +107,8 @@ async function submit() {
 
       <div v-if="advanced" class="flex flex-col gap-3 rounded-lg bg-canvas p-3">
         <label class="block">
-          <span class="mb-1 block text-xs font-medium text-muted">分類(留空 → 待確認)</span>
-          <select
-            v-model="form.type"
-            class="w-full rounded-lg border border-line bg-surface px-3 py-2 text-sm text-ink focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent"
-          >
-            <option :value="null">自動 / 待確認</option>
-            <option v-for="c in store.categories" :key="c.key" :value="c.key">
-              {{ c.icon }} {{ c.name }}
-            </option>
-          </select>
+          <span class="mb-1 block text-xs font-medium text-muted">分類(留空 → 自動判斷 / 待確認)</span>
+          <SearchableSelect v-model="form.type" :options="typeOptions" placeholder="自動 / 待確認" />
         </label>
         <label class="block">
           <span class="mb-1 block text-xs font-medium text-muted">標籤</span>
