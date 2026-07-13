@@ -107,6 +107,13 @@ function runDecode() {
     stage.value = 'form'
     return
   }
+  // 圖片封面頁:照片本身就是主角,標題直接顯示(不跑亂碼序列)。
+  if (bg.value === 'image') {
+    display.value = TITLE_TEXT
+    showCaret.value = false
+    stage.value = 'start'
+    return
+  }
   let len = 0
   introTimer = window.setInterval(() => {
     len++
@@ -278,7 +285,7 @@ async function withGoogle() {
     />
     <KnowledgeThreads
       v-else-if="bg === 'threads'"
-      class="absolute inset-0 z-20"
+      class="absolute inset-0"
       :show-controls="showThreadsControls"
       :color="[0.55, 0.72, 1.0]"
       :amplitude="2.3"
@@ -371,7 +378,7 @@ async function withGoogle() {
       <!-- 隱形完整標題撐死寬度,動畫文字絕對定位疊上 → 全程零位移 -->
       <h1
         class="relative whitespace-nowrap text-4xl sm:text-6xl"
-        :class="[titleClass, titleHidden ? 'invisible' : '', bg === 'threads' ? 'threads-hero' : '']"
+        :class="[titleClass, titleHidden ? 'invisible' : '', bg === 'threads' ? 'threads-hero' : '', bg === 'image' ? 'title-on-image' : '']"
       >
         <span class="invisible">{{ TITLE_TEXT }}</span>
         <span class="absolute inset-0">
@@ -592,9 +599,9 @@ async function withGoogle() {
   position: absolute;
   width: 9px;
   height: 9px;
-  /* 純白主體 + 深色細描邊:深空是白、白色按鈕上靠描邊維持可見 */
-  border: 0 solid #ffffff;
-  filter: drop-shadow(0 0 1.5px rgba(10, 15, 30, 0.9));
+  /* 與 START 對焦框同款:#c4d8ff + 白/藍光暈 */
+  border: 0 solid #c4d8ff;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.55)) drop-shadow(0 0 10px rgba(150, 180, 255, 0.45));
 }
 .tc-corner.tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; }
 .tc-corner.tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; }
@@ -608,8 +615,8 @@ async function withGoogle() {
   height: 4px;
   margin: -2px 0 0 -2px;
   border-radius: 9999px;
-  background: #ffffff;
-  box-shadow: 0 0 2px rgba(10, 15, 30, 0.9);
+  background: #c4d8ff;
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
 }
 
 /* TrueFocus 對焦框(hover 由外縮入;移開向外擴散淡出) */
@@ -638,6 +645,15 @@ async function withGoogle() {
 .focus-corner.bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 4px; }
 .focus-corner.br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 4px; }
 
+
+/* 圖片封面頁:純白字(蓋過 ShinyText 的漸層裁切),壓照片加陰影保可讀 */
+.title-on-image {
+  background: none !important;
+  animation: none !important;
+  color: rgba(255, 255, 255, 0.96) !important;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.96);
+  text-shadow: 0 2px 18px rgba(0, 0, 0, 0.45);
+}
 
 /* Threads 頁 hero 標題:約佔畫面寬 3/4、往上放;線條(z-20)可蓋在標題上 */
 .threads-hero {
