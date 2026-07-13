@@ -2,7 +2,10 @@
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLocalStorage } from '@vueuse/core'
-import { Sparkles, ArrowRight, LogIn, SlidersHorizontal } from 'lucide-vue-next'
+import { Sparkles, ArrowRight, LogIn, SlidersHorizontal, ImageUp } from 'lucide-vue-next'
+import FileUploadModal from '@/components/common/FileUploadModal.vue'
+import { saveFile, removeFile, loadFile, LOGIN_COVER_KEY } from '@/services/localFiles'
+import { toast } from '@/composables/useToast'
 import KnowledgeGalaxy from '@/components/backgrounds/KnowledgeGalaxy.vue'
 import KnowledgeThreads from '@/components/backgrounds/KnowledgeThreads.vue'
 import GalaxyImageBackground from '@/components/backgrounds/GalaxyImageBackground.vue'
@@ -47,6 +50,34 @@ const galaxyStars = computed(() => BG_STARS[galaxyBg.value])
 const titleClass = computed(() => (bg.value === 'threads' ? 'title-threads' : 'title-galaxy'))
 const showGalaxyControls = ref(false)
 const showThreadsControls = ref(false)
+
+// 圖片模式:自訂封面上傳(存 IndexedDB,僅此瀏覽器)。
+const uploadOpen = ref(false)
+const coverVersion = ref(0)
+const hasCover = ref(false)
+async function refreshHasCover() {
+  hasCover.value = !!(await loadFile(LOGIN_COVER_KEY))
+}
+refreshHasCover()
+async function onCoverConfirm(file: File) {
+  try {
+    await saveFile(LOGIN_COVER_KEY, file)
+    coverVersion.value++
+    uploadOpen.value = false
+    await refreshHasCover()
+    toast.success('封面已更新')
+  } catch (e) {
+    console.error('[cover]', e)
+    toast.error('封面儲存失敗,檔案可能太大')
+  }
+}
+async function onCoverRemove() {
+  await removeFile(LOGIN_COVER_KEY)
+  coverVersion.value++
+  uploadOpen.value = false
+  await refreshHasCover()
+  toast.success('已回復預設封面')
+}
 
 const router = useRouter()
 const auth = useAuthStore()
@@ -114,7 +145,27 @@ async function withGoogle() {
       :distance="0"
       :enable-mouse-interaction="true"
     />
-    <GalaxyImageBackground v-else class="absolute inset-0" />
+    <GalaxyImageBackground v-else class="absolute inset-0" :version="coverVersion" />
+
+    <!-- 圖片模式:上傳自訂封面 -->
+    <div v-if="bg === 'image'" class="absolute bottom-4 left-4 z-20">
+      <button
+        class="inline-flex items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 py-1.5 text-xs text-white/80 backdrop-blur transition hover:bg-white/20 hover:text-white"
+        @click="uploadOpen = true"
+      >
+        <ImageUp :size="14" /> 上傳封面
+      </button>
+    </div>
+
+    <FileUploadModal
+      :open="uploadOpen"
+      title="上傳登入頁封面"
+      hint="建議 1920×1080(16:9)以上;顯示時會自動滿版裁切。圖最大 8MB、影片 50MB,僅存於此瀏覽器。"
+      :has-existing="hasCover"
+      @close="uploadOpen = false"
+      @confirm="onCoverConfirm"
+      @remove-existing="onCoverRemove"
+    />
 
     <!-- galaxy backdrop colour swatches -->
     <div v-if="bg === 'galaxy'" class="absolute bottom-4 left-4 z-20 flex items-center gap-2">

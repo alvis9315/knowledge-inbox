@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onMounted, onUnmounted, ref, watch } from 'vue'
 import { useMediaQuery } from '@vueuse/core'
+import { loadFile, LOGIN_COVER_KEY } from '@/services/localFiles'
 
 /**
  * Photo-real galaxy login backdrop. A shader/gradient can't reproduce a real
@@ -15,15 +16,32 @@ import { useMediaQuery } from '@vueuse/core'
  * ≤ ~1.2 MB desktop; AVIF/WebP preferred. If no file exists yet, a deep-navy
  * andromeda gradient shows instead (so it's never blank).
  */
-const props = withDefaults(defineProps<{ src?: string; parallax?: boolean }>(), {
+const props = withDefaults(defineProps<{ src?: string; parallax?: boolean; version?: number }>(), {
   src: '/images/login-galaxy',
   parallax: true,
+  version: 0,
 })
 
 const reduceMotion = useMediaQuery('(prefers-reduced-motion: reduce)')
 const isMobile = useMediaQuery('(max-width: 767px)')
 const imgError = ref(false)
 const parallaxEl = ref<HTMLElement | null>(null)
+
+// 使用者自訂封面(IndexedDB;圖/GIF/影片)。version 變動時重新載入。
+const customUrl = ref<string | null>(null)
+const customIsVideo = ref(false)
+async function loadCustom() {
+  const blob = await loadFile(LOGIN_COVER_KEY)
+  if (customUrl.value) URL.revokeObjectURL(customUrl.value)
+  if (blob) {
+    customUrl.value = URL.createObjectURL(blob)
+    customIsVideo.value = blob.type.startsWith('video/')
+  } else {
+    customUrl.value = null
+    customIsVideo.value = false
+  }
+}
+watch(() => props.version, loadCustom)
 
 // Subtle mouse parallax (≤ 8px) — desktop only, off for reduced-motion.
 let raf = 0
@@ -41,18 +59,37 @@ function motionOn() {
   return props.parallax && !reduceMotion.value && !isMobile.value
 }
 onMounted(() => {
+  loadCustom()
   if (motionOn()) window.addEventListener('mousemove', onMove, { passive: true })
 })
 onUnmounted(() => {
   window.removeEventListener('mousemove', onMove)
   cancelAnimationFrame(raf)
+  if (customUrl.value) URL.revokeObjectURL(customUrl.value)
 })
 </script>
 
 <template>
   <div class="galaxy-img" aria-hidden="true">
     <div ref="parallaxEl" class="galaxy-img__parallax">
-      <picture v-if="!imgError">
+      <!-- 使用者自訂封面(影片自動靜音循環;圖/GIF 直接顯示) -->
+      <video
+        v-if="customUrl && customIsVideo"
+        :src="customUrl"
+        class="galaxy-img__img"
+        autoplay
+        muted
+        loop
+        playsinline
+      />
+      <img
+        v-else-if="customUrl"
+        :src="customUrl"
+        alt=""
+        class="galaxy-img__img"
+        :class="{ 'galaxy-img__img--breathe': !reduceMotion }"
+      />
+      <picture v-else-if="!imgError">
         <source :srcset="`${src}.avif`" type="image/avif" />
         <source :srcset="`${src}.webp`" type="image/webp" />
         <img
