@@ -64,7 +64,7 @@
    - 2026-07-13 修正:hostname 學習權重 +3、評分吃全額(原本要修正 3 次才自動,現在 1 次)。
 
 後續優化順序:
-- [ ] **自學字典管理 UI**(齒輪選單):檢視/刪除已學的網址對應與關鍵詞(學錯可修)。
+- [x] **自學字典管理 UI**(齒輪選單):檢視/刪除已學的網址對應與關鍵詞(學錯可修)。✅ 2026-07-14
 - [ ] 接 Supabase 後把自學權重搬進 DB(`classification_feedback`)→ 跨裝置、不怕清瀏覽器。
 - [ ] Edge Function og 擷取上線後,**網頁標題/描述也進評分**(現在只有 URL 字串)→ 命中率大幅提升。
 - [ ] (選配)Ollama 第三層:規則沒把握的才丟本地 LLM。
@@ -79,11 +79,18 @@
 AppShell 依當前大類別的主題渲染(fixed 層;調參時升 z-40 全螢幕預覽);
 控制器按鈕 `BgControlsButton`(視圖 icon 左)全域開關 `liveBgControls.ts`。
 
-**已完成**:galaxy(星空)、threads(線條)、image(圖片封面,控制器=上傳)。
+**已完成**(2026-07-14 夜班批次 +6):galaxy(星空)、threads(線條)、
+image(圖片封面,控制器=上傳)、aurora(極光)、waves(波浪)、
+darkveil(暗湧)、silk(絲綢)、iridescence(虹彩)、letterglitch(字符雨)。
 
-**待移植**(vendor/react-bits/src/content/Backgrounds,逐個:port 元件
-+ 控制面板(拿 GalaxyControls 當基底)+ THEME_PRESETS 加一筆 liveBg):
-Aurora、Beams、DarkVeil、Dither、DotGrid、FaultyTerminal、GridDistortion、
-GridMotion、Hyperspeed、Iridescence、LetterGlitch、Lightning、LiquidChrome、
-Orb、Particles、RippleGrid、Silk、Squares、Waves…(優先挑低 GPU 負擔者;
-Balatro/Ballpit/LiquidEther 等重度互動型後置)。
+**移植紀律**(夜班確立):只收零新依賴的(ogl 或純 canvas);
+活背景一律 `defineAsyncComponent` 掛進 AppShell(主包零成長);
+掛載五件套 = 元件 + Controls + LiveBgKind + THEME_PRESETS + AppShell 分支。
+
+**待移植(零新依賴,可直接做)**:Lightning、LiquidChrome(ogl)、
+Particles、Orb、RippleGrid(ogl)、FaultyTerminal、GridDistortion、
+Dither、PixelSnow 等(逐個檢查 import 再動工)。
+
+**暫緩(需要新重依賴,違反不亂加套件原則)**:Beams、Hyperspeed
+(three.js/postprocessing)、DotGrid、GridMotion(gsap)——若未來
+決定引入 three.js 或 gsap 再整批解鎖。
