@@ -28,6 +28,7 @@ const KnowledgeThreads = defineAsyncComponent(() => import('@/components/backgro
 const GalaxyImageBackground = defineAsyncComponent(() => import('@/components/backgrounds/GalaxyImageBackground.vue'))
 const KnowledgeAurora = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeAurora.vue'))
 const KnowledgeWaves = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeWaves.vue'))
+const KnowledgeDarkVeil = defineAsyncComponent(() => import('@/components/backgrounds/KnowledgeDarkVeil.vue'))
 import BackgroundSettings from '@/features/theme/BackgroundSettings.vue'
 import { topbarOpacity, sidebarOpacity, cardOpacity, entryOpacity, cardGlass, chromeBg } from '@/features/theme/chromeOpacity'
 import {
@@ -137,6 +138,7 @@ const galaxySaved = readCfg('ki-app-galaxy-cfg')
 const threadsSaved = readCfg('ki-app-threads-cfg')
 const auroraSaved = readCfg('ki-app-aurora-cfg')
 const wavesSaved = readCfg('ki-app-waves-cfg')
+const darkveilSaved = readCfg('ki-app-darkveil-cfg')
 function onBgDone(kind: LiveBgKind, cfg: Record<string, unknown>) {
   localStorage.setItem(`ki-app-${kind}-cfg`, JSON.stringify(cfg))
   bgControlsOpen.value = false
@@ -244,6 +246,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         :show-controls="bgControlsOpen"
         v-bind="wavesSaved"
         @controls-done="onBgDone('waves', $event)"
+        @controls-cancel="bgControlsOpen = false"
+      />
+      <KnowledgeDarkVeil
+        v-else-if="activeLive === 'darkveil'"
+        class="absolute inset-0"
+        :show-controls="bgControlsOpen"
+        v-bind="darkveilSaved"
+        @controls-done="onBgDone('darkveil', $event)"
         @controls-cancel="bgControlsOpen = false"
       />
       <GalaxyImageBackground v-else-if="activeLive === 'image'" class="absolute inset-0" :parallax="false" :version="coverVersion" />

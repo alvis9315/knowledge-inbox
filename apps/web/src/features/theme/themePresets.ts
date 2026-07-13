@@ -5,7 +5,7 @@
  * readability. Add a preset here to offer a new world.
  */
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
-export type LiveBgKind = 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves'
+export type LiveBgKind = 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil'
 
 export interface ThemePreset {
   canvas: string
@@ -130,6 +130,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#080e1a', surface: '#0e1728', elevated: '#141f36', line: '#22304d',
       ink: '#e3ecff', muted: '#8b9cc0', accent: '#6d9eff', accentFg: '#080e1a',
       accentSoft: 'rgba(109, 158, 255, 0.16)',
+    },
+  },
+  {
+    key: 'dark-veil',
+    label: '暗湧(活背景)',
+    liveBg: 'darkveil',
+    preset: {
+      canvas: '#0a0916', surface: '#131126', elevated: '#191634', line: '#282350',
+      ink: '#e8e4ff', muted: '#9b93c4', accent: '#8b7cf6', accentFg: '#0a0916',
+      accentSoft: 'rgba(139, 124, 246, 0.16)',
     },
   },
   {
