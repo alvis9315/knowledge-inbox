@@ -55,6 +55,11 @@ watch(
   { immediate: true },
 )
 const collapsed = useLocalStorage('ki-sidebar-collapsed', false)
+// StaggeredMenu 疊層掃入:每次展開側欄時重新觸發(key 重掛)。
+const sweepKey = ref(0)
+watch(collapsed, (c) => {
+  if (!c) sweepKey.value++
+})
 const mobileOpen = ref(false)
 const captureOpen = ref(false)
 const newCategoryOpen = ref(false)
@@ -159,9 +164,14 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <div class="flex min-h-0 flex-1 overflow-hidden">
       <!-- Desktop sidebar (fixed height, its own scroll — never moves the page) -->
       <aside
-        class="hidden h-full shrink-0 flex-col border-r border-line bg-surface transition-[width] md:flex"
+        class="relative hidden h-full shrink-0 flex-col overflow-hidden border-r border-line bg-surface transition-[width] md:flex"
         :class="collapsed ? 'w-14' : 'w-60'"
       >
+        <!-- StaggeredMenu 疊層:兩層色板依序掃入再退場,選單隨後現身 -->
+        <div v-if="!collapsed" :key="sweepKey" class="menu-sweep" aria-hidden="true">
+          <span class="menu-sweep__layer" />
+          <span class="menu-sweep__layer menu-sweep__layer--2" />
+        </div>
         <div class="min-h-0 flex-1 overflow-y-auto thin-scroll">
           <CategorySidebar :collapsed="collapsed" @new-category="newCategoryOpen = true" />
         </div>
@@ -230,5 +240,30 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 }
 .menu-item:hover {
   background: var(--canvas);
+}
+
+/* StaggeredMenu 疊層掃入:accent 色板 → 淡色板 依序掃過,再淡出露出選單 */
+.menu-sweep {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  overflow: hidden;
+  pointer-events: none;
+}
+.menu-sweep__layer {
+  position: absolute;
+  inset: 0;
+  background: var(--accent-soft);
+  transform: translateX(-105%);
+  animation: menu-sweep-in 0.5s cubic-bezier(0.22, 0.9, 0.3, 1) forwards;
+}
+.menu-sweep__layer--2 {
+  background: var(--canvas);
+  animation-delay: 0.09s;
+}
+@keyframes menu-sweep-in {
+  0% { transform: translateX(-105%); opacity: 1; }
+  55% { transform: translateX(0); opacity: 1; }
+  100% { transform: translateX(0); opacity: 0; }
 }
 </style>

@@ -25,9 +25,11 @@ const PRESET_OPTIONS = THEME_PRESETS.map((p) => ({ value: p.key, label: p.label 
 
 <template>
   <BaseModal :open="props.open" title="大類主題" size="lg" @close="emit('close')">
-    <p class="mb-4 text-sm text-muted">
-      為每個大分類指定一套世界主題(底色 + 文字 + accent)。進入該大分類的分類或項目時,整個介面會套用,像進入另一個世界。
-    </p>
+    <p class="mb-1.5 text-sm font-medium text-ink">為每個大分類指定一套世界主題。</p>
+    <ul class="mb-3 space-y-0.5 text-xs text-muted">
+      <li>· 主題 = 底色 + 文字 + 主色,一進該大分類整個介面就切換</li>
+      <li>· 子類別若另設主色,只覆蓋主色,底色文字仍照這裡</li>
+    </ul>
     <div class="flex max-h-[60vh] flex-col gap-2 overflow-y-auto thin-scroll">
       <div v-for="d in store.domains" :key="d" class="flex items-center gap-3 rounded-lg bg-canvas px-3 py-2">
         <span class="text-lg">{{ domainIcon(d) }}</span>
