@@ -112,7 +112,9 @@ const hasWebGlError = ref(false)
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const coarsePointer = window.matchMedia('(pointer: coarse)').matches
-const mouseOn = () => cfg.mouseInteraction && !coarsePointer
+// 斥力(repulsion)也需要滑鼠座標——interaction 或 repulsion 任一開啟就追蹤,
+// 否則「interaction=false + repulsion=true」會變成整個滑鼠互動死掉。
+const mouseOn = () => (cfg.mouseInteraction || cfg.mouseRepulsion) && !coarsePointer
 const densityScale = coarsePointer ? props.mobileDensityScale : 1
 const speedScale = coarsePointer ? props.mobileSpeedScale : 1
 const noLoop = () => reduceMotion && !props.showControls
@@ -285,7 +287,7 @@ function syncUniforms() {
   u.uRotationSpeed.value = cfg.rotationSpeed
   u.uRepulsionStrength.value = cfg.repulsionStrength
   u.uAutoCenterRepulsion.value = cfg.autoCenterRepulsion
-  u.uMouseRepulsion.value = mouseOn() && cfg.mouseRepulsion ? 1 : 0
+  u.uMouseRepulsion.value = cfg.mouseRepulsion && !coarsePointer ? 1 : 0
 }
 
 function renderOnce() {

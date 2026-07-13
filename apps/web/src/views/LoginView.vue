@@ -289,10 +289,15 @@ async function withGoogle() {
       >
         <button
           v-if="stage === 'start' || stage === 'leaving'"
-          class="start-btn"
+          class="start-btn group relative"
           :class="stage === 'leaving' ? 'intro-glitch' : ''"
           @click.stop="enterApp"
         >
+          <!-- TrueFocus 對焦框:hover 由外縮入對焦,移開向外擴散消失 -->
+          <span class="focus-frame" aria-hidden="true">
+            <i class="focus-corner tl" /><i class="focus-corner tr" />
+            <i class="focus-corner bl" /><i class="focus-corner br" />
+          </span>
           <span class="text-white/40">[</span>
           <span class="mx-3 tracking-[0.4em]">START</span>
           <span class="text-white/40">]</span>
@@ -379,6 +384,9 @@ async function withGoogle() {
   background-clip: text;
   color: transparent;
   text-shadow: 0 0 26px rgba(150, 180, 255, 0.4);
+  /* background-clip:text + 行高 1 會讓 g/y 的下伸部超出背景範圍而隱形 */
+  padding-bottom: 0.18em;
+  margin-bottom: -0.18em;
 }
 /* Threads theme title — techy monospace, uppercase, tight. */
 .title-threads {
@@ -391,6 +399,8 @@ async function withGoogle() {
   background-clip: text;
   color: transparent;
   text-shadow: 0 0 20px rgba(120, 200, 255, 0.35);
+  padding-bottom: 0.18em;
+  margin-bottom: -0.18em;
 }
 
 /* ── 開機序列 ── */
@@ -437,6 +447,31 @@ async function withGoogle() {
   box-shadow: 0 0 26px rgba(110, 190, 255, 0.4), inset 0 0 18px rgba(140, 205, 255, 0.14);
   transform: translateY(-1px);
 }
+/* TrueFocus 對焦框(hover 由外縮入;移開向外擴散淡出) */
+.focus-frame {
+  position: absolute;
+  inset: -10px;
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(1.7);
+  transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.25, 1), opacity 0.3s ease;
+}
+.group:hover .focus-frame {
+  opacity: 1;
+  transform: scale(1);
+}
+.focus-corner {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 0 solid rgba(140, 220, 255, 0.95);
+  filter: drop-shadow(0 0 6px rgba(120, 200, 255, 0.8));
+}
+.focus-corner.tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 4px; }
+.focus-corner.tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 4px; }
+.focus-corner.bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 4px; }
+.focus-corner.br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 4px; }
+
 @keyframes start-pulse {
   0%, 100% { box-shadow: 0 0 14px rgba(90, 170, 255, 0.14), inset 0 0 12px rgba(120, 190, 255, 0.06); }
   50% { box-shadow: 0 0 26px rgba(110, 190, 255, 0.34), inset 0 0 18px rgba(140, 205, 255, 0.12); }
