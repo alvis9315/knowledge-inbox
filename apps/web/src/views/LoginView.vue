@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLocalStorage } from '@vueuse/core'
 import { Sparkles, ArrowRight, LogIn, SlidersHorizontal, ImageUp } from 'lucide-vue-next'
@@ -81,6 +81,59 @@ async function onCoverRemove() {
 
 const router = useRouter()
 const auth = useAuthStore()
+
+// ── 開機序列:亂碼解碼打字 → glitch → [ START ] → 登入卡片 ──
+type Stage = 'typing' | 'start' | 'leaving' | 'form'
+const stage = ref<Stage>('typing')
+const display = ref('')
+const glitching = ref(false)
+const TITLE_TEXT = 'Knowledge Inbox'
+const GLYPHS = '!<>-_\\/[]{}=+*^?#░▒▓█01'
+let introTimer = 0
+
+function runDecode() {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    stage.value = 'form'
+    return
+  }
+  let frame = 0
+  introTimer = window.setInterval(() => {
+    frame++
+    const locked = Math.floor(frame / 3) // 每 3 幀鎖定一個字
+    let out = ''
+    for (let i = 0; i < TITLE_TEXT.length; i++) {
+      if (i < locked) out += TITLE_TEXT[i]
+      else if (i < locked + 5) out += GLYPHS[(Math.random() * GLYPHS.length) | 0]
+    }
+    display.value = out
+    if (locked >= TITLE_TEXT.length) {
+      clearInterval(introTimer)
+      glitching.value = true
+      setTimeout(() => {
+        glitching.value = false
+        stage.value = 'start'
+      }, 620)
+    }
+  }, 45)
+}
+/** 點畫面跳過打字,直接到 START。 */
+function skipTyping() {
+  if (stage.value !== 'typing') return
+  clearInterval(introTimer)
+  display.value = TITLE_TEXT
+  stage.value = 'start'
+}
+/** 按 START:glitch 退場 → 登入卡片進場。 */
+function enterApp() {
+  glitching.value = true
+  stage.value = 'leaving'
+  setTimeout(() => {
+    glitching.value = false
+    stage.value = 'form'
+  }, 450)
+}
+onMounted(runDecode)
+onUnmounted(() => clearInterval(introTimer))
 
 const email = ref('')
 const password = ref('')
@@ -219,7 +272,41 @@ async function withGoogle() {
       >圖片</button>
     </div>
 
+    <!-- 開機序列:解碼標題 + [ START ] -->
     <div
+      v-if="stage !== 'form'"
+      class="relative z-10 flex min-h-40 cursor-default flex-col items-center gap-10"
+      @click="skipTyping"
+    >
+      <h1
+        class="text-4xl sm:text-6xl"
+        :class="[titleClass, glitching ? 'intro-glitch' : '']"
+      >{{ display }}<span v-if="stage === 'typing'" class="intro-caret">▌</span></h1>
+      <Transition
+        enter-active-class="transition duration-500 ease-out"
+        enter-from-class="opacity-0 translate-y-3"
+        enter-to-class="opacity-100 translate-y-0"
+      >
+        <button
+          v-if="stage === 'start' || stage === 'leaving'"
+          class="start-btn"
+          :class="stage === 'leaving' ? 'intro-glitch' : ''"
+          @click.stop="enterApp"
+        >
+          <span class="text-white/40">[</span>
+          <span class="mx-3 tracking-[0.4em]">START</span>
+          <span class="text-white/40">]</span>
+        </button>
+      </Transition>
+    </div>
+
+    <Transition
+      enter-active-class="transition duration-500 ease-out"
+      enter-from-class="opacity-0 translate-y-6 scale-95"
+      enter-to-class="opacity-100 translate-y-0 scale-100"
+    >
+    <div
+      v-if="stage === 'form'"
       class="relative z-10 w-full max-w-sm rounded-3xl border border-white/15 bg-white/10 p-8 shadow-2xl backdrop-blur-xl"
     >
       <div class="mb-7 text-center">
@@ -278,6 +365,7 @@ async function withGoogle() {
         目前可用「訪客試用」體驗完整功能。
       </p>
     </div>
+    </Transition>
   </div>
 </template>
 
@@ -303,5 +391,54 @@ async function withGoogle() {
   background-clip: text;
   color: transparent;
   text-shadow: 0 0 20px rgba(120, 200, 255, 0.35);
+}
+
+/* ── 開機序列 ── */
+.intro-caret {
+  display: inline-block;
+  margin-left: 0.1em;
+  color: #9fd7ff;
+  -webkit-text-fill-color: #9fd7ff;
+  animation: caret-blink 0.7s steps(1) infinite;
+}
+@keyframes caret-blink {
+  50% { opacity: 0; }
+}
+/* 資訊雜訊 glitch:RGB 分離 + 抖動 + 條紋裁切 */
+.intro-glitch {
+  animation: glitch-jitter 0.12s steps(2) infinite;
+}
+@keyframes glitch-jitter {
+  0%   { transform: translate(0, 0) skewX(0deg); filter: none; clip-path: none; }
+  25%  { transform: translate(-3px, 1px) skewX(-2deg); filter: drop-shadow(2px 0 0 rgba(255, 60, 90, 0.8)) drop-shadow(-2px 0 0 rgba(60, 200, 255, 0.8)); clip-path: inset(12% 0 44% 0); }
+  50%  { transform: translate(3px, -2px) skewX(1.5deg); filter: drop-shadow(-2px 0 0 rgba(255, 60, 90, 0.8)) drop-shadow(2px 0 0 rgba(60, 200, 255, 0.8)); clip-path: inset(55% 0 8% 0); }
+  75%  { transform: translate(-2px, 2px); filter: drop-shadow(1px 0 0 rgba(120, 255, 200, 0.8)); clip-path: inset(30% 0 30% 0); }
+  100% { transform: translate(0, 0); filter: none; clip-path: none; }
+}
+/* 半透科技感 START */
+.start-btn {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(140, 210, 255, 0.35);
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(10px);
+  padding: 0.7rem 1.6rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: rgba(230, 245, 255, 0.92);
+  text-shadow: 0 0 12px rgba(130, 200, 255, 0.8);
+  box-shadow: 0 0 18px rgba(90, 170, 255, 0.18), inset 0 0 14px rgba(120, 190, 255, 0.08);
+  animation: start-pulse 2.2s ease-in-out infinite;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+}
+.start-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  box-shadow: 0 0 26px rgba(110, 190, 255, 0.4), inset 0 0 18px rgba(140, 205, 255, 0.14);
+  transform: translateY(-1px);
+}
+@keyframes start-pulse {
+  0%, 100% { box-shadow: 0 0 14px rgba(90, 170, 255, 0.14), inset 0 0 12px rgba(120, 190, 255, 0.06); }
+  50% { box-shadow: 0 0 26px rgba(110, 190, 255, 0.34), inset 0 0 18px rgba(140, 205, 255, 0.12); }
 }
 </style>
