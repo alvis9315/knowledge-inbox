@@ -90,11 +90,13 @@ const cfg = reactive<GalaxyConfig>({
 // swatch its own star settings). Uniforms update in place — no context rebuild.
 // The control panel still edits cfg directly on top of whatever preset is live.
 watch(
-  () => [props.density, props.starTint, props.glowIntensity] as const,
-  ([density, starTint, glowIntensity]) => {
+  () => [props.density, props.starTint, props.glowIntensity, props.mouseInteraction, props.mouseRepulsion] as const,
+  ([density, starTint, glowIntensity, mouseInteraction, mouseRepulsion]) => {
     cfg.density = density
     cfg.starTint = starTint
     cfg.glowIntensity = glowIntensity
+    cfg.mouseInteraction = mouseInteraction
+    cfg.mouseRepulsion = mouseRepulsion
   },
 )
 
@@ -328,11 +330,26 @@ function onPointerMove(e: PointerEvent) {
   const r = c.getBoundingClientRect()
   targetMouse.x = (e.clientX - r.left) / r.width
   targetMouse.y = 1 - (e.clientY - r.top) / r.height
-  targetActive = cfg.mouseInteraction ? 1 : 0
+  // repulsion 也算互動——只看 mouseInteraction 會把斥力乘成 0。
+  targetActive = cfg.mouseInteraction || cfg.mouseRepulsion ? 1 : 0
 }
 function onPointerLeave() {
   targetActive = 0
 }
+/** 滑鼠監聽依設定動態掛/卸(可在執行期切換,如登入頁 START 前禁互動)。 */
+function syncMouseListeners() {
+  const c = containerRef.value
+  if (!c) return
+  window.removeEventListener('pointermove', onPointerMove)
+  c.removeEventListener('pointerleave', onPointerLeave)
+  if (!coarsePointer && (cfg.mouseInteraction || cfg.mouseRepulsion || props.showControls)) {
+    window.addEventListener('pointermove', onPointerMove)
+    c.addEventListener('pointerleave', onPointerLeave)
+  } else {
+    targetActive = 0
+  }
+}
+watch(() => [cfg.mouseInteraction, cfg.mouseRepulsion] as const, syncMouseListeners)
 function onVisibility() {
   visible = document.visibilityState === 'visible'
   visible ? startLoop() : stopLoop()
@@ -392,10 +409,7 @@ onMounted(() => {
   })
   io.observe(c)
   document.addEventListener('visibilitychange', onVisibility)
-  if (!coarsePointer && (cfg.mouseInteraction || props.showControls)) {
-    window.addEventListener('pointermove', onPointerMove)
-    c.addEventListener('pointerleave', onPointerLeave)
-  }
+  syncMouseListeners()
 
   if (noLoop()) renderOnce()
   else startLoop()

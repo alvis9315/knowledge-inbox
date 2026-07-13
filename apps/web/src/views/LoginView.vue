@@ -186,7 +186,7 @@ async function withGoogle() {
       :star-speed="0.65"
       :speed="0.9"
       :mouse-interaction="false"
-      :mouse-repulsion="true"
+      :mouse-repulsion="stage === 'form'"
       :transparent="true"
     />
     <KnowledgeThreads
@@ -298,9 +298,7 @@ async function withGoogle() {
             <i class="focus-corner tl" /><i class="focus-corner tr" />
             <i class="focus-corner bl" /><i class="focus-corner br" />
           </span>
-          <span class="text-white/40">[</span>
-          <span class="mx-3 tracking-[0.4em]">START</span>
-          <span class="text-white/40">]</span>
+          <span class="tracking-[0.4em]">START</span>
         </button>
       </Transition>
     </div>
