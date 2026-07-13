@@ -2,6 +2,7 @@
 import { computed, ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { X, Plus, Tag } from 'lucide-vue-next'
+import { useAnchoredPanel } from '@/composables/useAnchoredPanel'
 
 /**
  * 標籤輸入(chips + combobox):打字按 Enter(或逗號)生成一顆標籤;
@@ -15,10 +16,12 @@ const props = withDefaults(
 const emit = defineEmits<{ 'update:modelValue': [value: string[]] }>()
 
 const root = ref<HTMLElement | null>(null)
+const panel = ref<HTMLElement | null>(null)
 const inputEl = ref<HTMLInputElement | null>(null)
 const text = ref('')
-const open = ref(false)
-onClickOutside(root, () => (open.value = false))
+// 面板 Teleport 到 body,不被彈窗/捲動容器裁切。
+const { open, style } = useAnchoredPanel(root, { panelMaxHeight: 224 })
+onClickOutside(root, () => (open.value = false), { ignore: [panel] })
 
 const filtered = computed(() => {
   const t = text.value.trim().toLowerCase()
@@ -95,9 +98,12 @@ function onKeydown(e: KeyboardEvent) {
       />
     </div>
 
+    <Teleport to="body">
     <div
       v-if="open && (filtered.length || canCreate)"
-      class="absolute z-30 mt-1 max-h-56 w-full overflow-y-auto rounded-xl border border-line bg-surface p-1 shadow-xl thin-scroll"
+      ref="panel"
+      :style="style"
+      class="max-h-56 overflow-y-auto rounded-xl border border-line bg-surface p-1 shadow-xl thin-scroll"
     >
       <button
         v-for="s in filtered"
@@ -117,5 +123,6 @@ function onKeydown(e: KeyboardEvent) {
         <Plus :size="13" class="shrink-0" /> 建立「{{ text.trim() }}」
       </button>
     </div>
+    </Teleport>
   </div>
 </template>

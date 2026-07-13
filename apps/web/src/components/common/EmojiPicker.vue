@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import { onClickOutside } from '@vueuse/core'
 import { ChevronDown } from 'lucide-vue-next'
+import { useAnchoredPanel } from '@/composables/useAnchoredPanel'
 
 /**
  * Emoji 選擇器(精選分組網格,零依賴)。v-model 是單一 emoji 字串。
@@ -12,9 +13,11 @@ const props = withDefaults(defineProps<{ modelValue: string; placeholder?: strin
 })
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()
 
-const open = ref(false)
 const root = ref<HTMLElement | null>(null)
-onClickOutside(root, () => (open.value = false))
+const panel = ref<HTMLElement | null>(null)
+// 面板 Teleport 到 body,不被彈窗/捲動容器裁切。
+const { open, style } = useAnchoredPanel(root, { panelWidth: 320, panelMaxHeight: 400 })
+onClickOutside(root, () => (open.value = false), { ignore: [panel] })
 
 function pick(e: string) {
   emit('update:modelValue', e)
@@ -61,9 +64,12 @@ const GROUPS: Array<{ label: string; emojis: string[] }> = [
       <ChevronDown :size="14" class="ml-auto shrink-0 text-muted transition-transform" :class="open ? 'rotate-180' : ''" />
     </button>
 
+    <Teleport to="body">
     <div
       v-if="open"
-      class="absolute z-40 mt-1 w-80 rounded-xl border border-line bg-surface shadow-xl"
+      ref="panel"
+      :style="style"
+      class="rounded-xl border border-line bg-surface shadow-xl"
     >
       <!-- 自由輸入置頂:清單沒有的,直接貼系統 emoji -->
       <div class="border-b border-line p-2">
@@ -94,5 +100,6 @@ const GROUPS: Array<{ label: string; emojis: string[] }> = [
         </div>
       </div>
     </div>
+    </Teleport>
   </div>
 </template>
