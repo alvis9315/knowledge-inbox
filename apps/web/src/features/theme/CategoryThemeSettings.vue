@@ -69,7 +69,7 @@ async function pick(key: string, color: string) {
     </div>
 
     <!-- 固定高度:切換大類別時彈窗不再變大變小跳動 -->
-    <div class="flex h-[46vh] flex-col gap-3 overflow-y-auto thin-scroll">
+    <div class="flex h-[46vh] flex-col gap-3 overflow-y-auto pt-1.5 thin-scroll">
       <div v-for="cat in filtered" :key="cat.key" class="flex items-center gap-3">
         <span class="w-6 shrink-0 text-center">{{ cat.icon || '🏷️' }}</span>
         <span class="w-28 shrink-0 truncate text-sm text-ink">{{ cat.name }}</span>
