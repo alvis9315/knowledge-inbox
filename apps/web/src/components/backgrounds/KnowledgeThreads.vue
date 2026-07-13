@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { Color, Mesh, Program, Renderer, Triangle } from 'ogl'
 import ThreadsControls from './ThreadsControls.vue'
 
