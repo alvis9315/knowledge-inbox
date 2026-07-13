@@ -109,6 +109,20 @@ function hexToRgb01(hex: string): [number, number, number] {
   return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255]
 }
 
+const emitCtl = defineEmits<{ controlsDone: [cfg: Record<string, unknown>]; controlsCancel: [] }>()
+// 開面板時快照,取消=還原。
+let cfgSnapshot: Record<string, unknown> | null = null
+watch(() => props.showControls, (o) => {
+  if (o) cfgSnapshot = JSON.parse(JSON.stringify(cfg))
+})
+function ctlDone() {
+  emitCtl('controlsDone', JSON.parse(JSON.stringify(cfg)))
+}
+function ctlCancel() {
+  if (cfgSnapshot) Object.assign(cfg, cfgSnapshot)
+  emitCtl('controlsCancel')
+}
+
 const containerRef = ref<HTMLDivElement | null>(null)
 const hasWebGlError = ref(false)
 
@@ -440,7 +454,7 @@ onBeforeUnmount(() => {
     aria-hidden="true"
   >
     <div v-if="hasWebGlError" class="knowledge-galaxy__fallback" />
-    <GalaxyControls v-if="showControls" :config="cfg" />
+    <GalaxyControls v-if="showControls" :config="cfg" closable @done="ctlDone" @cancel="ctlCancel" />
   </div>
 </template>
 

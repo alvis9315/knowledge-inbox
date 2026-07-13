@@ -6,7 +6,8 @@ import ColorPicker from '@/components/common/ColorPicker.vue'
 // A self-contained control panel for KnowledgeGalaxy. It edits the passed-in
 // reactive config object directly, so every change is live. Extract this file
 // together with KnowledgeGalaxy.vue to reuse the playground anywhere.
-const props = defineProps<{ config: GalaxyConfig }>()
+const props = defineProps<{ config: GalaxyConfig; closable?: boolean }>()
+const emit = defineEmits<{ done: []; cancel: [] }>()
 
 interface Slider {
   key: keyof GalaxyConfig
@@ -64,12 +65,24 @@ function copyProps() {
   <div class="galaxy-controls">
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
+      <div class="flex items-center">
       <button
         class="rounded-lg bg-white/15 px-3 py-1 text-xs font-medium text-white hover:bg-white/25"
         @click="copyProps"
       >
         {{ copied ? '已複製 ✓' : '複製 props' }}
       </button>
+      <template v-if="closable">
+        <button
+          class="ml-2 rounded-lg border border-white/25 px-3 py-1 text-xs text-white/80 hover:bg-white/10"
+          @click="emit('cancel')"
+        >取消</button>
+        <button
+          class="ml-2 rounded-lg bg-white px-3 py-1 text-xs font-semibold text-slate-900 hover:bg-white/90"
+          @click="emit('done')"
+        >完成</button>
+      </template>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">

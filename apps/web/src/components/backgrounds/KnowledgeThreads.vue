@@ -43,6 +43,20 @@ const cfg = reactive<ThreadsConfig>({
   enableMouseInteraction: props.enableMouseInteraction,
 })
 
+const emitCtl = defineEmits<{ controlsDone: [cfg: Record<string, unknown>]; controlsCancel: [] }>()
+// 開面板時快照,取消=還原。
+let cfgSnapshot: Record<string, unknown> | null = null
+watch(() => props.showControls, (o) => {
+  if (o) cfgSnapshot = JSON.parse(JSON.stringify(cfg))
+})
+function ctlDone() {
+  emitCtl('controlsDone', JSON.parse(JSON.stringify(cfg)))
+}
+function ctlCancel() {
+  if (cfgSnapshot) Object.assign(cfg, cfgSnapshot)
+  emitCtl('controlsCancel')
+}
+
 const containerRef = ref<HTMLDivElement | null>(null)
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const coarsePointer = window.matchMedia('(pointer: coarse)').matches
@@ -255,7 +269,7 @@ onBeforeUnmount(() => {
 
 <template>
   <div ref="containerRef" class="knowledge-threads" :class="props.class" aria-hidden="true">
-    <ThreadsControls v-if="showControls" :config="cfg" />
+    <ThreadsControls v-if="showControls" :config="cfg" closable @done="ctlDone" @cancel="ctlCancel" />
   </div>
 </template>
 

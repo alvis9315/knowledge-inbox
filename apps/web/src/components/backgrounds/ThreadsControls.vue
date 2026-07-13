@@ -5,7 +5,8 @@ import type { ThreadsConfig } from './KnowledgeThreads.vue'
 // Self-contained control panel for KnowledgeThreads (Amplitude / Distance /
 // Enable Mouse Interaction), matching the official demo. Edits the passed-in
 // reactive config directly, so every change is live.
-const props = defineProps<{ config: ThreadsConfig }>()
+const props = defineProps<{ config: ThreadsConfig; closable?: boolean }>()
+const emit = defineEmits<{ done: []; cancel: [] }>()
 
 const copied = ref(false)
 function copyProps() {
@@ -25,12 +26,24 @@ function copyProps() {
   <div class="threads-controls">
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
+      <div class="flex items-center">
       <button
         class="rounded-lg bg-white/15 px-3 py-1 text-xs font-medium text-white hover:bg-white/25"
         @click="copyProps"
       >
         {{ copied ? '已複製 ✓' : '複製 props' }}
       </button>
+      <template v-if="closable">
+        <button
+          class="ml-2 rounded-lg border border-white/25 px-3 py-1 text-xs text-white/80 hover:bg-white/10"
+          @click="emit('cancel')"
+        >取消</button>
+        <button
+          class="ml-2 rounded-lg bg-white px-3 py-1 text-xs font-semibold text-slate-900 hover:bg-white/90"
+          @click="emit('done')"
+        >完成</button>
+      </template>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 gap-2 sm:grid-cols-3">

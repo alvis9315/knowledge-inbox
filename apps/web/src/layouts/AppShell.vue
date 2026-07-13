@@ -124,6 +124,17 @@ const activeLive = computed<LiveBgKind | null>(() => {
 watch(activeLive, (v) => (activeLiveBg.value = v), { immediate: true })
 const liveBgActive = computed(() => activeLive.value !== null)
 const bgSettingsOpen = ref(false)
+
+// 活背景調校的持久化:完成=存 localStorage(下次掛載沿用)、取消=元件內還原快照。
+const readCfg = (k: string) => {
+  try { return JSON.parse(localStorage.getItem(k) ?? 'null') ?? {} } catch { return {} }
+}
+const galaxySaved = readCfg('ki-app-galaxy-cfg')
+const threadsSaved = readCfg('ki-app-threads-cfg')
+function onBgDone(kind: 'galaxy' | 'threads', cfg: Record<string, unknown>) {
+  localStorage.setItem(kind === 'galaxy' ? 'ki-app-galaxy-cfg' : 'ki-app-threads-cfg', JSON.stringify(cfg))
+  bgControlsOpen.value = false
+}
 watch(
   [themeContext, () => store.categories],
   () => {
@@ -173,14 +184,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <!-- 登入頁同款活背景(fixed 鋪滿;介面表層半透明讓它透出) -->
     <!-- 調參時背景層升到最上層(全螢幕預覽),平時墊在內容底下 -->
     <div v-if="liveBgActive" class="fixed inset-0" :class="bgControlsOpen ? 'z-40' : '-z-10'" :aria-hidden="!bgControlsOpen">
-      <button
-        v-if="bgControlsOpen"
-        type="button"
-        class="pointer-events-auto absolute right-4 top-4 z-50 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-sm text-white backdrop-blur transition hover:bg-white/20"
-        @click="bgControlsOpen = false"
-      >
-        完成
-      </button>
+
       <KnowledgeGalaxy
         v-if="activeLive === 'galaxy'"
         class="absolute inset-0"
@@ -201,6 +205,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         :mouse-repulsion="false"
         :transparent="true"
         :show-controls="bgControlsOpen"
+        v-bind="galaxySaved"
+        @controls-done="onBgDone('galaxy', $event)"
+        @controls-cancel="bgControlsOpen = false"
       />
       <KnowledgeThreads
         v-else-if="activeLive === 'threads'"
@@ -210,6 +217,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         :distance="0"
         :enable-mouse-interaction="false"
         :show-controls="bgControlsOpen"
+        v-bind="threadsSaved"
+        @controls-done="onBgDone('threads', $event)"
+        @controls-cancel="bgControlsOpen = false"
       />
       <GalaxyImageBackground v-else class="absolute inset-0" :parallax="false" :version="coverVersion" />
     </div>
