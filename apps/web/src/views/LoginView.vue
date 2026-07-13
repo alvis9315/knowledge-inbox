@@ -133,18 +133,25 @@ function phaseErase() {
     }
   }, 35)
 }
-/** C:反向拼裝——右側先鎖定,往左逐字解析成完整標題。 */
+/** C:先 ~0.5s 全行純亂碼,再從「中間」向兩側顯現標題(亂碼被往左右推開)。 */
 function phaseAssemble() {
   titleHidden.value = false
-  let locked = 0
+  const PRE = 12 // 12 幀 × 40ms ≈ 0.5s 純亂碼
+  const center = (N - 1) / 2
+  let frame = 0
   introTimer = window.setInterval(() => {
-    locked += 2
+    frame++
+    if (frame <= PRE) {
+      display.value = scrambleStr(N)
+      return
+    }
+    const r = frame - PRE // 每幀向兩側各多顯現一字
     let out = ''
     for (let i = 0; i < N; i++) {
-      out += i >= N - locked ? TITLE_TEXT[i] : glyph()
+      out += Math.abs(i - center) <= r ? TITLE_TEXT[i] : glyph()
     }
     display.value = out
-    if (locked >= N) {
+    if (r >= center + 1) {
       clearInterval(introTimer)
       display.value = TITLE_TEXT
       stage.value = 'start'
@@ -511,17 +518,18 @@ async function withGoogle() {
   align-items: center;
   border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 0.75rem;
-  background: transparent;
+  /* 框內零樣式:box-shadow 會畫在整個盒子後面、從透明框內透出白霧,
+     改用 drop-shadow 只沿邊框/文字像素發光,框內完全透明。 */
+  background: none;
   padding: 0.7rem 1.6rem;
   font-size: 0.95rem;
   font-weight: 600;
   color: rgba(240, 248, 255, 0.95);
-  text-shadow: 0 0 12px rgba(180, 220, 255, 0.6);
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
-  transition: box-shadow 0.2s, transform 0.2s;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.45));
+  transition: filter 0.2s, transform 0.2s;
 }
 .start-btn:hover {
-  box-shadow: 0 0 18px rgba(255, 255, 255, 0.6);
+  filter: drop-shadow(0 0 10px rgba(255, 255, 255, 0.7));
   transform: translateY(-1px);
 }
 /* TargetCursor 外型版:四角括號 + 中心點,純跟隨無動畫 */
