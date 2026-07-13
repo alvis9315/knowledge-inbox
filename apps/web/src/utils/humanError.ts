@@ -18,6 +18,8 @@ const RULES: Array<[RegExp, string]> = [
 export function humanError(e: unknown, fallback = '操作失敗,請稍後再試'): string {
   const raw = e instanceof Error ? e.message : String(e)
   console.error('[error]', e)
+  // 已經是中文的訊息 = 我們自己拋的人話,直接放行(不被泛化 fallback 蓋掉)。
+  if (/[぀-ヿ一-鿿]/.test(raw)) return raw
   for (const [re, msg] of RULES) if (re.test(raw)) return msg
   return fallback
 }

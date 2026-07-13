@@ -170,9 +170,14 @@ function askRemove(entry: EntryWithTags) {
 async function handleToggleClosed(entry: EntryWithTags) {
   if (entry.closed) {
     // Reopen — no confirmation needed.
-    await setEntryClosed(entry.id, false)
-    await store.touch()
-    await load()
+    try {
+      await setEntryClosed(entry.id, false)
+      await store.touch()
+      await load()
+      toast.success(`「${entry.title}」已重新營業`)
+    } catch (e) {
+      toast.error(humanError(e, '操作失敗,請稍後再試'))
+    }
     return
   }
   confirm.value = {

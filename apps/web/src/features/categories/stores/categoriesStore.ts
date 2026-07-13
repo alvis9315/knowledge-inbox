@@ -27,6 +27,9 @@ export const useCategoriesStore = defineStore('categories', () => {
   async function touch() {
     revision.value++
     await reload()
+    // 使用者視角:操作後畫面必須是乾淨的成功狀態——reload 失敗也算
+    // 整個流程失敗,往上拋讓呼叫端報失敗,不得默默吞掉。
+    if (error.value) throw new Error(error.value)
   }
 
   const typeByKey = computed<Record<string, CategoryMeta>>(() =>
