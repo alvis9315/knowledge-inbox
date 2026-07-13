@@ -133,11 +133,14 @@ function phaseErase() {
     }
   }, 35)
 }
-/** C:先 ~0.5s 全行純亂碼,再從「中間」向兩側顯現標題(亂碼被往左右推開)。 */
+/** C:0.2s 全行純亂碼 → 從中間向兩側顯現;兩側亂碼「向外滑動」
+ * (持久亂碼串開窗位移:左段每幀左移一格、右段右移一格,邊緣滑出消失)。 */
 function phaseAssemble() {
   titleHidden.value = false
-  const PRE = 12 // 12 幀 × 40ms ≈ 0.5s 純亂碼
-  const center = (N - 1) / 2
+  const PRE = 5 // 5 幀 × 40ms ≈ 0.2s 純亂碼
+  const center = Math.floor((N - 1) / 2)
+  const leftScr = scrambleStr(center)
+  const rightScr = scrambleStr(N - center - 1)
   let frame = 0
   introTimer = window.setInterval(() => {
     frame++
@@ -145,13 +148,16 @@ function phaseAssemble() {
       display.value = scrambleStr(N)
       return
     }
-    const r = frame - PRE // 每幀向兩側各多顯現一字
-    let out = ''
-    for (let i = 0; i < N; i++) {
-      out += Math.abs(i - center) <= r ? TITLE_TEXT[i] : glyph()
-    }
-    display.value = out
-    if (r >= center + 1) {
+    const r = frame - PRE - 1 // 顯現半徑
+    const leftLen = Math.max(0, center - r)
+    const rightLen = Math.max(0, N - 1 - center - r)
+    // 左段開窗前移(視覺整段左滑出邊界)、右段起點隨顯現右推(整段右滑);
+    // 中段是已顯現的標題。
+    display.value =
+      leftScr.slice(r, center) +
+      TITLE_TEXT.slice(Math.max(0, center - r), Math.min(N, center + r + 1)) +
+      rightScr.slice(0, rightLen)
+    if (leftLen === 0 && rightLen === 0) {
       clearInterval(introTimer)
       display.value = TITLE_TEXT
       stage.value = 'start'
@@ -177,6 +183,17 @@ function enterApp() {
     stage.value = 'form'
   }, 450)
 }
+const assembled = computed(() => stage.value === 'start' || stage.value === 'leaving')
+const TITLE_CHARS = TITLE_TEXT.split('').map((c) => (c === ' ' ? '\u00A0' : c))
+
+// 控制面板:點面板外自動關閉(點面板本身或切換鈕不關)。
+function onDocClick(e: MouseEvent) {
+  const t = e.target as HTMLElement
+  if (t.closest('.galaxy-controls, .threads-controls, [data-controls-toggle]')) return
+  showGalaxyControls.value = false
+  showThreadsControls.value = false
+}
+
 // ── TargetCursor(外型版):四角括號+中心點跟隨滑鼠;不帶官方的旋轉/
 // 鎖定動畫(避免和 START 對焦框互搶)。僅精準指標裝置啟用。
 const finePointer = window.matchMedia('(pointer: fine)').matches
@@ -189,10 +206,12 @@ function onCursorMove(e: PointerEvent) {
 
 onMounted(() => {
   runDecode()
+  document.addEventListener('click', onDocClick)
   if (finePointer) window.addEventListener('pointermove', onCursorMove, { passive: true })
 })
 onUnmounted(() => {
   clearInterval(introTimer)
+  document.removeEventListener('click', onDocClick)
   window.removeEventListener('pointermove', onCursorMove)
 })
 
@@ -263,7 +282,7 @@ async function withGoogle() {
     />
     <KnowledgeThreads
       v-else-if="bg === 'threads'"
-      class="absolute inset-0"
+      class="absolute inset-0 z-20"
       :show-controls="showThreadsControls"
       :color="[0.55, 0.72, 1.0]"
       :amplitude="2.3"
@@ -307,7 +326,8 @@ async function withGoogle() {
         class="ml-1 inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/25 text-white/80 transition hover:scale-110 hover:text-white"
         :class="showGalaxyControls ? 'bg-white/25 ring-2 ring-white' : 'bg-white/10'"
         title="調整星系參數"
-        @click="showGalaxyControls = !showGalaxyControls"
+        data-controls-toggle
+        @click.stop="showGalaxyControls = !showGalaxyControls"
       >
         <SlidersHorizontal :size="13" />
       </button>
@@ -319,7 +339,8 @@ async function withGoogle() {
         class="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/25 text-white/80 transition hover:scale-110 hover:text-white"
         :class="showThreadsControls ? 'bg-white/25 ring-2 ring-white' : 'bg-white/10'"
         title="調整線條參數"
-        @click="showThreadsControls = !showThreadsControls"
+        data-controls-toggle
+        @click.stop="showThreadsControls = !showThreadsControls"
       >
         <SlidersHorizontal :size="13" />
       </button>
@@ -354,10 +375,22 @@ async function withGoogle() {
       <!-- 隱形完整標題撐死寬度,動畫文字絕對定位疊上 → 全程零位移 -->
       <h1
         class="relative whitespace-nowrap text-4xl sm:text-6xl"
-        :class="[titleClass, titleHidden ? 'invisible' : '']"
+        :class="[titleClass, titleHidden ? 'invisible' : '', bg === 'threads' ? 'threads-hero' : '']"
       >
         <span class="invisible">{{ TITLE_TEXT }}</span>
-        <span class="absolute inset-0">{{ display }}<span v-if="showCaret" class="intro-caret">▌</span></span>
+        <span class="absolute inset-0">
+          <!-- 完成後:線條頁 SplitText 逐字彈入 / 圖片頁 BlurText 逐字聚焦 -->
+          <template v-if="assembled && bg !== 'galaxy'">
+            <span
+              v-for="(ch, i) in TITLE_CHARS"
+              :key="i"
+              class="inline-block"
+              :class="bg === 'threads' ? 'split-ch' : 'blur-ch'"
+              :style="{ animationDelay: `${i * 45}ms` }"
+            >{{ ch }}</span>
+          </template>
+          <template v-else>{{ display }}<span v-if="showCaret" class="intro-caret">▌</span></template>
+        </span>
       </h1>
       <!-- 按鈕版位從頭保留(h-12),出現時不推擠標題 -->
       <div class="flex h-12 items-center justify-center">
@@ -608,4 +641,28 @@ async function withGoogle() {
 .focus-corner.bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 4px; }
 .focus-corner.br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 4px; }
 
+
+/* Threads 頁 hero 標題:約佔畫面寬 3/4、往上放;線條(z-20)可蓋在標題上 */
+.threads-hero {
+  font-size: clamp(2.5rem, 7.6vw, 8.5rem) !important;
+  transform: translateY(-9vh);
+}
+/* SplitText:逐字上彈進場 */
+.split-ch {
+  opacity: 0;
+  transform: translateY(0.55em);
+  animation: split-in 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.15) forwards;
+}
+@keyframes split-in {
+  to { opacity: 1; transform: translateY(0); }
+}
+/* BlurText:逐字從模糊聚焦 */
+.blur-ch {
+  opacity: 0;
+  filter: blur(12px);
+  animation: blur-in 0.6s ease forwards;
+}
+@keyframes blur-in {
+  to { opacity: 1; filter: blur(0); }
+}
 </style>
