@@ -6,6 +6,7 @@ import BaseButton from '@/components/common/BaseButton.vue'
 import EmojiPicker from '@/components/common/EmojiPicker.vue'
 import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import { setDomainIcon } from '@/features/categories/api/categoriesApi'
+import { domainIcon } from '@/features/categories/domainIcons'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 
 /**
@@ -29,7 +30,9 @@ const saving = ref(false)
 const error = ref<string | null>(null)
 
 const creatingDomain = ref(false)
-const form = reactive({ domainSel: '', newDomain: '', newDomainIcon: '' })
+// domainIcon 兩種模式共用:選現有 → 顯示該大類別目前的 icon(可直接改);
+// 建新 → 從空白選。
+const form = reactive({ domainSel: '', newDomain: '', domainIcon: '' })
 
 interface SubRow {
   name: string
@@ -43,11 +46,19 @@ watch(
     if (o) {
       form.domainSel = props.presetDomain ?? store.domains[0] ?? ''
       form.newDomain = ''
-      form.newDomainIcon = ''
-      subs.value = [{ name: '', icon: '' }]
       creatingDomain.value = props.startNewDomain || !store.domains.length
+      form.domainIcon = creatingDomain.value ? '' : domainIcon(form.domainSel)
+      subs.value = [{ name: '', icon: '' }]
       error.value = null
     }
+  },
+)
+
+// 切換選定的大類別 / 切回選現有模式 → icon 跟著帶入該大類別目前的 icon。
+watch(
+  () => [form.domainSel, creatingDomain.value] as const,
+  ([d, creating]) => {
+    form.domainIcon = creating ? '' : d ? domainIcon(d) : ''
   },
 )
 
@@ -99,9 +110,10 @@ async function submit() {
   saving.value = true
   error.value = null
   try {
-    // 新大類別的自訂 icon 先落庫(store.addCategory 的 reload 會把它載回)。
-    if (creatingDomain.value && form.newDomainIcon.trim()) {
-      await setDomainIcon(domain, form.newDomainIcon.trim())
+    // 大類別 icon:有選且和目前不同就落庫(新建/改現有皆同一條路)。
+    const icon = form.domainIcon.trim()
+    if (icon && icon !== domainIcon(domain)) {
+      await setDomainIcon(domain, icon)
     }
     let firstKey: string | null = null
     for (const [i, row] of validRows.value.entries()) {
@@ -141,21 +153,24 @@ async function submit() {
             <Undo2 :size="12" /> 改選現有
           </button>
         </span>
-        <SearchableSelect
-          v-if="!creatingDomain"
-          :model-value="form.domainSel"
-          :options="domainOptions"
-          :clearable="false"
-          placeholder="選擇大類別…"
-          action-title="建立新大類別"
-          @update:model-value="form.domainSel = $event ?? ''"
-          @action="creatingDomain = true"
-        />
-        <div v-else class="flex items-center gap-2">
+        <!-- 兩種模式一致:icon + 大類別並排(選現有=帶入目前 icon 可直接改) -->
+        <div class="flex items-center gap-2">
           <div class="w-28 shrink-0">
-            <EmojiPicker v-model="form.newDomainIcon" placeholder="icon" />
+            <EmojiPicker v-model="form.domainIcon" placeholder="icon" />
           </div>
+          <SearchableSelect
+            v-if="!creatingDomain"
+            class="min-w-0 flex-1"
+            :model-value="form.domainSel"
+            :options="domainOptions"
+            :clearable="false"
+            placeholder="選擇大類別…"
+            action-title="建立新大類別"
+            @update:model-value="form.domainSel = $event ?? ''"
+            @action="creatingDomain = true"
+          />
           <input
+            v-else
             v-model="form.newDomain"
             type="text"
             placeholder="新大類別名稱,例如:公仔收藏"
