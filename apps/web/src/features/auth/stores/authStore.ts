@@ -67,10 +67,15 @@ export const useAuthStore = defineStore('auth', () => {
   }
 
   async function logout() {
-    if (mode.value === 'supabase' && supabase) await supabase.auth.signOut()
+    // 先清本地狀態(登出立即生效,路由守衛不會再擋),再通知 Supabase
+    // 撤銷 session——順序反過來會有競速:導頁瞬間「看起來還登入著」。
+    const wasSupabase = mode.value === 'supabase'
     mode.value = null
     email.value = null
     localStorage.removeItem(STORE_KEY)
+    if (wasSupabase && supabase) {
+      await supabase.auth.signOut().catch((e) => console.warn('[logout] signOut 失敗:', e))
+    }
   }
 
   return { mode, email, ready, isAuthed, label, supabaseReady, init, loginGuest, loginWithPassword, loginWithGoogle, logout }

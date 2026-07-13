@@ -25,8 +25,8 @@ const tagsOpen = ref(false)
 const domainThemeOpen = ref(false)
 const mock = computed(() => isMock())
 
-function logout() {
-  auth.logout()
+async function logout() {
+  await auth.logout()
   router.push({ name: 'login' })
 }
 
