@@ -462,8 +462,9 @@ async function withGoogle() {
   position: absolute;
   width: 14px;
   height: 14px;
-  border: 0 solid rgba(140, 220, 255, 0.95);
-  filter: drop-shadow(0 0 6px rgba(120, 200, 255, 0.8));
+  /* 與 Knowledge Inbox 標題同色系(白 → #c4d8ff 淡藍) */
+  border: 0 solid #c4d8ff;
+  filter: drop-shadow(0 0 5px rgba(255, 255, 255, 0.55)) drop-shadow(0 0 10px rgba(150, 180, 255, 0.45));
 }
 .focus-corner.tl { top: 0; left: 0; border-top-width: 2px; border-left-width: 2px; border-top-left-radius: 4px; }
 .focus-corner.tr { top: 0; right: 0; border-top-width: 2px; border-right-width: 2px; border-top-right-radius: 4px; }
