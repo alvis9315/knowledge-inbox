@@ -8,7 +8,7 @@ import { useAnchoredPanel } from '@/composables/useAnchoredPanel'
  * Emoji 選擇器(精選分組網格,零依賴)。v-model 是單一 emoji 字串。
  * 底部保留自由輸入,想貼任何系統 emoji 都行。
  */
-const props = withDefaults(defineProps<{ modelValue: string; placeholder?: string }>(), {
+withDefaults(defineProps<{ modelValue: string; placeholder?: string }>(), {
   placeholder: '選 icon',
 })
 const emit = defineEmits<{ 'update:modelValue': [value: string] }>()

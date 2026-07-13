@@ -128,9 +128,6 @@ const hasWebGlError = ref(false)
 
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 const coarsePointer = window.matchMedia('(pointer: coarse)').matches
-// 斥力(repulsion)也需要滑鼠座標——interaction 或 repulsion 任一開啟就追蹤,
-// 否則「interaction=false + repulsion=true」會變成整個滑鼠互動死掉。
-const mouseOn = () => (cfg.mouseInteraction || cfg.mouseRepulsion) && !coarsePointer
 const densityScale = coarsePointer ? props.mobileDensityScale : 1
 const speedScale = coarsePointer ? props.mobileSpeedScale : 1
 const noLoop = () => reduceMotion && !props.showControls
@@ -356,6 +353,8 @@ const syncMouseListeners = () => {
   if (!c) return
   window.removeEventListener('pointermove', onPointerMove)
   c.removeEventListener('pointerleave', onPointerLeave)
+  // 斥力(repulsion)也需要滑鼠座標——interaction 或 repulsion 任一開啟就追蹤,
+  // 否則「interaction=false + repulsion=true」會變成整個滑鼠互動死掉。
   if (!coarsePointer && (cfg.mouseInteraction || cfg.mouseRepulsion || props.showControls)) {
     window.addEventListener('pointermove', onPointerMove)
     c.addEventListener('pointerleave', onPointerLeave)
@@ -366,7 +365,8 @@ const syncMouseListeners = () => {
 watch(() => [cfg.mouseInteraction, cfg.mouseRepulsion] as const, syncMouseListeners)
 const onVisibility = () => {
   visible = document.visibilityState === 'visible'
-  visible ? startLoop() : stopLoop()
+  if (visible) startLoop()
+  else stopLoop()
 }
 
 onMounted(() => {
@@ -419,7 +419,8 @@ onMounted(() => {
   ro.observe(c)
   io = new IntersectionObserver((entries) => {
     onScreen = entries[0]?.isIntersecting ?? true
-    onScreen ? startLoop() : stopLoop()
+    if (onScreen) startLoop()
+    else stopLoop()
   })
   io.observe(c)
   document.addEventListener('visibilitychange', onVisibility)

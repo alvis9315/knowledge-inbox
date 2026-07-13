@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "vue-tsc --noEmit -p tsconfig.json"
+    "typecheck": "vue-tsc --noEmit -p tsconfig.json",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
   },
   "dependencies": {
     "@inbox/shared-types": "workspace:*",
@@ -28,9 +30,14 @@
     "@tailwindcss/vite": "^4.0.6",
     "@types/node": "^22.13.1",
     "@vitejs/plugin-vue": "^5.2.1",
+    "eslint": "^10.7.0",
+    "eslint-plugin-vue": "^10.9.2",
+    "globals": "^17.7.0",
     "tailwindcss": "^4.0.6",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.63.0",
     "vite": "^6.1.0",
+    "vue-eslint-parser": "^10.4.1",
     "vue-tsc": "^2.2.0"
   }
 }

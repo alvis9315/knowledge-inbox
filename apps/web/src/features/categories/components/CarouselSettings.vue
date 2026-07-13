@@ -14,7 +14,8 @@ const isVisible = (d: string) => !hidden.value.includes(d)
 
 const setVisible = (d: string, visible: boolean) => {
   const set = new Set(hidden.value)
-  visible ? set.delete(d) : set.add(d)
+  if (visible) set.delete(d)
+  else set.add(d)
   hidden.value = [...set]
 }
 </script>
