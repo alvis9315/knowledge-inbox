@@ -15,6 +15,8 @@ interface MockState {
   entries: EntryWithTags[]
   tags?: TagMeta[]
   domainOrder?: string[]
+  /** 大類別自訂 icon(對應雲端 domain_meta)。 */
+  domainIcons?: Record<string, string>
 }
 
 export interface TagDetail {
@@ -138,6 +140,15 @@ export const mockDb = {
       c.color = color
       persist()
     }
+  },
+
+  /** 大類別自訂 icon(對應雲端 domain_meta)。 */
+  domainIcons(): Record<string, string> {
+    return { ...(state.domainIcons ?? {}) }
+  },
+  setDomainIcon(domain: string, icon: string) {
+    state.domainIcons = { ...(state.domainIcons ?? {}), [domain]: icon }
+    persist()
   },
 
   // ── Entries ───────────────────────────────────────────────────────

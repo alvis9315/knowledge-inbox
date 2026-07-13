@@ -5,12 +5,14 @@ import { ensureSession } from '@/services/session'
 import {
   createCategory,
   fetchCategoriesWithMeta,
+  fetchDomainIcons,
   reorderCategories,
   reorderDomains as reorderDomainsApi,
   type CategoryMeta,
   type NewCategoryInput,
 } from '@/features/categories/api/categoriesApi'
 import { fetchAllTagNames } from '@/features/tags/api/tagsApi'
+import { setDomainIconOverrides } from '@/features/categories/domainIcons'
 
 export const useCategoriesStore = defineStore('categories', () => {
   const categories = ref<CategoryMeta[]>([])
@@ -47,10 +49,14 @@ export const useCategoriesStore = defineStore('categories', () => {
     loading.value = true
     error.value = null
     try {
-      ;[categories.value, tagNames.value] = await Promise.all([
+      const [cats, tags, icons] = await Promise.all([
         fetchCategoriesWithMeta(),
         fetchAllTagNames(),
+        fetchDomainIcons(),
       ])
+      categories.value = cats
+      tagNames.value = tags
+      setDomainIconOverrides(icons)
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e)
     } finally {
@@ -64,10 +70,14 @@ export const useCategoriesStore = defineStore('categories', () => {
     error.value = null
     try {
       await ensureSession()
-      ;[categories.value, tagNames.value] = await Promise.all([
+      const [cats, tags, icons] = await Promise.all([
         fetchCategoriesWithMeta(),
         fetchAllTagNames(),
+        fetchDomainIcons(),
       ])
+      categories.value = cats
+      tagNames.value = tags
+      setDomainIconOverrides(icons)
       ready.value = true
     } catch (e) {
       error.value = e instanceof Error ? e.message : String(e)

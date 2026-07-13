@@ -117,3 +117,21 @@ export async function setCategoryColor(key: string, color: string): Promise<void
     .eq('key', key)
   if (error) throw new Error(error.message)
 }
+
+/** 大類別自訂 icon(domain_meta;mock 存 localStorage)。 */
+export async function fetchDomainIcons(): Promise<Record<string, string>> {
+  if (isMock()) return mockDb.domainIcons()
+  const { data, error } = await requireSupabase().from('domain_meta').select('domain, icon')
+  if (error) throw new Error(error.message)
+  const map: Record<string, string> = {}
+  for (const row of data ?? []) if (row.icon) map[row.domain] = row.icon
+  return map
+}
+
+export async function setDomainIcon(domain: string, icon: string): Promise<void> {
+  if (isMock()) return mockDb.setDomainIcon(domain, icon)
+  const { error } = await requireSupabase()
+    .from('domain_meta')
+    .upsert({ domain, icon, updated_at: new Date().toISOString() })
+  if (error) throw new Error(error.message)
+}

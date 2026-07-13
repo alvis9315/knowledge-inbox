@@ -5,6 +5,7 @@ import BaseModal from '@/components/common/BaseModal.vue'
 import BaseButton from '@/components/common/BaseButton.vue'
 import EmojiPicker from '@/components/common/EmojiPicker.vue'
 import SearchableSelect from '@/components/common/SearchableSelect.vue'
+import { setDomainIcon } from '@/features/categories/api/categoriesApi'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 
 /**
@@ -28,7 +29,7 @@ const saving = ref(false)
 const error = ref<string | null>(null)
 
 const creatingDomain = ref(false)
-const form = reactive({ domainSel: '', newDomain: '' })
+const form = reactive({ domainSel: '', newDomain: '', newDomainIcon: '' })
 
 interface SubRow {
   name: string
@@ -42,6 +43,7 @@ watch(
     if (o) {
       form.domainSel = props.presetDomain ?? store.domains[0] ?? ''
       form.newDomain = ''
+      form.newDomainIcon = ''
       subs.value = [{ name: '', icon: '' }]
       creatingDomain.value = props.startNewDomain || !store.domains.length
       error.value = null
@@ -97,6 +99,10 @@ async function submit() {
   saving.value = true
   error.value = null
   try {
+    // 新大類別的自訂 icon 先落庫(store.addCategory 的 reload 會把它載回)。
+    if (creatingDomain.value && form.newDomainIcon.trim()) {
+      await setDomainIcon(domain, form.newDomainIcon.trim())
+    }
     let firstKey: string | null = null
     for (const [i, row] of validRows.value.entries()) {
       const key = toKey(row.name, i)
@@ -145,14 +151,18 @@ async function submit() {
           @update:model-value="form.domainSel = $event ?? ''"
           @action="creatingDomain = true"
         />
-        <input
-          v-else
-          v-model="form.newDomain"
-          type="text"
-          placeholder="新大類別名稱,例如:公仔收藏"
-          class="h-10 w-full rounded-lg border bg-surface px-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-1"
-          :class="dupDomain ? 'border-red-400 focus:border-red-500 focus:ring-red-400' : 'border-line focus:border-accent focus:ring-accent'"
-        />
+        <div v-else class="flex items-center gap-2">
+          <div class="w-28 shrink-0">
+            <EmojiPicker v-model="form.newDomainIcon" placeholder="icon" />
+          </div>
+          <input
+            v-model="form.newDomain"
+            type="text"
+            placeholder="新大類別名稱,例如:公仔收藏"
+            class="h-10 min-w-0 flex-1 rounded-lg border bg-surface px-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-1"
+            :class="dupDomain ? 'border-red-400 focus:border-red-500 focus:ring-red-400' : 'border-line focus:border-accent focus:ring-accent'"
+          />
+        </div>
         <p v-if="dupDomain" class="mt-1 text-xs text-red-600">大類別「{{ form.newDomain.trim() }}」已存在,請改用「改選現有」。</p>
       </label>
 
@@ -165,7 +175,7 @@ async function submit() {
             class="inline-flex items-center gap-1 rounded-lg border border-line px-2 py-1 text-xs text-muted transition hover:bg-canvas hover:text-ink"
             @click="addRow"
           >
-            <Plus :size="13" /> 再加一列
+            <Plus :size="13" /> 新增
           </button>
         </div>
         <div class="flex flex-col gap-2">
