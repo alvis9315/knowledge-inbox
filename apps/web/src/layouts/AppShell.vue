@@ -12,7 +12,12 @@ import DomainThemeSettings from '@/features/theme/DomainThemeSettings.vue'
 import TagManager from '@/features/tags/components/TagManager.vue'
 import HoverMenu from '@/components/common/HoverMenu.vue'
 import BaseConfirm from '@/components/common/BaseConfirm.vue'
-import { applyTheme } from '@/features/theme/useCategoryTheme'
+import { applyTheme, domainThemeKey } from '@/features/theme/useCategoryTheme'
+import { presetByKey, type LiveBgKind } from '@/features/theme/themePresets'
+import { activeLiveBg, bgControlsOpen } from '@/features/theme/liveBgControls'
+import FileUploadModal from '@/components/common/FileUploadModal.vue'
+import { saveFile, removeFile, loadFile, LOGIN_COVER_KEY } from '@/services/localFiles'
+import { toast } from '@/composables/useToast'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { useAuthStore } from '@/features/auth/stores/authStore'
 import { isMock } from '@/services/dataMode'
@@ -42,9 +47,51 @@ const liveBg = currentLoginBg()
 const liveGalaxy = currentGalaxyBg()
 const liveGalaxyCss = GALAXY_BG_CSS[liveGalaxy]
 const liveStars = GALAXY_BG_STARS[liveGalaxy]
-// 活背景只在「無大類別」頁(總覽/全部/待確認);大類別頁照世界主題。
-const liveBgActive = computed(() => themeContext.value.domain === null && route.name !== 'entry-detail')
+// 活背景解析:無大類別頁 = 登入頁選擇;大類別頁 = 該大類別「主題風格」
+// 若指定 liveBg(星空/線條/圖片)則鋪對應活背景,否則純世界配色。
+const activeLive = computed<LiveBgKind | null>(() => {
+  if (route.name === 'entry-detail') return null
+  const d = themeContext.value.domain
+  if (d === null) return liveBg
+  return presetByKey(domainThemeKey(d)).liveBg ?? null
+})
+watch(activeLive, (v) => (activeLiveBg.value = v), { immediate: true })
+const liveBgActive = computed(() => activeLive.value !== null)
 const bgSettingsOpen = ref(false)
+
+// 圖片活背景:控制器按鈕 = 開上傳封面(直觀、不佔版面)。
+const coverUploadOpen = ref(false)
+const coverVersion = ref(0)
+const hasCover = ref(false)
+async function refreshHasCover() {
+  hasCover.value = !!(await loadFile(LOGIN_COVER_KEY))
+}
+refreshHasCover()
+watch(bgControlsOpen, (o) => {
+  if (o && activeLive.value === 'image') {
+    bgControlsOpen.value = false
+    coverUploadOpen.value = true
+  }
+})
+async function onCoverConfirm(file: File) {
+  try {
+    await saveFile(LOGIN_COVER_KEY, file)
+    coverVersion.value++
+    coverUploadOpen.value = false
+    await refreshHasCover()
+    toast.success('封面已更新')
+  } catch (e) {
+    console.error('[cover]', e)
+    toast.error('封面儲存失敗,檔案可能太大')
+  }
+}
+async function onCoverRemove() {
+  await removeFile(LOGIN_COVER_KEY)
+  coverVersion.value++
+  coverUploadOpen.value = false
+  await refreshHasCover()
+  toast.success('已回復預設封面')
+}
 
 const logoutConfirmOpen = ref(false)
 const loggingOut = ref(false)
@@ -113,9 +160,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
 <template>
   <div class="relative flex h-full flex-col overflow-hidden">
     <!-- 登入頁同款活背景(fixed 鋪滿;介面表層半透明讓它透出) -->
-    <div v-if="liveBgActive" class="fixed inset-0 -z-10" aria-hidden="true">
+    <!-- 調參時背景層升到最上層(全螢幕預覽),平時墊在內容底下 -->
+    <div v-if="liveBgActive" class="fixed inset-0" :class="bgControlsOpen ? 'z-40' : '-z-10'" :aria-hidden="!bgControlsOpen">
+      <button
+        v-if="bgControlsOpen"
+        type="button"
+        class="pointer-events-auto absolute right-4 top-4 z-50 rounded-full border border-white/25 bg-white/10 px-4 py-1.5 text-sm text-white backdrop-blur transition hover:bg-white/20"
+        @click="bgControlsOpen = false"
+      >
+        完成
+      </button>
       <KnowledgeGalaxy
-        v-if="liveBg === 'galaxy'"
+        v-if="activeLive === 'galaxy'"
         class="absolute inset-0"
         :background="liveGalaxyCss"
         :focal="[0.5, 0.5]"
@@ -133,16 +189,18 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         :mouse-interaction="false"
         :mouse-repulsion="false"
         :transparent="true"
+        :show-controls="bgControlsOpen"
       />
       <KnowledgeThreads
-        v-else-if="liveBg === 'threads'"
+        v-else-if="activeLive === 'threads'"
         class="absolute inset-0"
         :color="[0.55, 0.72, 1.0]"
         :amplitude="2.3"
         :distance="0"
         :enable-mouse-interaction="false"
+        :show-controls="bgControlsOpen"
       />
-      <GalaxyImageBackground v-else class="absolute inset-0" :parallax="false" />
+      <GalaxyImageBackground v-else class="absolute inset-0" :parallax="false" :version="coverVersion" />
     </div>
     <!-- Fixed top bar -->
     <header
@@ -201,7 +259,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           </button>
         </template>
         <button class="menu-item" @click="domainThemeOpen = true">
-          <SwatchBook :size="16" /> 大類主題
+          <SwatchBook :size="16" /> 主題風格
         </button>
         <button class="menu-item" @click="settingsOpen = true">
           <Droplet :size="16" /> 子類主色
@@ -279,6 +337,15 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <DomainThemeSettings :open="domainThemeOpen" :active-domain="activeDomain" @close="domainThemeOpen = false" />
     <TagManager :open="tagsOpen" @close="tagsOpen = false" />
     <BackgroundSettings :open="bgSettingsOpen" @close="bgSettingsOpen = false" />
+    <FileUploadModal
+      :open="coverUploadOpen"
+      title="上傳封面(圖片活背景)"
+      hint="建議 1920×1080(16:9)以上;顯示時自動滿版裁切。圖最大 8MB、影片 50MB,僅存於此瀏覽器。"
+      :has-existing="hasCover"
+      @close="coverUploadOpen = false"
+      @confirm="onCoverConfirm"
+      @remove-existing="onCoverRemove"
+    />
     <BaseConfirm
       :open="logoutConfirmOpen"
       title="登出"

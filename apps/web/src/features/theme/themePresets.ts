@@ -4,6 +4,9 @@
  * token set, so it reads like another world. Text colours are pre-tuned for
  * readability. Add a preset here to offer a new world.
  */
+/** 活背景型別(之後逐步擴充 react-bits Backgrounds:aurora、beams…)。 */
+export type LiveBgKind = 'galaxy' | 'threads' | 'image'
+
 export interface ThemePreset {
   canvas: string
   surface: string
@@ -20,6 +23,8 @@ export interface NamedPreset {
   key: string
   label: string
   preset: ThemePreset | null // null = default light
+  /** 指定後,套用此主題的頁面會鋪對應的活背景(WebGL/圖片)。 */
+  liveBg?: LiveBgKind
 }
 
 export const THEME_PRESETS: NamedPreset[] = [
@@ -89,7 +94,8 @@ export const THEME_PRESETS: NamedPreset[] = [
   },
   {
     key: 'space-navy',
-    label: '星空深藍',
+    label: '星空(活背景)',
+    liveBg: 'galaxy',
     preset: {
       canvas: '#0a1226', surface: '#111b36', elevated: '#172547', line: '#263457',
       ink: '#e8eeff', muted: '#93a3c8', accent: '#8fb7ff', accentFg: '#0a1226',
@@ -98,11 +104,22 @@ export const THEME_PRESETS: NamedPreset[] = [
   },
   {
     key: 'ink-threads',
-    label: '線條墨黑',
+    label: '線條(活背景)',
+    liveBg: 'threads',
     preset: {
       canvas: '#05080f', surface: '#0b111d', elevated: '#111a2b', line: '#1e2a40',
       ink: '#dfe9ff', muted: '#8494b5', accent: '#9cc4ff', accentFg: '#05080f',
       accentSoft: 'rgba(156, 196, 255, 0.14)',
+    },
+  },
+  {
+    key: 'photo-cover',
+    label: '圖片封面(活背景)',
+    liveBg: 'image',
+    preset: {
+      canvas: '#0b0f18', surface: '#131926', elevated: '#1a2233', line: '#283349',
+      ink: '#eef2ff', muted: '#9aa8c7', accent: '#a8c7ff', accentFg: '#0b0f18',
+      accentSoft: 'rgba(168, 199, 255, 0.16)',
     },
   },
 ]

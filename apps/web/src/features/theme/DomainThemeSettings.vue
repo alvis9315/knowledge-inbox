@@ -24,7 +24,7 @@ const PRESET_OPTIONS = THEME_PRESETS.map((p) => ({ value: p.key, label: p.label 
 </script>
 
 <template>
-  <BaseModal :open="props.open" title="大類主題" size="lg" @close="emit('close')">
+  <BaseModal :open="props.open" title="主題風格" size="lg" @close="emit('close')">
     <p class="mb-1.5 text-sm font-medium text-ink">為每個大分類指定一套世界主題。</p>
     <ul class="mb-3 space-y-0.5 text-xs text-muted">
       <li>· 主題 = 底色 + 文字 + 主色,一進該大分類整個介面就切換</li>

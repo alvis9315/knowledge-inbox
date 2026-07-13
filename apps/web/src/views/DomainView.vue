@@ -3,6 +3,7 @@ import { computed, ref, watch } from 'vue'
 import { VueDraggable } from 'vue-draggable-plus'
 import { LayoutGrid, List, LayoutDashboard, ChevronRight } from 'lucide-vue-next'
 import SearchableSelect from '@/components/common/SearchableSelect.vue'
+import BgControlsButton from '@/features/theme/BgControlsButton.vue'
 import LoadingState from '@/components/common/LoadingState.vue'
 import CategoryCard from '@/features/categories/components/CategoryCard.vue'
 import { domainIcon } from '@/features/categories/domainIcons'
@@ -82,6 +83,7 @@ function persistOrder() {
             @update:model-value="sortMode = ($event ?? 'manual') as SortMode"
           />
         </div>
+        <BgControlsButton />
         <div class="flex rounded-lg border border-line p-0.5">
           <button
             class="rounded-md p-1.5"

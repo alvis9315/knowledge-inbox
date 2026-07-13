@@ -6,6 +6,7 @@ import LoadingState from '@/components/common/LoadingState.vue'
 import CardCarousel from '@/features/categories/components/CardCarousel.vue'
 import DomainCard from '@/features/categories/components/DomainCard.vue'
 import CarouselSettings from '@/features/categories/components/CarouselSettings.vue'
+import BgControlsButton from '@/features/theme/BgControlsButton.vue'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { domainIcon } from '@/features/categories/domainIcons'
 
@@ -59,6 +60,7 @@ const bottomRow = computed(() => {
         </p>
       </div>
       <div class="flex items-center gap-2">
+        <BgControlsButton />
         <button
           class="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm text-muted hover:bg-surface hover:text-ink"
           title="選擇顯示的大分類"

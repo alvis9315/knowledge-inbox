@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { LayoutGrid, List, LayoutDashboard, Search, Download } from 'lucide-vue-next'
 import SearchableSelect from '@/components/common/SearchableSelect.vue'
+import BgControlsButton from '@/features/theme/BgControlsButton.vue'
 
 const SORT_OPTIONS = [
   { value: 'manual', label: '手動排序(可拖曳)' },
@@ -41,6 +42,7 @@ defineEmits<{ export: [] }>()
       />
     </div>
 
+    <BgControlsButton v-if="!simple" />
     <!-- view toggle -->
     <div v-if="!simple" class="flex rounded-lg border border-line p-0.5">
       <button

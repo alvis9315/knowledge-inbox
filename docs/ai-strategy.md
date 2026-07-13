@@ -72,3 +72,18 @@
 ## 友人系統的模式(參考)
 
 友人 = 可收費產品 → 大膽串付費 API(品質優先),菜單圖片擷取為雲端 vision 模型(Fable 是開發工具寫 code,非 runtime);非自建 LLM。我們自用期對應解:規則 + 本地 Ollama(RTX 4070 跑 7B 級綽綽有餘;vision 任務 qwen2.5-vl 亦可,品質次於雲端)。
+
+## 主題風格 × react-bits Backgrounds 移植 roadmap(2026-07-14)
+
+架構已就緒:`ThemePreset.liveBg`(themePresets.ts)決定該主題鋪哪種活背景,
+AppShell 依當前大類別的主題渲染(fixed 層;調參時升 z-40 全螢幕預覽);
+控制器按鈕 `BgControlsButton`(視圖 icon 左)全域開關 `liveBgControls.ts`。
+
+**已完成**:galaxy(星空)、threads(線條)、image(圖片封面,控制器=上傳)。
+
+**待移植**(vendor/react-bits/src/content/Backgrounds,逐個:port 元件
++ 控制面板(拿 GalaxyControls 當基底)+ THEME_PRESETS 加一筆 liveBg):
+Aurora、Beams、DarkVeil、Dither、DotGrid、FaultyTerminal、GridDistortion、
+GridMotion、Hyperspeed、Iridescence、LetterGlitch、Lightning、LiquidChrome、
+Orb、Particles、RippleGrid、Silk、Squares、Waves…(優先挑低 GPU 負擔者;
+Balatro/Ballpit/LiquidEther 等重度互動型後置)。
