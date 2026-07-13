@@ -7,7 +7,7 @@
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
-  | 'lightning' | 'liquidchrome'
+  | 'lightning' | 'liquidchrome' | 'particles'
 
 export interface ThemePreset {
   canvas: string
@@ -192,6 +192,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0b0e15', surface: '#131722', elevated: '#1a1f2e', line: '#2a3044',
       ink: '#e9edf5', muted: '#98a2b8', accent: '#8fa8d0', accentFg: '#0b0e15',
       accentSoft: 'rgba(143, 168, 208, 0.16)',
+    },
+  },
+  {
+    key: 'drift-particles',
+    label: '漂浮粒子(活背景)',
+    liveBg: 'particles',
+    preset: {
+      canvas: '#080d1a', surface: '#101828', elevated: '#16203a', line: '#263354',
+      ink: '#e7edfb', muted: '#8fa0c4', accent: '#a8c4ff', accentFg: '#080d1a',
+      accentSoft: 'rgba(168, 196, 255, 0.16)',
     },
   },
   {
