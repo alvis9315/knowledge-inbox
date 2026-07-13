@@ -72,7 +72,7 @@ const GROUPS: Array<{ label: string; emojis: string[] }> = [
       class="rounded-xl border border-line bg-surface shadow-xl"
     >
       <!-- 自由輸入置頂:清單沒有的,直接貼系統 emoji -->
-      <div class="border-b border-line p-2">
+      <div class="shrink-0 border-b border-line p-2">
         <input
           :value="modelValue"
           type="text"
@@ -82,7 +82,7 @@ const GROUPS: Array<{ label: string; emojis: string[] }> = [
           @input="emit('update:modelValue', ($event.target as HTMLInputElement).value)"
         />
       </div>
-      <div class="max-h-80 overflow-y-auto p-2 thin-scroll">
+      <div class="min-h-0 flex-1 overflow-y-auto p-2 thin-scroll">
         <div v-for="g in GROUPS" :key="g.label" class="mb-1.5">
           <p class="mb-0.5 px-1 text-[11px] font-semibold uppercase tracking-wide text-muted">{{ g.label }}</p>
           <div class="grid grid-cols-9 gap-0.5">

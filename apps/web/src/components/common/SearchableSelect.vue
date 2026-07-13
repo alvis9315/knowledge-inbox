@@ -78,7 +78,7 @@ function clear() {
         :style="style"
         class="overflow-hidden rounded-lg border border-line bg-surface shadow-lg"
       >
-        <div class="flex items-center gap-2 border-b border-line px-3">
+        <div class="flex shrink-0 items-center gap-2 border-b border-line px-3">
           <Search :size="14" class="text-muted" />
           <input
             v-model="term"
@@ -96,7 +96,7 @@ function clear() {
             <Plus :size="13" />
           </button>
         </div>
-        <ul class="max-h-60 overflow-y-auto py-1 thin-scroll">
+        <ul class="min-h-0 flex-1 overflow-y-auto py-1 thin-scroll">
           <li v-if="filtered.length === 0" class="px-3 py-2 text-sm text-muted">找不到符合項目</li>
           <li
             v-for="opt in filtered"

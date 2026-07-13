@@ -103,25 +103,27 @@ function onKeydown(e: KeyboardEvent) {
       v-if="open && (filtered.length || canCreate)"
       ref="panel"
       :style="style"
-      class="max-h-56 overflow-y-auto rounded-xl border border-line bg-surface p-1 shadow-xl thin-scroll"
+      class="rounded-xl border border-line bg-surface shadow-xl"
     >
-      <button
-        v-for="s in filtered"
-        :key="s"
-        type="button"
-        class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm text-ink hover:bg-canvas"
-        @click="add(s)"
-      >
-        <Tag :size="13" class="shrink-0 text-muted" /> {{ s }}
-      </button>
-      <button
-        v-if="canCreate"
-        type="button"
-        class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm text-accent hover:bg-canvas"
-        @click="add(text)"
-      >
-        <Plus :size="13" class="shrink-0" /> 建立「{{ text.trim() }}」
-      </button>
+      <div class="min-h-0 flex-1 overflow-y-auto p-1 thin-scroll">
+        <button
+          v-for="s in filtered"
+          :key="s"
+          type="button"
+          class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm text-ink hover:bg-canvas"
+          @click="add(s)"
+        >
+          <Tag :size="13" class="shrink-0 text-muted" /> {{ s }}
+        </button>
+        <button
+          v-if="canCreate"
+          type="button"
+          class="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-sm text-accent hover:bg-canvas"
+          @click="add(text)"
+        >
+          <Plus :size="13" class="shrink-0" /> 建立「{{ text.trim() }}」
+        </button>
+      </div>
     </div>
     </Teleport>
   </div>

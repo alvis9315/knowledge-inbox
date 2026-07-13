@@ -2,8 +2,8 @@
 import { computed, ref } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Check, Trash2, Wand2, ExternalLink, Clock } from 'lucide-vue-next'
-import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import TagInput from '@/components/common/TagInput.vue'
+import CategoryCascader from '@/features/categories/components/CategoryCascader.vue'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import type { EntryWithTags } from '@/features/entries/types'
 
@@ -19,7 +19,8 @@ const emit = defineEmits<{
   'update:modelValue': [value: string | null]
   file: [payload: { title: string; tags: string[] }]
   remove: []
-  newCategory: []
+  /** ＋:建新大類別 / 在指定大類別底下建子類別(domain 自動帶入)。 */
+  newCategory: [preset: { domain: string | null; newDomain: boolean }]
 }>()
 
 const store = useCategoriesStore()
@@ -28,9 +29,6 @@ const store = useCategoriesStore()
 const title = ref(props.entry.title)
 const tags = ref<string[]>([...props.entry.tags])
 
-const typeOptions = computed(() =>
-  store.categories.map((c) => ({ value: c.key, label: `${c.icon || '🏷️'} ${c.domain} / ${c.name}` })),
-)
 const suggested = computed(() => (props.entry.type ? store.typeByKey[props.entry.type] : undefined))
 const createdAt = computed(() =>
   new Date(props.entry.created_at).toLocaleString('zh-TW', { dateStyle: 'medium', timeStyle: 'short' }),
@@ -87,13 +85,12 @@ function submit() {
     <!-- classify + tags + actions -->
     <div class="flex flex-wrap items-center gap-2">
       <div class="w-60 min-w-44">
-        <SearchableSelect
+        <CategoryCascader
           :model-value="modelValue"
-          :options="typeOptions"
-          placeholder="選擇分類…"
-          action-title="找不到?新增分類"
+          allow-create
           @update:model-value="emit('update:modelValue', $event)"
-          @action="emit('newCategory')"
+          @create-domain="emit('newCategory', { domain: null, newDomain: true })"
+          @create-sub="emit('newCategory', { domain: $event, newDomain: false })"
         />
       </div>
       <div class="min-w-48 flex-1">

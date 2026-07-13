@@ -70,11 +70,13 @@ async function fileReviewed(entry: EntryWithTags, payload: { title: string; tags
   }
 }
 
-// 快捷新增分類(審核列的 ＋):建立後自動選進該列。
+// 快捷新增分類(審核列 cascader 的 ＋):帶入大類別 preset,建立後自動選進該列。
 const newCatOpen = ref(false)
 const newCatFor = ref<string | null>(null)
-function openNewCategory(entryId: string) {
+const newCatPreset = ref<{ domain: string | null; newDomain: boolean }>({ domain: null, newDomain: false })
+function openNewCategory(entryId: string, preset: { domain: string | null; newDomain: boolean }) {
   newCatFor.value = entryId
+  newCatPreset.value = preset
   newCatOpen.value = true
 }
 function onCategoryCreated(key: string) {
@@ -270,7 +272,7 @@ async function doExport(format: ExportFormat) {
           :busy="filingId === entry.id"
           @file="fileReviewed(entry, $event)"
           @remove="askRemove(entry)"
-          @new-category="openNewCategory(entry.id)"
+          @new-category="openNewCategory(entry.id, $event)"
         />
       </div>
 
@@ -334,7 +336,13 @@ async function doExport(format: ExportFormat) {
     </BaseModal>
 
     <!-- quick-add category from a review row -->
-    <NewCategoryModal :open="newCatOpen" @close="newCatOpen = false" @created="onCategoryCreated" />
+    <NewCategoryModal
+      :open="newCatOpen"
+      :preset-domain="newCatPreset.domain"
+      :start-new-domain="newCatPreset.newDomain"
+      @close="newCatOpen = false"
+      @created="onCategoryCreated"
+    />
 
     <!-- confirm (delete / 歇業) -->
     <BaseConfirm
