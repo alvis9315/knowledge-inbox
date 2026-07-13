@@ -108,14 +108,20 @@ function runDecode() {
     display.value = out
     if (locked >= TITLE_TEXT.length) {
       clearInterval(introTimer)
+      // glitch → 完全消失(保留版位)→ 突然重現 + START
       glitching.value = true
       setTimeout(() => {
         glitching.value = false
-        stage.value = 'start'
-      }, 620)
+        titleHidden.value = true
+        setTimeout(() => {
+          titleHidden.value = false
+          stage.value = 'start'
+        }, 650)
+      }, 500)
     }
   }, 45)
 }
+const titleHidden = ref(false)
 /** 點畫面跳過打字,直接到 START。 */
 function skipTyping() {
   if (stage.value !== 'typing') return
@@ -302,13 +308,16 @@ async function withGoogle() {
     <!-- 開機序列:解碼標題 + [ START ] -->
     <div
       v-if="stage !== 'form'"
-      class="relative z-10 flex min-h-40 cursor-default flex-col items-center gap-10"
+      class="relative z-10 flex cursor-default flex-col items-center gap-10"
       @click="skipTyping"
     >
+      <!-- invisible 保留版位:消失/重現、START 出現時標題都不位移 -->
       <h1
         class="text-4xl sm:text-6xl"
-        :class="[titleClass, glitching ? 'intro-glitch' : '']"
+        :class="[titleClass, glitching ? 'intro-glitch' : '', titleHidden ? 'invisible' : '']"
       >{{ display }}<span v-if="stage === 'typing'" class="intro-caret">▌</span></h1>
+      <!-- 按鈕版位從頭保留(h-12),出現時不推擠標題 -->
+      <div class="flex h-12 items-center justify-center">
       <Transition
         enter-active-class="transition duration-500 ease-out"
         enter-from-class="opacity-0 translate-y-3"
@@ -328,6 +337,7 @@ async function withGoogle() {
           <span class="tracking-[0.4em]">START</span>
         </button>
       </Transition>
+      </div>
     </div>
 
     <Transition
@@ -404,21 +414,22 @@ async function withGoogle() {
 .title-galaxy {
   font-weight: 300;
   letter-spacing: 0.16em;
-  /* GradientText(react-bits 語意):水平 3 色、300% 寬、0↔100% yoyo、2s */
-  background: linear-gradient(90deg, #ffffff, #c4d8ff, #9fc0ff);
-  background-size: 300% 100%;
-  animation: title-gradient-move 2s linear infinite alternate;
+  /* ShinyText(react-bits 語意):半透明底色字 + 白色光帶掃過。
+     字色 = 原標題底色 #c4d8ff(帶透明度讓光帶透出)。 */
+  color: rgba(196, 216, 255, 0.78);
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0) 40%, rgba(255, 255, 255, 0.95) 50%, rgba(255, 255, 255, 0) 60%);
+  background-size: 200% 100%;
+  animation: title-shine 2.4s linear infinite;
   -webkit-background-clip: text;
   background-clip: text;
-  color: transparent;
   text-shadow: 0 0 26px rgba(150, 180, 255, 0.4);
   /* background-clip:text + 行高 1 會讓 g/y 的下伸部超出背景範圍而隱形 */
   padding-bottom: 0.18em;
   margin-bottom: -0.18em;
 }
-@keyframes title-gradient-move {
-  from { background-position: 0% 50%; }
-  to { background-position: 100% 50%; }
+@keyframes title-shine {
+  0% { background-position: 100% 50%; }
+  100% { background-position: -100% 50%; }
 }
 /* Threads theme title — techy monospace, uppercase, tight. */
 .title-threads {
