@@ -108,25 +108,48 @@ function runDecode() {
     display.value = out
     if (locked >= TITLE_TEXT.length) {
       clearInterval(introTimer)
-      // glitch → 完全消失(保留版位)→ 突然重現 + START
+      // glitch → 完全消失(保留版位)→ 數位亂碼快速拼裝重現 → START
+      showCaret.value = false
       glitching.value = true
       setTimeout(() => {
         glitching.value = false
         titleHidden.value = true
         setTimeout(() => {
           titleHidden.value = false
-          stage.value = 'start'
+          runScrambleIn(() => (stage.value = 'start'))
         }, 650)
       }, 500)
     }
   }, 45)
 }
 const titleHidden = ref(false)
+const showCaret = ref(true)
+
+/** 重現:全長亂碼快速逐字解析成完整標題(digital 拼裝感)。 */
+function runScrambleIn(done: () => void) {
+  let frame = 0
+  introTimer = window.setInterval(() => {
+    frame++
+    const locked = frame * 2 // 一幀解兩字,約 0.4s 拼完
+    let out = ''
+    for (let i = 0; i < TITLE_TEXT.length; i++) {
+      out += i < locked ? TITLE_TEXT[i] : GLYPHS[(Math.random() * GLYPHS.length) | 0]
+    }
+    display.value = out
+    if (locked >= TITLE_TEXT.length) {
+      clearInterval(introTimer)
+      done()
+    }
+  }, 40)
+}
 /** 點畫面跳過打字,直接到 START。 */
 function skipTyping() {
   if (stage.value !== 'typing') return
   clearInterval(introTimer)
   display.value = TITLE_TEXT
+  showCaret.value = false
+  titleHidden.value = false
+  glitching.value = false
   stage.value = 'start'
 }
 /** 按 START:glitch 退場 → 登入卡片進場。 */
@@ -312,10 +335,14 @@ async function withGoogle() {
       @click="skipTyping"
     >
       <!-- invisible 保留版位:消失/重現、START 出現時標題都不位移 -->
+      <!-- 隱形完整標題撐死寬度,動畫文字絕對定位疊上 → 全程零位移 -->
       <h1
-        class="text-4xl sm:text-6xl"
+        class="relative whitespace-nowrap text-4xl sm:text-6xl"
         :class="[titleClass, glitching ? 'intro-glitch' : '', titleHidden ? 'invisible' : '']"
-      >{{ display }}<span v-if="stage === 'typing'" class="intro-caret">▌</span></h1>
+      >
+        <span class="invisible">{{ TITLE_TEXT }}</span>
+        <span class="absolute inset-0">{{ display }}<span v-if="showCaret" class="intro-caret">▌</span></span>
+      </h1>
       <!-- 按鈕版位從頭保留(h-12),出現時不推擠標題 -->
       <div class="flex h-12 items-center justify-center">
       <Transition
@@ -469,25 +496,23 @@ async function withGoogle() {
   100% { transform: translate(0, 0); filter: none; clip-path: none; }
 }
 /* 半透科技感 START */
+/* 素顏 START:無底色、無霧面、無脈動——只有白色光感邊框 + 文字 */
 .start-btn {
   display: inline-flex;
   align-items: center;
-  border: 1px solid rgba(140, 210, 255, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: 0.75rem;
-  background: rgba(255, 255, 255, 0.06);
-  backdrop-filter: blur(10px);
+  background: transparent;
   padding: 0.7rem 1.6rem;
   font-size: 0.95rem;
   font-weight: 600;
-  color: rgba(230, 245, 255, 0.92);
-  text-shadow: 0 0 12px rgba(130, 200, 255, 0.8);
-  box-shadow: 0 0 18px rgba(90, 170, 255, 0.18), inset 0 0 14px rgba(120, 190, 255, 0.08);
-  animation: start-pulse 2.2s ease-in-out infinite;
-  transition: background 0.2s, box-shadow 0.2s, transform 0.2s;
+  color: rgba(240, 248, 255, 0.95);
+  text-shadow: 0 0 12px rgba(180, 220, 255, 0.6);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.35);
+  transition: box-shadow 0.2s, transform 0.2s;
 }
 .start-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
-  box-shadow: 0 0 26px rgba(110, 190, 255, 0.4), inset 0 0 18px rgba(140, 205, 255, 0.14);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.6);
   transform: translateY(-1px);
 }
 /* TargetCursor 外型版:四角括號 + 中心點,純跟隨無動畫 */
@@ -566,8 +591,4 @@ async function withGoogle() {
 .focus-corner.bl { bottom: 0; left: 0; border-bottom-width: 2px; border-left-width: 2px; border-bottom-left-radius: 4px; }
 .focus-corner.br { bottom: 0; right: 0; border-bottom-width: 2px; border-right-width: 2px; border-bottom-right-radius: 4px; }
 
-@keyframes start-pulse {
-  0%, 100% { box-shadow: 0 0 14px rgba(90, 170, 255, 0.14), inset 0 0 12px rgba(120, 190, 255, 0.06); }
-  50% { box-shadow: 0 0 26px rgba(110, 190, 255, 0.34), inset 0 0 18px rgba(140, 205, 255, 0.12); }
-}
 </style>
