@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { GalaxyConfig } from './KnowledgeGalaxy.vue'
+import ColorPicker from '@/components/common/ColorPicker.vue'
 
 // A self-contained control panel for KnowledgeGalaxy. It edits the passed-in
 // reactive config object directly, so every change is live. Extract this file
@@ -87,23 +88,11 @@ function copyProps() {
           Star Color
           <span class="font-mono text-white">{{ config.starTint }}</span>
         </span>
-        <div class="flex items-center gap-1.5">
-          <input
-            v-model="(config as any).starTint"
-            type="color"
-            class="h-6 w-8 shrink-0 cursor-pointer rounded border border-white/20 bg-transparent"
-            aria-label="星星光暈顏色"
-          />
-          <button
-            v-for="c in TINT_PRESETS"
-            :key="c"
-            class="h-4 w-4 shrink-0 rounded-full border border-white/25 transition hover:scale-125"
-            :class="config.starTint === c ? 'ring-1 ring-white' : ''"
-            :style="{ background: c }"
-            :aria-label="`星色 ${c}`"
-            @click="(config as any).starTint = c"
-          />
-        </div>
+        <ColorPicker
+          :model-value="config.starTint"
+          :presets="TINT_PRESETS"
+          @update:model-value="(config as any).starTint = $event"
+        />
       </div>
 
       <label

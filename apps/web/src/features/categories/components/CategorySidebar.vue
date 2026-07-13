@@ -95,7 +95,12 @@ function domainCount(g: Group) {
         class="flex flex-1 flex-col gap-1 overflow-y-auto thin-scroll"
         @update="persistDomainOrder"
       >
-        <div v-for="group in groups" :key="group.domain" class="flex flex-col">
+        <div
+          v-for="(group, gi) in groups"
+          :key="group.domain"
+          class="menu-stagger flex flex-col"
+          :style="{ animationDelay: `${Math.min(gi, 14) * 35}ms` }"
+        >
           <div class="group flex cursor-grab items-center rounded-lg pl-1 transition-transform hover:scale-[1.02] hover:bg-canvas">
             <button
               class="flex h-8 w-7 shrink-0 items-center justify-center rounded-lg text-muted hover:text-ink"
@@ -178,8 +183,8 @@ function domainCount(g: Group) {
 /* StaggeredMenu(react-bits)式展開:子項逐一滑入 */
 .menu-stagger {
   opacity: 0;
-  transform: translateX(-10px);
-  animation: menu-stagger-in 0.24s ease-out forwards;
+  transform: translateX(-14px);
+  animation: menu-stagger-in 0.3s ease-out forwards;
 }
 @keyframes menu-stagger-in {
   to { opacity: 1; transform: translateX(0); }
