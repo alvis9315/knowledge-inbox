@@ -200,12 +200,14 @@ async function withGoogle() {
         <input
           v-model="email"
           type="email"
+          required
           placeholder="Email"
           class="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-sm placeholder:text-white/40 focus:border-white/40 focus:outline-none"
         />
         <input
           v-model="password"
           type="password"
+          required
           placeholder="密碼"
           class="w-full rounded-lg border border-white/15 bg-white/5 px-3 py-2.5 text-sm placeholder:text-white/40 focus:border-white/40 focus:outline-none"
         />

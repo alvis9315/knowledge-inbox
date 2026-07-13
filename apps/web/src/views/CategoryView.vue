@@ -16,6 +16,7 @@ import EntryForm from '@/features/entries/components/EntryForm.vue'
 import ReviewItem from '@/features/entries/components/ReviewItem.vue'
 import NewCategoryModal from '@/features/categories/components/NewCategoryModal.vue'
 import { learnFromCorrection } from '@/features/capture/ruleClassifier'
+import { toast } from '@/composables/useToast'
 import { useCategoryEntries } from '@/features/entries/composables/useCategoryEntries'
 import { useExport, type ExportFormat } from '@/features/entries/composables/useExport'
 import { updateEntry, deleteEntry, setEntryClosed, fetchEntriesPage } from '@/features/entries/api/entriesApi'
@@ -63,8 +64,10 @@ async function fileReviewed(entry: EntryWithTags, payload: { title: string; tags
     learnFromCorrection(`${payload.title} ${entry.content ?? ''}`, type)
     await store.touch()
     await load()
+    const c = store.typeByKey[type]
+    toast.success(`已歸檔到「${c ? `${c.domain} / ${c.name}` : type}」`)
   } catch (e) {
-    window.alert(e instanceof Error ? e.message : String(e))
+    toast.error(e instanceof Error ? e.message : String(e))
   } finally {
     filingId.value = null
   }
@@ -190,7 +193,7 @@ async function runConfirm() {
     await confirm.value.action()
     confirm.value = null
   } catch (e) {
-    window.alert(e instanceof Error ? e.message : String(e))
+    toast.error(e instanceof Error ? e.message : String(e))
   } finally {
     confirmBusy.value = false
   }
@@ -212,8 +215,9 @@ async function doExport(format: ExportFormat) {
     })
     await exportEntries(format, all, heading.value.name)
     exportOpen.value = false
+    toast.success(`已匯出「${heading.value.name}」`)
   } catch (e) {
-    window.alert(e instanceof Error ? e.message : String(e))
+    toast.error(e instanceof Error ? e.message : String(e))
   } finally {
     exporting.value = false
   }

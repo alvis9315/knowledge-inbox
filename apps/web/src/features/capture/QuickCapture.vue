@@ -8,6 +8,7 @@ import CategoryCascader from '@/features/categories/components/CategoryCascader.
 import { createEntry } from '@/features/entries/api/entriesApi'
 import { classifyText } from '@/features/capture/classify'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
+import { toast } from '@/composables/useToast'
 
 const props = defineProps<{ open: boolean }>()
 const emit = defineEmits<{ close: []; saved: [] }>()
@@ -69,6 +70,10 @@ async function submit() {
       tags: form.tags,
     })
     await store.touch()
+    // 回饋:讓使用者知道進了哪裡(自動歸檔 vs 待確認)。
+    const c = type ? store.typeByKey[type] : undefined
+    if (status === 'filed' && c) toast.success(`已自動歸檔到「${c.domain} / ${c.name}」`)
+    else toast.info(c ? `已加入待確認(建議:${c.domain} / ${c.name})` : '已加入待確認')
     reset()
     emit('saved')
     emit('close')

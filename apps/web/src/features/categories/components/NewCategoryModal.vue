@@ -7,6 +7,7 @@ import EmojiPicker from '@/components/common/EmojiPicker.vue'
 import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import { setDomainIcon } from '@/features/categories/api/categoriesApi'
 import { domainIcon } from '@/features/categories/domainIcons'
+import { toast } from '@/composables/useToast'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 
 /**
@@ -128,6 +129,11 @@ async function submit() {
       firstKey ??= key
     }
     if (firstKey) emit('created', firstKey)
+    toast.success(
+      validRows.value.length > 1
+        ? `已在「${domain}」建立 ${validRows.value.length} 個子類別`
+        : `已建立「${domain} / ${validRows.value[0].name.trim()}」`,
+    )
     emit('close')
   } catch (e) {
     error.value = e instanceof Error ? e.message : String(e)
