@@ -7,7 +7,7 @@
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
-  | 'lightning' | 'liquidchrome' | 'particles'
+  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid'
 
 export interface ThemePreset {
   canvas: string
@@ -202,6 +202,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#080d1a', surface: '#101828', elevated: '#16203a', line: '#263354',
       ink: '#e7edfb', muted: '#8fa0c4', accent: '#a8c4ff', accentFg: '#080d1a',
       accentSoft: 'rgba(168, 196, 255, 0.16)',
+    },
+  },
+  {
+    key: 'ripple-grid',
+    label: '漣漪網格(活背景)',
+    liveBg: 'ripplegrid',
+    preset: {
+      canvas: '#060911', surface: '#0d1220', elevated: '#131a30', line: '#22304e',
+      ink: '#e5ecfa', muted: '#8c9dc2', accent: '#7fa3e8', accentFg: '#060911',
+      accentSoft: 'rgba(127, 163, 232, 0.16)',
     },
   },
   {

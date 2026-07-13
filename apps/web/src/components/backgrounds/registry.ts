@@ -19,4 +19,5 @@ export const BG_COMPONENTS: Partial<Record<LiveBgKind, Component>> = {
   lightning: defineAsyncComponent(() => import('./KnowledgeLightning.vue')),
   liquidchrome: defineAsyncComponent(() => import('./KnowledgeLiquidChrome.vue')),
   particles: defineAsyncComponent(() => import('./KnowledgeParticles.vue')),
+  ripplegrid: defineAsyncComponent(() => import('./KnowledgeRippleGrid.vue')),
 }
