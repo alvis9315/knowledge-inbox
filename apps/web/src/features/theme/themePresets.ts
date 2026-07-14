@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst'
 
 export interface ThemePreset {
   canvas: string
@@ -343,6 +343,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#060510', surface: '#0e0c1e', elevated: '#14112a', line: '#272348',
       ink: '#ebe8fa', muted: '#9d95c2', accent: '#c084fc', accentFg: '#060510',
       accentSoft: 'rgba(192, 132, 252, 0.16)',
+    },
+  },
+  {
+    key: 'prismatic-burst',
+    label: '彩光爆發(活背景)',
+    liveBg: 'prismaticburst',
+    preset: {
+      canvas: '#050308', surface: '#0d0a16', elevated: '#130e20', line: '#262038',
+      ink: '#ece8f8', muted: '#9c93bc', accent: '#8b6cf6', accentFg: '#050308',
+      accentSoft: 'rgba(139, 108, 246, 0.16)',
     },
   },
   {
