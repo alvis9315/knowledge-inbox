@@ -20,9 +20,12 @@
 
 ## Phase A:自用期(立刻做,成本≈0)
 
-1. **關閉開放註冊**(prod 與 dev 都關):Dashboard → Authentication → Sign In / Up →
-   關閉「Allow new users to sign up」。關掉後 `signUp` API 回錯誤,帳號只能由
-   Dashboard(Add user)或未來的 admin 流程建立——設計意圖與平台設定一致
+1. **關閉開放註冊**(prod 與 dev 都關):Dashboard → Authentication →
+   **Sign In / Providers**(CONFIGURATION 區塊)→ 頁首「User Signups」→
+   關閉「Allow new users to sign up」→ Save。關掉後 `signUp` API 回錯誤,
+   帳號只能由 Dashboard(Add user)或未來的 admin 流程建立——設計意圖與平台設定一致。
+   **這是常態而非過渡**:demo 給人看一律走訪客模式(mock 零雲端),
+   自用期永遠不需要開放註冊
 2. 帳號建立/停用照舊走 Dashboard:Add user(勾 Auto Confirm)/ Ban user
 3. 本階段**不做**前端註冊與帳號管理 UI(單人用不到,做了是過度初始化)
 
