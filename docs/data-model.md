@@ -10,7 +10,7 @@
 | `type_definitions` | 分類定義(大類別/子類別,類型當資料管理) | 0001 |
 | `entries` | **唯一內容體**:每筆收藏的知識/連結 | 0001 |
 | `tags` / `entry_tags` | 標籤與多對多關聯(0005 加 hidden) | 0001 |
-| `collections` / `collection_entries` | 主題集合(行程、清單),只引用 entry id | 0001 |
+| `collections` / `collection_entries` | 主題集合(行程、清單),只引用 entry id(0011 擁有者化) | 0001 |
 | `links` | entry 之間的關聯 | 0001 |
 | `classification_feedback` | 分類修正紀錄(自學權重進 DB 的預留地) | 0001 |
 | `domain_meta` | 大類別自訂 icon 等裝飾資料 | 0008 |
@@ -63,6 +63,7 @@ erDiagram
   }
   collections {
     uuid id PK
+    uuid user_id FK
     text name
     text description
   }
@@ -121,3 +122,4 @@ erDiagram
 | `0008_domain_meta.sql` | domain_meta 表(大類別自訂 icon) |
 | `0009_unique_category_name.sql` | 同大類別下分類名唯一索引 + 去重(餐酒館事件的真防線) |
 | `0010_bg_presets.sql` | bg_presets 表(活背景方案存檔 + RLS) |
+| `0011_collections_owner_rls.sql` | collections 加 user_id + policy 改擁有者限定(原 authenticated 全放行是 MVP 簡化) |
