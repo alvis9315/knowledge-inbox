@@ -14,6 +14,7 @@ import {
 import { fetchAllTagNames } from '@/features/tags/api/tagsApi'
 import { setDomainIconOverrides } from '@/features/categories/domainIcons'
 import { humanError } from '@/utils/humanError'
+import { isMock } from '@/services/dataMode'
 
 export const useCategoriesStore = defineStore('categories', () => {
   const categories = ref<CategoryMeta[]>([])
@@ -68,8 +69,12 @@ export const useCategoriesStore = defineStore('categories', () => {
     }
   }
 
+  // 記住資料載入當下的來源模式:訪客(mock)↔ 登入(supabase)切換時,
+  // 舊快取必須失效重載——否則側欄會殘留另一個模式的資料(筆數對不上)。
+  let loadedMode: boolean | null = null
+
   const init = async () => {
-    if (ready.value) return
+    if (ready.value && loadedMode === isMock()) return
     loading.value = true
     error.value = null
     try {
@@ -82,6 +87,7 @@ export const useCategoriesStore = defineStore('categories', () => {
       categories.value = cats
       tagNames.value = tags
       setDomainIconOverrides(icons)
+      loadedMode = isMock()
       ready.value = true
     } catch (e) {
       error.value = humanError(e, '載入資料失敗,請重新整理再試')

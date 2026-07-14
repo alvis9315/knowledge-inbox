@@ -4,6 +4,7 @@ import { fetchEntriesPage, reorderEntries } from '@/features/entries/api/entries
 import { PAGE_SIZE } from '@/features/entries/constants'
 import type { EntryWithTags, SortMode } from '@/features/entries/types'
 import { humanError } from '@/utils/humanError'
+import { isMock } from '@/services/dataMode'
 
 /**
  * State + actions for a category's paginated, sortable, searchable entry list.
@@ -34,8 +35,11 @@ export const useCategoryEntries = (type: Ref<string>, revision: Ref<number>) => 
     page.value = 1
   })
 
+  // 資料來源進 key:訪客(mock)與登入(supabase)的快取完全分開。
+  const dataSource = computed(() => (isMock() ? 'mock' : 'db'))
+
   const query = useQuery({
-    queryKey: ['entries', type, page, sort, debouncedSearch, tag, includeClosed, revision],
+    queryKey: ['entries', dataSource, type, page, sort, debouncedSearch, tag, includeClosed, revision],
     queryFn: () =>
       fetchEntriesPage({
         type: type.value,
