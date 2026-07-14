@@ -72,6 +72,7 @@ export const selectSlot = (kind: LiveBgKind, i: number) => {
   if (i < 0 || i >= k.slots.length || i === k.active) return
   k.active = i
   persist(m)
+  void syncToCloud(kind, k) // 結構變更即同步(fail-soft),DB 隨時是本機鏡像
   presetsRevision.value++
   tabsRevision.value++
 }
@@ -84,6 +85,7 @@ export const addSlot = (kind: LiveBgKind) => {
   k.slots.push(JSON.parse(JSON.stringify(k.slots[k.active] ?? {})) as Cfg)
   k.active = k.slots.length - 1
   persist(m)
+  void syncToCloud(kind, k) // 結構變更即同步(fail-soft)
   // 新方案內容 = 當前參數的複本,背景不需重掛,只更新頁籤。
   tabsRevision.value++
 }
