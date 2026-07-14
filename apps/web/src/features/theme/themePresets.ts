@@ -7,7 +7,7 @@
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
-  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield'
+  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora'
 
 export interface ThemePreset {
   canvas: string
@@ -242,6 +242,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0a0d18', surface: '#111527', elevated: '#171c33', line: '#262d4a',
       ink: '#e6ebfa', muted: '#8d9ac0', accent: '#8aa5ff', accentFg: '#0a0d18',
       accentSoft: 'rgba(138, 165, 255, 0.16)',
+    },
+  },
+  {
+    key: 'soft-aurora',
+    label: '柔光極光(活背景)',
+    liveBg: 'softaurora',
+    preset: {
+      canvas: '#060911', surface: '#0d1322', elevated: '#131a30', line: '#232d4a',
+      ink: '#e7ecfa', muted: '#8e9cc2', accent: '#9adcff', accentFg: '#060911',
+      accentSoft: 'rgba(154, 220, 255, 0.16)',
     },
   },
   {
