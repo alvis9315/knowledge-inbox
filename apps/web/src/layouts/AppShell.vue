@@ -2,7 +2,7 @@
 import { computed, defineAsyncComponent, onMounted, onUnmounted, ref, watch } from 'vue'
 import { RouterLink, useRoute, useRouter } from 'vue-router'
 import { useLocalStorage } from '@vueuse/core'
-import { PanelLeft, Search, PlusCircle, Menu, X, Power, Settings, Tag, SwatchBook, Droplet, Image as ImageIcon, BrainCircuit } from 'lucide-vue-next'
+import { PanelLeft, Search, PlusCircle, Menu, X, Power, Settings, Tag, SwatchBook, Droplet, Image as ImageIcon, BrainCircuit, FolderPen } from 'lucide-vue-next'
 import CategorySidebar from '@/features/categories/components/CategorySidebar.vue'
 import QuickCapture from '@/features/capture/QuickCapture.vue'
 import NewCategoryModal from '@/features/categories/components/NewCategoryModal.vue'
@@ -10,6 +10,7 @@ import CommandPalette from '@/features/search/CommandPalette.vue'
 import CategoryThemeSettings from '@/features/theme/CategoryThemeSettings.vue'
 import DomainThemeSettings from '@/features/theme/DomainThemeSettings.vue'
 import TagManager from '@/features/tags/components/TagManager.vue'
+import CategoryManager from '@/features/categories/components/CategoryManager.vue'
 import LearnedDictManager from '@/features/capture/components/LearnedDictManager.vue'
 import HoverMenu from '@/components/common/HoverMenu.vue'
 import BaseConfirm from '@/components/common/BaseConfirm.vue'
@@ -42,6 +43,7 @@ const route = useRoute()
 const router = useRouter()
 const settingsOpen = ref(false)
 const tagsOpen = ref(false)
+const categoryManagerOpen = ref(false)
 const learnedDictOpen = ref(false)
 const domainThemeOpen = ref(false)
 const mock = computed(() => isMock())
@@ -293,6 +295,9 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
         <button class="menu-item" @click="settingsOpen = true">
           <Droplet :size="16" /> 子類主色
         </button>
+        <button class="menu-item" @click="categoryManagerOpen = true">
+          <FolderPen :size="16" /> 類別管理
+        </button>
         <button class="menu-item" @click="tagsOpen = true">
           <Tag :size="16" /> 標籤管理
         </button>
@@ -300,7 +305,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
           <BrainCircuit :size="16" /> 自學字典
         </button>
         <button class="menu-item" @click="bgSettingsOpen = true">
-          <ImageIcon :size="16" /> 玻璃感
+          <ImageIcon :size="16" /> 玻璃質感
         </button>
       </HoverMenu>
     </header>
@@ -368,6 +373,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
     <CategoryThemeSettings :open="settingsOpen" :active-type="activeType" @close="settingsOpen = false" />
     <DomainThemeSettings :open="domainThemeOpen" :active-domain="activeDomain" @close="domainThemeOpen = false" />
     <TagManager :open="tagsOpen" @close="tagsOpen = false" />
+    <CategoryManager :open="categoryManagerOpen" @close="categoryManagerOpen = false" />
     <LearnedDictManager :open="learnedDictOpen" @close="learnedDictOpen = false" />
     <BackgroundSettings :open="bgSettingsOpen" @close="bgSettingsOpen = false" />
     <FileUploadModal

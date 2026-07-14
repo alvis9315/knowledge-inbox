@@ -7,7 +7,7 @@ const emit = defineEmits<{ close: [] }>()
 </script>
 
 <template>
-  <BaseModal :open="props.open" title="玻璃感" @close="emit('close')">
+  <BaseModal :open="props.open" title="玻璃質感" @close="emit('close')">
     <p class="mb-1.5 text-sm font-medium text-ink">把介面調成玻璃,讓活背景透出來。</p>
     <ul class="mb-4 space-y-0.5 text-xs text-muted">
       <li>· 只在有活背景的頁面生效;純色主題頁不受影響</li>

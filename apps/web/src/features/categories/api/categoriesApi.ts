@@ -108,6 +108,39 @@ export const createCategory = async (input: NewCategoryInput): Promise<void> => 
   if (error) throw new Error(error.message)
 }
 
+/** 子類別改名(項目綁 key,改 name 不影響既有歸檔)。 */
+export const renameCategory = async (key: string, name: string): Promise<void> => {
+  if (isMock()) return mockDb.renameCategory(key, name)
+  const { error } = await requireSupabase()
+    .from('type_definitions')
+    .update({ name })
+    .eq('key', key)
+  if (error) throw new Error(error.message)
+}
+
+/** 大類別改名:改所有子類別的 domain 欄位,並搬移 domain_meta 的自訂 icon。 */
+export const renameDomain = async (oldDomain: string, newDomain: string): Promise<void> => {
+  if (isMock()) return mockDb.renameDomain(oldDomain, newDomain)
+  const supabase = requireSupabase()
+  const { error } = await supabase
+    .from('type_definitions')
+    .update({ domain: newDomain })
+    .eq('domain', oldDomain)
+  if (error) throw new Error(error.message)
+  // icon 搬家是裝飾性資料:失敗不擋改名主流程。
+  try {
+    const { data } = await supabase.from('domain_meta').select('icon').eq('domain', oldDomain).maybeSingle()
+    if (data?.icon) {
+      await supabase
+        .from('domain_meta')
+        .upsert({ domain: newDomain, icon: data.icon, updated_at: new Date().toISOString() })
+      await supabase.from('domain_meta').delete().eq('domain', oldDomain)
+    }
+  } catch (e) {
+    console.warn('[domain_meta] icon 搬移失敗(改名本身已成功):', e)
+  }
+}
+
 /** Set a category's accent color (drives per-category theming). */
 export const setCategoryColor = async (key: string, color: string): Promise<void> => {
   if (isMock()) return mockDb.setCategoryColor(key, color)

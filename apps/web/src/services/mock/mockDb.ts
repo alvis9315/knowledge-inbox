@@ -149,6 +149,32 @@ export const mockDb = {
     persist()
   },
 
+  renameCategory(key: string, newName: string) {
+    const c = state.categories.find((x) => x.key === key)
+    if (!c) throw new Error('找不到這個子類別,請重新整理再試')
+    // 同大類別下名稱唯一(對齊雲端 0009 的唯一約束)。
+    if (state.categories.some((x) => x.key !== key && x.domain === c.domain && x.name === newName)) {
+      throw new Error(`「${c.domain}」底下已有「${newName}」,請換個名稱`)
+    }
+    c.name = newName
+    persist()
+  },
+
+  renameDomain(oldDomain: string, newDomain: string) {
+    if (state.categories.some((c) => c.domain === newDomain)) {
+      throw new Error(`已存在大類別「${newDomain}」,請換個名稱`)
+    }
+    for (const c of state.categories) if (c.domain === oldDomain) c.domain = newDomain
+    if (state.domainOrder) {
+      state.domainOrder = state.domainOrder.map((d) => (d === oldDomain ? newDomain : d))
+    }
+    if (state.domainIcons?.[oldDomain]) {
+      state.domainIcons[newDomain] = state.domainIcons[oldDomain]
+      delete state.domainIcons[oldDomain]
+    }
+    persist()
+  },
+
   setCategoryColor(key: string, color: string) {
     const c = state.categories.find((x) => x.key === key)
     if (c) {
