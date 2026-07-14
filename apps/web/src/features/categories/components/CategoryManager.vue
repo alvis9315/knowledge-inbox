@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Search, Pencil, Check, X } from 'lucide-vue-next'
+import { Search, Pencil, Check, X, ChevronRight } from 'lucide-vue-next'
 import { toast } from '@/composables/useToast'
 import BaseModal from '@/components/common/BaseModal.vue'
 import { renameCategory, renameDomain } from '@/features/categories/api/categoriesApi'
@@ -21,11 +21,19 @@ const editing = ref<string | null>(null)
 const editValue = ref('')
 const saving = ref(false)
 
+// 大類別收合狀態:預設全收合;搜尋時自動展開有命中的。
+const expanded = ref<Record<string, boolean>>({})
+const toggleDomain = (d: string) => {
+  expanded.value = { ...expanded.value, [d]: !expanded.value[d] }
+}
+const isExpanded = (d: string) => !!search.value.trim() || !!expanded.value[d]
+
 watch(() => props.open, (o) => {
   if (o) {
     search.value = ''
     error.value = null
     editing.value = null
+    expanded.value = {}
   }
 })
 
@@ -147,27 +155,36 @@ const saveCategory = async (key: string, oldName: string) => {
       <div class="h-[52vh] overflow-y-auto thin-scroll" :class="saving ? 'pointer-events-none opacity-60' : ''">
         <p v-if="groups.length === 0" class="py-10 text-center text-sm text-muted">沒有符合的類別</p>
         <div v-for="g in groups" :key="g.domain" class="mb-2">
-          <!-- 大類別列 -->
-          <div class="flex items-center gap-2 rounded-lg bg-canvas px-2.5 py-2">
+          <!-- 大類別列(整列點擊 = 收合/展開;預設收合) -->
+          <div
+            class="flex cursor-pointer items-center gap-2 rounded-lg bg-canvas px-2.5 py-2"
+            @click="editing !== `d:${g.domain}` && toggleDomain(g.domain)"
+          >
+            <ChevronRight
+              :size="15"
+              class="shrink-0 text-muted transition-transform"
+              :class="isExpanded(g.domain) ? 'rotate-90' : ''"
+            />
             <template v-if="editing === `d:${g.domain}`">
               <input
                 v-model="editValue"
                 class="flex-1 rounded-md border border-accent bg-surface px-2 py-1 text-sm font-semibold text-ink focus:outline-none"
+                @click.stop
                 @keyup.enter="saveDomain(g.domain)"
                 @keyup.esc="editing = null"
               />
-              <button class="icon-btn text-accent" aria-label="儲存" @click="saveDomain(g.domain)"><Check :size="16" /></button>
-              <button class="icon-btn" aria-label="取消" @click="editing = null"><X :size="16" /></button>
+              <button class="icon-btn text-accent" aria-label="儲存" @click.stop="saveDomain(g.domain)"><Check :size="16" /></button>
+              <button class="icon-btn" aria-label="取消" @click.stop="editing = null"><X :size="16" /></button>
             </template>
             <template v-else>
               <span class="flex-1 truncate text-sm font-semibold text-ink">{{ g.domain }}</span>
               <span class="shrink-0 text-xs text-muted">{{ g.items.length }} 個子類別</span>
-              <button class="icon-btn" title="改名" @click="startEdit(`d:${g.domain}`, g.domain)"><Pencil :size="15" /></button>
+              <button class="icon-btn" title="改名" @click.stop="startEdit(`d:${g.domain}`, g.domain)"><Pencil :size="15" /></button>
             </template>
           </div>
           <!-- 子類別列 -->
           <div
-            v-for="c in g.items"
+            v-for="c in isExpanded(g.domain) ? g.items : []"
             :key="c.key"
             class="ml-4 flex items-center gap-2 rounded-lg px-2.5 py-1.5 hover:bg-canvas"
           >

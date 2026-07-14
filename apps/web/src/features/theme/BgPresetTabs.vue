@@ -20,7 +20,9 @@ const add = () => {
 </script>
 
 <template>
-  <div class="mb-3 flex items-center gap-1.5">
+  <!-- 方案系統只在 App 場景有效(activeLiveBg 由 AppShell 維護);
+       登入頁/playground 的面板不顯示頁籤,避免出現按了沒反應的死按鈕。 -->
+  <div v-if="activeLiveBg" class="mb-3 flex items-center gap-1.5">
     <span class="mr-1 text-xs font-medium text-white/60">方案</span>
     <button
       v-for="i in state.count"

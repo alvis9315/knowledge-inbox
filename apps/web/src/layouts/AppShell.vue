@@ -404,7 +404,8 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
   display: flex;
   width: 100%;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  text-align: left;
   gap: 0.5rem;
   border-radius: 0.5rem;
   padding: 0.5rem 0.75rem;
