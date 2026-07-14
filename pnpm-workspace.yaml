@@ -2,10 +2,7 @@ packages:
   - "apps/*"
   - "packages/*"
 
+# pnpm 11:允許這些依賴跑 install script(esbuild 佈平台二進位、vue-demi postinstall)。
 allowBuilds:
-  esbuild: set this to true or false
-  vue-demi: set this to true or false
-
-# Allow these dependencies to run install scripts (esbuild ships a platform binary).
-onlyBuiltDependencies:
-  - esbuild
+  esbuild: true
+  vue-demi: true
