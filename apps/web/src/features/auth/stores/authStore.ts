@@ -72,6 +72,7 @@ export const useAuthStore = defineStore('auth', () => {
     const wasSupabase = mode.value === 'supabase'
     mode.value = null
     email.value = null
+    setDataMode('guest') // 登出即回安全預設:任何殘留元件都不得再打雲端
     localStorage.removeItem(STORE_KEY)
     if (wasSupabase && supabase) {
       await supabase.auth.signOut().catch((e) => console.warn('[logout] signOut 失敗:', e))
