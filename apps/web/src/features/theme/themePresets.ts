@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism'
 
 export interface ThemePreset {
   canvas: string
@@ -333,6 +333,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#070a14', surface: '#0e1322', elevated: '#141a30', line: '#232c48',
       ink: '#e7ecf8', muted: '#8d9ac0', accent: '#7f9ce0', accentFg: '#070a14',
       accentSoft: 'rgba(127, 156, 224, 0.16)',
+    },
+  },
+  {
+    key: 'prism-holo',
+    label: '稜鏡(活背景)',
+    liveBg: 'prism',
+    preset: {
+      canvas: '#060510', surface: '#0e0c1e', elevated: '#14112a', line: '#272348',
+      ink: '#ebe8fa', muted: '#9d95c2', accent: '#c084fc', accentFg: '#060510',
+      accentSoft: 'rgba(192, 132, 252, 0.16)',
     },
   },
   {

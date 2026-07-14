@@ -32,4 +32,5 @@ export const BG_COMPONENTS: Partial<Record<LiveBgKind, Component>> = {
   lightfall: defineAsyncComponent(() => import('./KnowledgeLightfall.vue')),
   evileye: defineAsyncComponent(() => import('./KnowledgeEvilEye.vue')),
   shapegrid: defineAsyncComponent(() => import('./KnowledgeShapeGrid.vue')),
+  prism: defineAsyncComponent(() => import('./KnowledgePrism.vue')),
 }
