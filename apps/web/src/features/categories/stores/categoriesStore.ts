@@ -1,5 +1,6 @@
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
 import type { TypeDefinition } from '@inbox/shared-types'
 import { ensureSession } from '@/services/session'
 import {
@@ -16,14 +17,65 @@ import { setDomainIconOverrides } from '@/features/categories/domainIcons'
 import { humanError } from '@/utils/humanError'
 import { isMock } from '@/services/dataMode'
 
+/**
+ * 分類 store(Vue Query phase 2):讀路徑改 query 驅動——
+ * 去重/重試/快取交給 query;資料來源(mock/db)進 key,模式切換自動失效
+ * (取代舊的 loadedMode 手工追蹤)。對外 API 與行為契約完全不變:
+ * categories 仍是可寫 ref(樂觀排序需要)、touch/addCategory 失敗照樣往上拋。
+ */
 export const useCategoriesStore = defineStore('categories', () => {
   const categories = ref<CategoryMeta[]>([])
   const tagNames = ref<string[]>([])
-  const loading = ref(false)
   const error = ref<string | null>(null)
   const ready = ref(false)
   /** Bumped whenever entries change, so open views can reload. */
   const revision = ref(0)
+
+  // 讀路徑:三合一(分類+標籤+icon)一個 query。
+  // enabled 閘門:等 init() 的 ensureSession 完成才開抓——session 未恢復時
+  // 對 supabase 查詢會被 RLS 濾成空,快取到空資料就是側欄空白 bug。
+  const dataSource = computed(() => (isMock() ? 'mock' : 'db'))
+  const fetchEnabled = ref(false)
+  const query = useQuery({
+    queryKey: ['categories-meta', dataSource],
+    queryFn: async () => {
+      const [cats, tags, icons] = await Promise.all([
+        fetchCategoriesWithMeta(),
+        fetchAllTagNames(),
+        fetchDomainIcons(),
+      ])
+      return { cats, tags, icons }
+    },
+    enabled: fetchEnabled,
+    // 刻意不用 keepPreviousData:跨模式(mock↔db)殘影就是之前的筆數 bug。
+  })
+
+  // categories 是可寫鏡像:拖曳排序要直接改陣列;query 更新時覆蓋回來。
+  watch(
+    () => query.data.value,
+    (d) => {
+      if (!d) return
+      categories.value = d.cats
+      tagNames.value = d.tags
+      setDomainIconOverrides(d.icons)
+      ready.value = true
+    },
+    { immediate: true },
+  )
+  // query 層的錯誤翻成中文進同一個 error ref(操作類錯誤也寫這裡)。
+  watch(
+    () => query.error.value,
+    (e) => {
+      if (e) error.value = humanError(e, '載入資料失敗,請重新整理再試')
+    },
+  )
+  const loading = computed(() => query.isFetching.value)
+
+  const reload = async () => {
+    error.value = null
+    const r = await query.refetch()
+    if (r.error) error.value = humanError(r.error, '載入資料失敗,請重新整理再試')
+  }
 
   const touch = async () => {
     revision.value++
@@ -50,50 +102,20 @@ export const useCategoriesStore = defineStore('categories', () => {
   /** Plain TypeDefinition list, for schema-driven forms. */
   const typeDefinitions = computed<TypeDefinition[]>(() => categories.value)
 
-  const reload = async () => {
-    loading.value = true
-    error.value = null
-    try {
-      const [cats, tags, icons] = await Promise.all([
-        fetchCategoriesWithMeta(),
-        fetchAllTagNames(),
-        fetchDomainIcons(),
-      ])
-      categories.value = cats
-      tagNames.value = tags
-      setDomainIconOverrides(icons)
-    } catch (e) {
-      error.value = humanError(e, '載入資料失敗,請重新整理再試')
-    } finally {
-      loading.value = false
-    }
-  }
-
-  // 記住資料載入當下的來源模式:訪客(mock)↔ 登入(supabase)切換時,
-  // 舊快取必須失效重載——否則側欄會殘留另一個模式的資料(筆數對不上)。
-  let loadedMode: boolean | null = null
-
   const init = async () => {
-    if (ready.value && loadedMode === isMock()) return
-    loading.value = true
     error.value = null
     try {
       await ensureSession()
-      const [cats, tags, icons] = await Promise.all([
-        fetchCategoriesWithMeta(),
-        fetchAllTagNames(),
-        fetchDomainIcons(),
-      ])
-      categories.value = cats
-      tagNames.value = tags
-      setDomainIconOverrides(icons)
-      loadedMode = isMock()
-      ready.value = true
     } catch (e) {
       error.value = humanError(e, '載入資料失敗,請重新整理再試')
-    } finally {
-      loading.value = false
+      return
     }
+    if (!fetchEnabled.value) {
+      fetchEnabled.value = true // enabled 翻正會自動觸發首抓
+      return
+    }
+    // 已啟用過(如登入↔訪客切換後重進):key 換了會自抓;同 key 則刷新一次。
+    await reload()
   }
 
   /** Optimistic reorder: reflect immediately, persist async, roll back on error. */
