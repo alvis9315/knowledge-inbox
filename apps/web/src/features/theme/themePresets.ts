@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid'
 
 export interface ThemePreset {
   canvas: string
@@ -323,6 +323,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0a0503', surface: '#150b06', elevated: '#1d0f08', line: '#372015',
       ink: '#fae9df', muted: '#c09a85', accent: '#ff6f37', accentFg: '#0a0503',
       accentSoft: 'rgba(255, 111, 55, 0.16)',
+    },
+  },
+  {
+    key: 'shape-grid',
+    label: '幾何格線(活背景)',
+    liveBg: 'shapegrid',
+    preset: {
+      canvas: '#070a14', surface: '#0e1322', elevated: '#141a30', line: '#232c48',
+      ink: '#e7ecf8', muted: '#8d9ac0', accent: '#7f9ce0', accentFg: '#070a14',
+      accentSoft: 'rgba(127, 156, 224, 0.16)',
     },
   },
   {
