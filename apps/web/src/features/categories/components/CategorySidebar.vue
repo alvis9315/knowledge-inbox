@@ -3,7 +3,7 @@ import { ref, watch } from 'vue'
 import { RouterLink } from 'vue-router'
 import { VueDraggable } from 'vue-draggable-plus'
 import { useLocalStorage } from '@vueuse/core'
-import { Inbox, Clock, Plus, ChevronRight } from 'lucide-vue-next'
+import { Inbox, Clock, Plus, ChevronRight, Boxes } from 'lucide-vue-next'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { domainIcon } from '@/features/categories/domainIcons'
 import { SCOPE_ALL, SCOPE_PENDING } from '@/features/entries/constants'
@@ -56,6 +56,9 @@ const domainCount = (g: Group) => {
         </RouterLink>
         <RouterLink :to="{ name: 'browse', params: { type: SCOPE_PENDING } }" class="icon-nav" active-class="nav-active" title="待確認">
           <Clock :size="18" />
+        </RouterLink>
+        <RouterLink :to="{ name: 'collections' }" class="icon-nav" active-class="nav-active" title="集合">
+          <Boxes :size="18" />
         </RouterLink>
       </div>
       <div class="my-2 border-t border-line" />

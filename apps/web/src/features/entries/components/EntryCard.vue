@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Pencil, Trash2, Store } from 'lucide-vue-next'
+import { Pencil, Trash2, Store, FolderPlus } from 'lucide-vue-next'
 import TypeBadge from './TypeBadge.vue'
 import TagChips from './TagChips.vue'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
@@ -12,6 +12,7 @@ const emit = defineEmits<{
   edit: [entry: EntryWithTags]
   remove: [entry: EntryWithTags]
   toggleClosed: [entry: EntryWithTags]
+  addToCollection: [entry: EntryWithTags]
 }>()
 const router = useRouter()
 const store = useCategoriesStore()
@@ -52,6 +53,7 @@ const open = () => {
         >已歇業</span>
       </div>
       <div class="flex shrink-0 gap-1">
+        <button class="icon-btn" aria-label="加入集合" title="加入集合" @click.stop="emit('addToCollection', entry)"><FolderPlus :size="15" /></button>
         <button class="icon-btn" aria-label="編輯" @click.stop="emit('edit', entry)"><Pencil :size="15" /></button>
         <button
           v-if="isFood"

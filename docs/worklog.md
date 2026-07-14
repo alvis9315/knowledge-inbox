@@ -148,3 +148,4 @@
 - 建 Supabase 專案 → 套 migration → 填 `apps/web/.env` → `pnpm dev` 實測(見 setup-guide 的 Human TODO)
 - `supabase gen types` 覆蓋 shared-types placeholder
 - Phase 2:`/ingest` 接 Claude Haiku、URL 正文擷取、信心分流 UI
+- 2026-07-15 第二班:Collections 功能本體(清單/詳情/加入集合,雙資料源)

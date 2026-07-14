@@ -11,6 +11,7 @@ import LoadingState from '@/components/common/LoadingState.vue'
 import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import EntryCard from '@/features/entries/components/EntryCard.vue'
 import EntryListItem from '@/features/entries/components/EntryListItem.vue'
+import AddToCollectionModal from '@/features/collections/components/AddToCollectionModal.vue'
 import EntryToolbar from '@/features/entries/components/EntryToolbar.vue'
 import EntryForm from '@/features/entries/components/EntryForm.vue'
 import ReviewItem from '@/features/entries/components/ReviewItem.vue'
@@ -126,6 +127,8 @@ const onReorder = () => {
 const editing = ref<EntryWithTags | null>(null)
 const editOpen = ref(false)
 const saveError = ref<string | null>(null)
+
+const collectionTarget = ref<EntryWithTags | null>(null)
 
 const openEdit = (entry: EntryWithTags) => {
   editing.value = entry
@@ -303,6 +306,7 @@ const doExport = async (format: ExportFormat) => {
           @edit="openEdit"
           @remove="askRemove"
           @toggle-closed="handleToggleClosed"
+          @add-to-collection="collectionTarget = $event"
         />
       </VueDraggable>
 
@@ -315,6 +319,7 @@ const doExport = async (format: ExportFormat) => {
             @edit="openEdit"
             @remove="askRemove"
             @toggle-closed="handleToggleClosed"
+          @add-to-collection="collectionTarget = $event"
           />
         </div>
       </div>
@@ -336,6 +341,7 @@ const doExport = async (format: ExportFormat) => {
           @edit="openEdit"
           @remove="askRemove"
           @toggle-closed="handleToggleClosed"
+          @add-to-collection="collectionTarget = $event"
         />
       </VueDraggable>
     </LoadingState>
@@ -368,6 +374,13 @@ const doExport = async (format: ExportFormat) => {
     />
 
     <!-- confirm (delete / 歇業) -->
+    <AddToCollectionModal
+      :open="collectionTarget !== null"
+      :entry-id="collectionTarget?.id ?? null"
+      :entry-title="collectionTarget?.title"
+      @close="collectionTarget = null"
+    />
+
     <BaseConfirm
       :open="!!confirm"
       :title="confirm?.title"

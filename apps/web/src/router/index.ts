@@ -38,6 +38,17 @@ const routes: RouteRecordRaw[] = [
     props: true,
   },
   {
+    path: '/collections',
+    name: 'collections',
+    component: () => import('@/views/CollectionsView.vue'),
+  },
+  {
+    path: '/collections/:id',
+    name: 'collection-detail',
+    component: () => import('@/views/CollectionDetailView.vue'),
+    props: true,
+  },
+  {
     path: '/entries/:id',
     name: 'entry-detail',
     component: () => import('@/views/EntryDetailView.vue'),

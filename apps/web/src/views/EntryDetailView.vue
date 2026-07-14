@@ -13,12 +13,15 @@ import { applyTheme } from '@/features/theme/useCategoryTheme'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import type { EntryWithTags } from '@/features/entries/types'
 import { humanError } from '@/utils/humanError'
+import AddToCollectionModal from '@/features/collections/components/AddToCollectionModal.vue'
+import { FolderPlus } from 'lucide-vue-next'
 
 const props = defineProps<{ id: string }>()
 const store = useCategoriesStore()
 const { exportEntries } = useExport()
 
 const entry = ref<EntryWithTags | null>(null)
+const collectionOpen = ref(false)
 const loading = ref(true)
 const error = ref<string | null>(null)
 const exportOpen = ref(false)
@@ -92,6 +95,22 @@ const doExport = async (format: ExportFormat) => {
 
         <!-- type-specific body (modular; registry maps 大類別 → component) -->
         <component :is="bodyComponent" :entry="entry" />
+
+        <div class="flex justify-end">
+          <button
+            class="inline-flex items-center gap-1.5 rounded-lg border border-line bg-surface px-3 py-1.5 text-sm text-muted transition hover:border-accent hover:text-ink"
+            @click="collectionOpen = true"
+          >
+            <FolderPlus :size="15" /> 加入集合
+          </button>
+        </div>
+
+        <AddToCollectionModal
+          :open="collectionOpen"
+          :entry-id="entry?.id ?? null"
+          :entry-title="entry?.title"
+          @close="collectionOpen = false"
+        />
 
         <a
           v-if="entry.source_url"

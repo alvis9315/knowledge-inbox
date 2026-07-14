@@ -17,6 +17,15 @@ interface MockState {
   domainOrder?: string[]
   /** 大類別自訂 icon(對應雲端 domain_meta)。 */
   domainIcons?: Record<string, string>
+  /** 主題集合(對應雲端 collections + collection_entries)。 */
+  collections?: MockCollection[]
+}
+
+interface MockCollection {
+  id: string
+  name: string
+  description: string | null
+  items: { entryId: string; sort_order: number; note: string | null }[]
 }
 
 export interface TagDetail {
@@ -189,6 +198,77 @@ export const mockDb = {
   },
   setDomainIcon(domain: string, icon: string) {
     state.domainIcons = { ...(state.domainIcons ?? {}), [domain]: icon }
+    persist()
+  },
+
+  // ── Collections(主題集合;只引用 entry id,對齊雲端行為)────────────
+  collections() {
+    return (state.collections ?? []).map((c) => ({
+      id: c.id,
+      name: c.name,
+      description: c.description,
+      count: c.items.length,
+    }))
+  },
+  createCollection(name: string, description: string | null): string {
+    const id = `col-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`
+    state.collections = [...(state.collections ?? []), { id, name, description, items: [] }]
+    persist()
+    return id
+  },
+  renameCollection(id: string, name: string) {
+    const c = (state.collections ?? []).find((x) => x.id === id)
+    if (!c) throw new Error('找不到這個集合,請重新整理再試')
+    c.name = name
+    persist()
+  },
+  deleteCollection(id: string) {
+    state.collections = (state.collections ?? []).filter((x) => x.id !== id)
+    persist()
+  },
+  collectionDetail(id: string) {
+    const c = (state.collections ?? []).find((x) => x.id === id)
+    if (!c) return null
+    const items = [...c.items]
+      .sort((a, b) => a.sort_order - b.sort_order)
+      .flatMap((it) => {
+        const entry = state.entries.find((e) => e.id === it.entryId)
+        return entry ? [{ entry: clone(entry), note: it.note, sort_order: it.sort_order }] : []
+      })
+    return { id: c.id, name: c.name, description: c.description, count: items.length, items }
+  },
+  addToCollection(collectionId: string, entryId: string) {
+    const c = (state.collections ?? []).find((x) => x.id === collectionId)
+    if (!c) throw new Error('找不到這個集合,請重新整理再試')
+    // 對齊雲端複合主鍵:重複加入擋下。
+    if (c.items.some((it) => it.entryId === entryId)) {
+      throw new Error('這個項目已經在集合裡了')
+    }
+    const next = Math.max(0, ...c.items.map((it) => it.sort_order)) + 10
+    c.items.push({ entryId, sort_order: next, note: null })
+    persist()
+  },
+  removeFromCollection(collectionId: string, entryId: string) {
+    const c = (state.collections ?? []).find((x) => x.id === collectionId)
+    if (!c) return
+    c.items = c.items.filter((it) => it.entryId !== entryId)
+    persist()
+  },
+  setCollectionNote(collectionId: string, entryId: string, note: string | null) {
+    const c = (state.collections ?? []).find((x) => x.id === collectionId)
+    const it = c?.items.find((x) => x.entryId === entryId)
+    if (it) {
+      it.note = note
+      persist()
+    }
+  },
+  reorderCollectionEntries(collectionId: string, orderedEntryIds: string[]) {
+    const c = (state.collections ?? []).find((x) => x.id === collectionId)
+    if (!c) return
+    orderedEntryIds.forEach((entryId, i) => {
+      const it = c.items.find((x) => x.entryId === entryId)
+      if (it) it.sort_order = (i + 1) * 10
+    })
     persist()
   },
 
