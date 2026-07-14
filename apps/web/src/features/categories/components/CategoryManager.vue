@@ -68,13 +68,13 @@ const migrateDomainLocalKeys = (oldD: string, newD: string) => {
         localStorage.setItem('ki-domain-theme', JSON.stringify(m))
       }
     }
-    const collapsedRaw = localStorage.getItem('ki-collapsed-domains-v2')
+    const collapsedRaw = localStorage.getItem('ki-expanded-domains-v1')
     if (collapsedRaw) {
       const m = JSON.parse(collapsedRaw) as Record<string, boolean>
       if (oldD in m) {
         m[newD] = m[oldD]
         delete m[oldD]
-        localStorage.setItem('ki-collapsed-domains-v2', JSON.stringify(m))
+        localStorage.setItem('ki-expanded-domains-v1', JSON.stringify(m))
       }
     }
     const hiddenRaw = localStorage.getItem('ki-carousel-hidden-domains')

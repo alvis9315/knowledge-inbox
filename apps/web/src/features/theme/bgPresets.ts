@@ -20,8 +20,10 @@ type PresetMap = Partial<Record<LiveBgKind, KindPresets>>
 
 const KEY = 'ki-bg-presets-v1'
 
-/** 方案選擇/雲端合併的變更計數:AppShell 靠它重掛背景元件套用新方案。 */
+/** 方案「切換/雲端合併」計數:AppShell 靠它重掛背景元件套用新方案。 */
 export const presetsRevision = ref(0)
+/** 頁籤 UI 計數:新增方案只動頁籤,不重掛背景(新方案=複製當前參數,畫面不變)。 */
+export const tabsRevision = ref(0)
 
 const load = (): PresetMap => {
   try {
@@ -71,6 +73,7 @@ export const selectSlot = (kind: LiveBgKind, i: number) => {
   k.active = i
   persist(m)
   presetsRevision.value++
+  tabsRevision.value++
 }
 
 /** 新增方案(複製當前方案當起點,選中它)。 */
@@ -81,7 +84,8 @@ export const addSlot = (kind: LiveBgKind) => {
   k.slots.push(JSON.parse(JSON.stringify(k.slots[k.active] ?? {})) as Cfg)
   k.active = k.slots.length - 1
   persist(m)
-  presetsRevision.value++
+  // 新方案內容 = 當前參數的複本,背景不需重掛,只更新頁籤。
+  tabsRevision.value++
 }
 
 /** 完成=把調好的參數存進當前方案(localStorage 立即,雲端 fail-soft)。 */
@@ -127,6 +131,7 @@ export const hydrateBgPresets = async () => {
     }
     persist(m)
     presetsRevision.value++
+    tabsRevision.value++
   } catch (e) {
     console.warn('[bg-presets] 雲端方案載入失敗,使用本機方案:', e)
   }

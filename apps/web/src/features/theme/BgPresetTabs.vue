@@ -2,12 +2,12 @@
 import { computed } from 'vue'
 import { Plus } from 'lucide-vue-next'
 import { activeLiveBg } from './liveBgControls'
-import { MAX_SLOTS, addSlot, presetsRevision, selectSlot, slotState } from './bgPresets'
+import { MAX_SLOTS, addSlot, selectSlot, slotState, tabsRevision } from './bgPresets'
 
 // 控制面板上緣的「方案」頁籤:每種活背景最多 10 套參數存檔。
 // 切換頁籤立即套用該方案;調整後按面板的「完成」存進當前方案。
 const state = computed(() => {
-  void presetsRevision.value // 依賴變更計數,切換/新增後重算
+  void tabsRevision.value // 依賴頁籤計數,切換/新增後重算
   return activeLiveBg.value ? slotState(activeLiveBg.value) : { active: 0, count: 1 }
 })
 
