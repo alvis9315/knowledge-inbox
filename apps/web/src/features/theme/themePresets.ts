@@ -8,6 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
+  | 'grainient'
 
 export interface ThemePreset {
   canvas: string
@@ -262,6 +263,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#05070d', surface: '#0c101c', elevated: '#121729', line: '#212a42',
       ink: '#e8eefb', muted: '#8e9cc0', accent: '#bcd6ff', accentFg: '#05070d',
       accentSoft: 'rgba(188, 214, 255, 0.16)',
+    },
+  },
+  {
+    key: 'grainient-dusk',
+    label: '顆粒漸層(活背景)',
+    liveBg: 'grainient',
+    preset: {
+      canvas: '#0b0a16', surface: '#141227', elevated: '#1a1733', line: '#2b2650',
+      ink: '#e9e6f7', muted: '#9a92c0', accent: '#a78bfa', accentFg: '#0b0a16',
+      accentSoft: 'rgba(167, 139, 250, 0.16)',
     },
   },
   {
