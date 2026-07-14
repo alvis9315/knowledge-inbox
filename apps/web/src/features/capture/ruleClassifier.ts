@@ -79,7 +79,9 @@ const KEYWORDS: Record<string, string[]> = {
   social_shortvideo: ['reels', '短影音', 'tiktok', 'shorts'],
 }
 
-// ── 回饋自學權重(localStorage)─────────────────────────────────────────
+// ── 回饋自學權重(localStorage 正本 + 雲端鏡像)─────────────────────────
+// 同步歸類(鐵律):學習/刪詞/清空 = 確認完成的變更 → 本機立即 + 雲端即時
+// (fail-soft);評分讀取 = 純本機。訪客模式零雲端。比照 bgPresets 模式。
 const LEARNED_KEY = 'ki-learned-kw-v1'
 export type LearnedMap = Record<string, Record<string, number>>
 
@@ -92,6 +94,43 @@ const loadLearned = (): LearnedMap => {
 }
 const saveLearned = (m: LearnedMap) => {
   localStorage.setItem(LEARNED_KEY, JSON.stringify(m))
+  void syncLearnedToCloud(m)
+}
+
+const syncLearnedToCloud = async (m: LearnedMap) => {
+  const { isMock } = await import('@/services/dataMode')
+  if (isMock()) return
+  try {
+    const { requireSupabase } = await import('@/services/supabaseClient')
+    const sb = requireSupabase()
+    const { data } = await sb.auth.getUser()
+    const uid = data.user?.id
+    if (!uid) return
+    const { error } = await sb
+      .from('learned_weights')
+      .upsert({ user_id: uid, payload: m, updated_at: new Date().toISOString() })
+    if (error) throw new Error(error.message)
+  } catch (e) {
+    // 表未建(0012 未貼)/離線只影響雲端備份,本機字典已存好。
+    console.warn('[learned] 雲端同步失敗(本機已儲存):', e)
+  }
+}
+
+/** App 啟動(登入模式)從雲端取回字典,以雲端為準。 */
+export const hydrateLearnedWeights = async () => {
+  const { isMock } = await import('@/services/dataMode')
+  if (isMock()) return
+  try {
+    const { requireSupabase } = await import('@/services/supabaseClient')
+    const { data, error } = await requireSupabase()
+      .from('learned_weights')
+      .select('payload')
+      .maybeSingle()
+    if (error) throw new Error(error.message)
+    if (data?.payload) localStorage.setItem(LEARNED_KEY, JSON.stringify(data.payload))
+  } catch (e) {
+    console.warn('[learned] 雲端字典載入失敗,使用本機字典:', e)
+  }
 }
 
 // 「通用 hostname」不得進自學字典:這些網域什麼主題都有(地圖、短網址、

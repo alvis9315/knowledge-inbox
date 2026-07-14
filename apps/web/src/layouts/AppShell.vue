@@ -18,6 +18,7 @@ import { applyTheme, domainThemeKey, homeThemeKey } from '@/features/theme/useCa
 import { presetByKey, type LiveBgKind } from '@/features/theme/themePresets'
 import { activeLiveBg, bgControlsOpen } from '@/features/theme/liveBgControls'
 import { activeCfg, hydrateBgPresets, presetsRevision, saveActiveCfg } from '@/features/theme/bgPresets'
+import { hydrateLearnedWeights } from '@/features/capture/ruleClassifier'
 import FileUploadModal from '@/components/common/FileUploadModal.vue'
 import { saveFile, removeFile, loadFile, LOGIN_COVER_KEY } from '@/services/localFiles'
 import { toast } from '@/composables/useToast'
@@ -202,6 +203,7 @@ onMounted(async () => {
   await auth.init()
   store.init()
   void hydrateBgPresets() // 背景方案雲端載回(fail-soft,不阻塞)
+  void hydrateLearnedWeights() // 自學字典雲端載回(fail-soft,不阻塞)
   window.addEventListener('keydown', onKey)
 })
 onUnmounted(() => window.removeEventListener('keydown', onKey))

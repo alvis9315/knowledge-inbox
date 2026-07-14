@@ -3,7 +3,7 @@
 > 正本 SQL 在 [`supabase/migrations/`](../supabase/migrations/)。本圖與 migration 同步——改 schema 先改圖再寫 migration。
 > 「現在實際有哪些表」也可直接看 Supabase Dashboard → Table Editor。
 
-## 資料表清單(2026-07-14 同步至 0010)
+## 資料表清單(2026-07-15 同步至 0012)
 
 | 表 | 用途 | 建立於 |
 |---|---|---|
@@ -15,6 +15,7 @@
 | `classification_feedback` | 分類修正紀錄(自學權重進 DB 的預留地) | 0001 |
 | `domain_meta` | 大類別自訂 icon 等裝飾資料 | 0008 |
 | `bg_presets` | 活背景方案存檔(每人每種背景一列,payload JSONB) | 0010 |
+| `learned_weights` | 自學字典雲端鏡像(每人一列,payload JSONB) | 0012 |
 | `category_counts`(view) | 各分類項目數統計(非表,查詢用視圖) | 0004 |
 
 ## ER Diagram
@@ -95,9 +96,14 @@ erDiagram
     jsonb payload
     timestamptz updated_at
   }
+  learned_weights {
+    uuid user_id PK,FK
+    jsonb payload
+    timestamptz updated_at
+  }
 ```
 
-(`domain_meta`、`bg_presets` 是獨立設定表,不與 entries 關聯。)
+(`domain_meta`、`bg_presets`、`learned_weights` 是獨立設定表,不與 entries 關聯。)
 
 ## 設計要點
 
@@ -123,3 +129,4 @@ erDiagram
 | `0009_unique_category_name.sql` | 同大類別下分類名唯一索引 + 去重(餐酒館事件的真防線) |
 | `0010_bg_presets.sql` | bg_presets 表(活背景方案存檔 + RLS) |
 | `0011_collections_owner_rls.sql` | collections 加 user_id + policy 改擁有者限定(原 authenticated 全放行是 MVP 簡化) |
+| `0012_learned_weights.sql` | learned_weights 表(自學字典雲端鏡像 + RLS) |
