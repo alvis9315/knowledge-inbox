@@ -7,7 +7,7 @@
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
-  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma'
+  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield'
 
 export interface ThemePreset {
   canvas: string
@@ -232,6 +232,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#070a12', surface: '#0e1322', elevated: '#141b34', line: '#243052',
       ink: '#e8edfb', muted: '#8f9dc4', accent: '#7d97e0', accentFg: '#070a12',
       accentSoft: 'rgba(125, 151, 224, 0.16)',
+    },
+  },
+  {
+    key: 'dot-field',
+    label: '點陣(活背景)',
+    liveBg: 'dotfield',
+    preset: {
+      canvas: '#0a0d18', surface: '#111527', elevated: '#171c33', line: '#262d4a',
+      ink: '#e6ebfa', muted: '#8d9ac0', accent: '#8aa5ff', accentFg: '#0a0d18',
+      accentSoft: 'rgba(138, 165, 255, 0.16)',
     },
   },
   {
