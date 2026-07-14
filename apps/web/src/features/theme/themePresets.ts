@@ -7,7 +7,7 @@
 /** 活背景型別(之後逐步擴充 react-bits Backgrounds)。 */
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
-  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora'
+  | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
 
 export interface ThemePreset {
   canvas: string
@@ -252,6 +252,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#060911', surface: '#0d1322', elevated: '#131a30', line: '#232d4a',
       ink: '#e7ecfa', muted: '#8e9cc2', accent: '#9adcff', accentFg: '#060911',
       accentSoft: 'rgba(154, 220, 255, 0.16)',
+    },
+  },
+  {
+    key: 'light-rays',
+    label: '光束(活背景)',
+    liveBg: 'lightrays',
+    preset: {
+      canvas: '#05070d', surface: '#0c101c', elevated: '#121729', line: '#212a42',
+      ink: '#e8eefb', muted: '#8e9cc0', accent: '#bcd6ff', accentFg: '#05070d',
+      accentSoft: 'rgba(188, 214, 255, 0.16)',
     },
   },
   {
