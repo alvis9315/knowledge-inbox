@@ -65,8 +65,8 @@
 
 後續優化順序:
 - [x] **自學字典管理 UI**(齒輪選單):檢視/刪除已學的網址對應與關鍵詞(學錯可修)。✅ 2026-07-14
-- [ ] 接 Supabase 後把自學權重搬進 DB(`classification_feedback`)→ 跨裝置、不怕清瀏覽器。
-- [ ] Edge Function og 擷取上線後,**網頁標題/描述也進評分**(現在只有 URL 字串)→ 命中率大幅提升。
+- [x] 自學權重搬進 DB(`learned_weights`,0012)→ 跨裝置、不怕清瀏覽器。✅ 2026-07-15(改用獨立表比照 bg_presets,非原規劃的 classification_feedback)
+- [x] og 擷取的**網頁標題/描述已進評分**(QuickCapture 的 classifyInput 串接 meta.title + description)。✅ 盤點時發現早已完成,勾選過時(2026-07-15 更正)
 - [ ] (選配)Ollama 第三層:規則沒把握的才丟本地 LLM。
 
 ## 友人系統的模式(參考)
