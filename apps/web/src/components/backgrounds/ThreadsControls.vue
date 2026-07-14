@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { ThreadsConfig } from './KnowledgeThreads.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // Self-contained control panel for KnowledgeThreads (Amplitude / Distance /
 // Enable Mouse Interaction), matching the official demo. Edits the passed-in
@@ -24,6 +25,7 @@ const copyProps = () => {
 
 <template>
   <div class="threads-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

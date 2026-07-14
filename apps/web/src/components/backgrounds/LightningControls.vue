@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { LightningConfig } from './KnowledgeLightning.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // KnowledgeLightning 的控制面板(Hue/XOffset/Speed/Intensity/Size),
 // 直接編輯傳入的 reactive config,調整即時生效。模式同 ThreadsControls。
@@ -33,6 +34,7 @@ const copyProps = () => {
 
 <template>
   <div class="lightning-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { DarkVeilConfig } from './KnowledgeDarkVeil.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // KnowledgeDarkVeil 的控制面板(Hue/Noise/Scanline/Warp/Speed),
 // 直接編輯傳入的 reactive config,調整即時生效。模式同 ThreadsControls。
@@ -35,6 +36,7 @@ const copyProps = () => {
 
 <template>
   <div class="darkveil-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

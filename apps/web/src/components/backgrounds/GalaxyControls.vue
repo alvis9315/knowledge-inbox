@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import type { GalaxyConfig } from './KnowledgeGalaxy.vue'
 import ColorPicker from '@/components/common/ColorPicker.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // A self-contained control panel for KnowledgeGalaxy. It edits the passed-in
 // reactive config object directly, so every change is live. Extract this file
@@ -63,6 +64,7 @@ const copyProps = () => {
 
 <template>
   <div class="galaxy-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

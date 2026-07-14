@@ -44,7 +44,7 @@ const emitCtl = defineEmits<{ controlsDone: [cfg: Record<string, unknown>]; cont
 let cfgSnapshot: Record<string, unknown> | null = null
 watch(() => props.showControls, (o) => {
   if (o) cfgSnapshot = JSON.parse(JSON.stringify(cfg))
-})
+}, { immediate: true })
 const ctlDone = () => {
   emitCtl('controlsDone', JSON.parse(JSON.stringify(cfg)))
 }

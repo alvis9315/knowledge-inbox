@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import ColorPicker from '@/components/common/ColorPicker.vue'
 import type { ParticlesConfig } from './KnowledgeParticles.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // KnowledgeParticles 的控制面板(顆數/擴散/速度/大小/三色盤/透明顆粒/互動),
 // 直接編輯傳入的 reactive config,調整即時生效。模式同 ThreadsControls。
@@ -43,6 +44,7 @@ const copyProps = () => {
 
 <template>
   <div class="particles-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

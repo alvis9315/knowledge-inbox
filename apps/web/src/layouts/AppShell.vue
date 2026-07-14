@@ -16,6 +16,7 @@ import BaseConfirm from '@/components/common/BaseConfirm.vue'
 import { applyTheme, domainThemeKey, homeThemeKey } from '@/features/theme/useCategoryTheme'
 import { presetByKey, type LiveBgKind } from '@/features/theme/themePresets'
 import { activeLiveBg, bgControlsOpen } from '@/features/theme/liveBgControls'
+import { activeCfg, hydrateBgPresets, presetsRevision, saveActiveCfg } from '@/features/theme/bgPresets'
 import FileUploadModal from '@/components/common/FileUploadModal.vue'
 import { saveFile, removeFile, loadFile, LOGIN_COVER_KEY } from '@/services/localFiles'
 import { toast } from '@/composables/useToast'
@@ -128,10 +129,7 @@ watch(activeLive, (v) => (activeLiveBg.value = v), { immediate: true })
 const liveBgActive = computed(() => activeLive.value !== null)
 const bgSettingsOpen = ref(false)
 
-// 活背景調校的持久化:完成=存 localStorage(下次掛載沿用)、取消=元件內還原快照。
-const readCfg = (k: string) => {
-  try { return JSON.parse(localStorage.getItem(k) ?? 'null') ?? {} } catch { return {} }
-}
+// 活背景調校的持久化改由 bgPresets 方案系統管理(頁籤切換/完成儲存/雲端同步)。
 // App 場景的基準 props(蓋過元件自身預設;galaxy 依登入頁選擇動態決定),
 // 使用者調過的參數(localStorage)再蓋在最上層。
 const BG_BASE_PROPS: Partial<Record<LiveBgKind, Record<string, unknown>>> = {
@@ -156,12 +154,14 @@ const BG_BASE_PROPS: Partial<Record<LiveBgKind, Record<string, unknown>>> = {
   threads: { color: [0.55, 0.72, 1.0], amplitude: 2.3, distance: 0, enableMouseInteraction: false },
 }
 const activeBgProps = computed<Record<string, unknown>>(() => {
+  void presetsRevision.value // 方案切換/雲端載回 → 重組 props(配合 :key 重掛)
   const kind = activeLive.value
   if (!kind || kind === 'image') return {}
-  return { ...(BG_BASE_PROPS[kind] ?? {}), ...readCfg(`ki-app-${kind}-cfg`) }
+  return { ...(BG_BASE_PROPS[kind] ?? {}), ...activeCfg(kind) }
 })
+// 完成=存進當前方案(localStorage 立即;登入模式再同步 Supabase,fail-soft)。
 const onBgDone = (cfg: Record<string, unknown>) => {
-  if (activeLive.value) localStorage.setItem(`ki-app-${activeLive.value}-cfg`, JSON.stringify(cfg))
+  if (activeLive.value && activeLive.value !== 'image') saveActiveCfg(activeLive.value, cfg)
   bgControlsOpen.value = false
 }
 watch(
@@ -199,6 +199,7 @@ onMounted(async () => {
   // 再載入分類——否則登入狀態下會搶跑渲染出 mock 假資料(時有時無 bug 根因)。
   await auth.init()
   store.init()
+  void hydrateBgPresets() // 背景方案雲端載回(fail-soft,不阻塞)
   window.addEventListener('keydown', onKey)
 })
 onUnmounted(() => window.removeEventListener('keydown', onKey))
@@ -221,7 +222,7 @@ onUnmounted(() => window.removeEventListener('keydown', onKey))
       <component
         :is="BG_COMPONENTS[activeLive]"
         v-if="activeLive && activeLive !== 'image' && BG_COMPONENTS[activeLive]"
-        :key="activeLive"
+        :key="`${activeLive}-${presetsRevision}`"
         class="absolute inset-0"
         v-bind="activeBgProps"
         :show-controls="bgControlsOpen"

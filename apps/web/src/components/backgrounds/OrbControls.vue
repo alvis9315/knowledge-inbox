@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { OrbConfig } from './KnowledgeOrb.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // KnowledgeOrb 的控制面板(Hue/HoverIntensity/旋轉/互動),
 // 直接編輯傳入的 reactive config,調整即時生效。模式同 ThreadsControls。
@@ -29,6 +30,7 @@ const copyProps = () => {
 
 <template>
   <div class="orb-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">
