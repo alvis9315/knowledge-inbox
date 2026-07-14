@@ -79,21 +79,22 @@
 AppShell 依當前大類別的主題渲染(fixed 層;調參時升 z-40 全螢幕預覽);
 控制器按鈕 `BgControlsButton`(視圖 icon 左)全域開關 `liveBgControls.ts`。
 
-**已完成 19 種**(至 2026-07-15 夜班):galaxy(星空)、threads(線條)、
-image(圖片封面,控制器=上傳)、aurora(極光)、waves(波浪)、
+**已完成 28 種**(至 2026-07-15 第二班,零依賴組全清):galaxy(星空)、
+threads(線條)、image(圖片封面)、aurora(極光)、waves(波浪)、
 darkveil(暗湧)、silk(絲綢)、iridescence(虹彩)、letterglitch(字符雨)、
 lightning(閃電)、liquidchrome(液態鉻)、particles(漂浮粒子)、
 ripplegrid(漣漪網格)、orb(能量球)、plasma(電漿)、dotfield(點陣)、
-softaurora(柔光極光)、lightrays(光束)、grainient(顆粒漸層)。
+softaurora(柔光極光)、lightrays(光束)、grainient(顆粒漸層)、
+radar(雷達)、linewaves(波線)、siderays(斜射光)、lightfall(光瀑)、
+evileye(魔眼)、shapegrid(幾何格線)、prism(稜鏡)、
+prismaticburst(彩光爆發)、faultyterminal(故障終端)。
 
 **移植紀律**(夜班確立):只收零新依賴的(ogl 或純 canvas);
 一律 `defineAsyncComponent`(主包零成長);掛載四件套 =
 元件 + Controls + LiveBgKind + THEME_PRESETS + **registry 一行**
 (2026-07-14 起 AppShell 改 registry 驅動,見 backgrounds/registry.ts)。
 
-**待移植(2026-07-15 依賴盤點完畢,零新依賴可直接做)**:
-FaultyTerminal、Radar、Prism、PrismaticBurst、SideRays、Lightfall、
-LineWaves、EvilEye(以上 ogl)、ShapeGrid(零依賴)。
+**零依賴組已全數移植完畢**(2026-07-15)。
 
 **暫緩(需要新重依賴,違反不亂加套件原則)**:
 - three.js 系:Beams、Hyperspeed、PixelSnow、FloatingLines、
