@@ -4,21 +4,37 @@
 > 全部由 Supabase 提供。前端直連,安全靠 RLS。
 > 資料表清單與 ERD 見 [`data-model.md`](./data-model.md)。
 
+## 0. 雙環境(2026-07-14 起)
+
+| 環境 | Supabase 專案 | 誰在用 | 連線值來源 |
+|---|---|---|---|
+| **dev** | knowledge-inbox-dev | 本機 `pnpm dev`(測試帳號、假資料) | `apps/web/.env.development.local`(`VITE_SUPABASE_ENV=development`) |
+| **prod** | knowledge-inbox-prod(原專案) | 部署站(OpenAI Sites)+ 真資料 | Sites 環境變數 runtime 注入 |
+
+本機防呆:dev 模式連到沒有標示 `development` 的 Supabase 會**直接拒啟**
+(supabaseClient.ts),避免測試寫入誤打正式庫。細節見 `deployment-guide.md`。
+
 ## 1. 金鑰與環境變數
 
 | 金鑰 | 放哪 | 性質 |
 |---|---|---|
-| `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY` | `apps/web/.env` | **可公開**(前端本來就帶著跑),權限被 RLS 限制 |
-| `SUPABASE_SERVICE_ROLE_KEY` | 專案根目錄 `.env`(gitignored) | **絕密**:繞過所有 RLS,只給本機腳本(如 `scripts/export-taxonomy.mjs`)用,永不進前端、永不貼對話 |
+| dev 的 URL / anon key | `apps/web/.env.development.local` | **可公開**,權限被 RLS 限制 |
+| prod 的 URL / anon key | `apps/web/.env`(build 用)+ Sites 環境變數 | **可公開**,權限被 RLS 限制 |
+| `SUPABASE_SERVICE_ROLE_KEY` | 專案根目錄 `.env`(gitignored) | **絕密**:繞過所有 RLS,只給本機腳本(如 `scripts/export-taxonomy.mjs`)用,永不進前端、永不貼對話;dev/prod 各有一把,都一樣絕密 |
 
 ## 2. Migration 流程(改資料庫的唯一正道)
 
 1. 新增 `supabase/migrations/00XX_描述.sql`(編號遞增,一檔 = 一次變更:建表/改欄位/種子/索引)
-2. 開 Supabase Dashboard → **SQL Editor** → 貼上該檔內容 → Run(**每個編號只貼一次,永久生效**)
+2. **兩個環境都要貼,順序固定 dev 先、prod 後**:
+   - dev 專案 Dashboard → SQL Editor → 貼該檔 → Run → 在 dev 驗證行為正常
+   - prod 專案 Dashboard → SQL Editor → 貼**同一份檔** → Run
+   - 每個編號在每個環境**各貼一次**,永久生效;漏貼會造成兩邊 schema 不同步
+     (症狀:dev 正常、線上報錯,或反之)
 3. **同一個 commit** 必須同步:
    - `docs/data-model.md`(資料表清單 + ERD + migration 對照表)
    - 跑 `node scripts/build-all-migrations.mjs` 重生彙總檔
 4. 日常資料讀寫(新增分類、歸檔、存方案)是程式透過 API 自動進行,與 SQL Editor 無關
+5. Edge Function 的 secrets 與部署也是**兩個專案各自獨立**,改了要兩邊各部署一次
 
 ### ALL_MIGRATIONS_paste_into_sql_editor.sql 是什麼
 
