@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal'
 
 export interface ThemePreset {
   canvas: string
@@ -353,6 +353,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#050308', surface: '#0d0a16', elevated: '#130e20', line: '#262038',
       ink: '#ece8f8', muted: '#9c93bc', accent: '#8b6cf6', accentFg: '#050308',
       accentSoft: 'rgba(139, 108, 246, 0.16)',
+    },
+  },
+  {
+    key: 'faulty-terminal',
+    label: '故障終端(活背景)',
+    liveBg: 'faultyterminal',
+    preset: {
+      canvas: '#030503', surface: '#0a120c', elevated: '#0f1a12', line: '#1e3527',
+      ink: '#d8f5e2', muted: '#84b294', accent: '#7bffa0', accentFg: '#030503',
+      accentSoft: 'rgba(123, 255, 160, 0.16)',
     },
   },
   {
