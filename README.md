@@ -70,6 +70,13 @@ pnpm build      # = pnpm --filter web build
 pnpm --filter web typecheck
 ```
 
+## Deployment
+
+- GitHub Pages and OpenAI Sites are supported deployment targets.
+- Sites keeps Supabase as the backend and injects the public connection values
+  at runtime; no migration to D1 / R2 is required.
+- See [`docs/deployment-guide.md`](docs/deployment-guide.md).
+
 ## Notes
 
 - API key(`ANTHROPIC_API_KEY`)**永遠只在 Supabase Edge Function 端**,絕不放前端。

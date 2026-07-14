@@ -15,9 +15,16 @@ const queryClient = new QueryClient({
   },
 })
 
-createApp(App)
+const app = createApp(App)
+
+app
   .use(createPinia())
   .use(router)
   .use(VueQueryPlugin, { queryClient })
   .directive('tilt', vTilt)
-  .mount('#app')
+
+// Wait for the initial auth guard to restore the session and resolve the
+// target route before rendering. Without this, App.vue briefly falls back to
+// AppShell while route.meta is still empty, flashing authenticated UI before
+// the login route is confirmed.
+void router.isReady().then(() => app.mount('#app'))

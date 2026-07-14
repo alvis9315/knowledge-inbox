@@ -52,3 +52,6 @@ pnpm dev
 pnpm build
 pnpm --filter web typecheck
 ```
+
+OpenAI Sites 的部署與 Supabase runtime config 規範見
+[`docs/deployment-guide.md`](docs/deployment-guide.md)。

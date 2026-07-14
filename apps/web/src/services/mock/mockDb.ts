@@ -25,6 +25,17 @@ export interface TagDetail {
   count: number
 }
 
+// sort_order lives on the persisted category objects even though the shared
+// TypeDefinition type doesn't declare it (it's a DB column, added by migration).
+// Keep these helpers above module-level seed normalization: a first-time guest
+// executes that path immediately, before later const declarations initialize (TDZ).
+const sortOrderOf = (c: TypeDefinition): number => {
+  return (c as unknown as { sort_order?: number }).sort_order ?? 0
+}
+const setSortOrder = (c: TypeDefinition, v: number) => {
+  ;(c as unknown as { sort_order?: number }).sort_order = v
+}
+
 const load = (): MockState => {
   try {
     const raw = localStorage.getItem(STORAGE_KEY)
@@ -299,12 +310,3 @@ export const mockDb = {
 }
 // NOTE: the old mock keyword classifier moved to features/capture/ruleClassifier.ts
 // (規則分類器 v2 — shared by mock AND supabase modes; see docs/ai-strategy.md).
-
-// sort_order lives on the persisted category objects even though the shared
-// TypeDefinition type doesn't declare it (it's a DB column, added by migration).
-const sortOrderOf = (c: TypeDefinition): number => {
-  return (c as unknown as { sort_order?: number }).sort_order ?? 0
-}
-const setSortOrder = (c: TypeDefinition, v: number) => {
-  ;(c as unknown as { sort_order?: number }).sort_order = v
-}

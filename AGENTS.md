@@ -92,6 +92,14 @@ pnpm --filter web typecheck     # vue-tsc 型別檢查
 
 Conventional Commits(`feat/fix/docs/style/refactor/test/chore/build/ci`);branch `feature/*`、`fix/*`。詳見 `docs/commit-convention.md`。
 
+## OpenAI Sites 部署防呆
+
+1. Sites 僅注入公開的 `SUPABASE_URL` / `SUPABASE_ANON_KEY`;service role 與 Anthropic key 不得進前端
+2. 本機仍使用 `VITE_SUPABASE_URL` / `VITE_SUPABASE_ANON_KEY`,不得為部署寫死正式值
+3. Vue Router 使用 history mode,託管層必須對非資產路徑 fallback 至 `index.html`
+4. 部署前必跑 typecheck + build,並驗證 `/login`、`/d/:domain`、`/entries/:id` 直接開啟與重新整理
+5. 正式網址建立後必須加入 Supabase Redirect URLs,網站預設維持私人直到驗證完成
+
 ## 遇到錯誤的處理方式(修復迴路)
 
 指令失敗先做最小可行修復(缺套件補裝、路徑錯修正),最多 2 次;仍失敗停止並回報:錯誤訊息、可能原因、建議修法、是否需改需求。**不得假裝成功**。區分環境問題(自行修)與需求 / 程式問題(問使用者)。
