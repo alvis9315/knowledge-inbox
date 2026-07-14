@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays'
 
 export interface ThemePreset {
   canvas: string
@@ -293,6 +293,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#06070f', surface: '#0d0f1e', elevated: '#13162b', line: '#232849',
       ink: '#e8ecfa', muted: '#8f9ac2', accent: '#8fb7ff', accentFg: '#06070f',
       accentSoft: 'rgba(143, 183, 255, 0.16)',
+    },
+  },
+  {
+    key: 'side-rays',
+    label: '斜射光(活背景)',
+    liveBg: 'siderays',
+    preset: {
+      canvas: '#070809', surface: '#0f1013', elevated: '#15161b', line: '#26272e',
+      ink: '#f0eee6', muted: '#a09d90', accent: '#eab308', accentFg: '#070809',
+      accentSoft: 'rgba(234, 179, 8, 0.16)',
     },
   },
   {
