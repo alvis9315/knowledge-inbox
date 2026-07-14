@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient'
+  | 'grainient' | 'radar'
 
 export interface ThemePreset {
   canvas: string
@@ -273,6 +273,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0b0a16', surface: '#141227', elevated: '#1a1733', line: '#2b2650',
       ink: '#e9e6f7', muted: '#9a92c0', accent: '#a78bfa', accentFg: '#0b0a16',
       accentSoft: 'rgba(167, 139, 250, 0.16)',
+    },
+  },
+  {
+    key: 'radar-scan',
+    label: '雷達(活背景)',
+    liveBg: 'radar',
+    preset: {
+      canvas: '#05060d', surface: '#0d0f1e', elevated: '#13152a', line: '#242745',
+      ink: '#eae6fa', muted: '#9a92c0', accent: '#b06bff', accentFg: '#05060d',
+      accentSoft: 'rgba(176, 107, 255, 0.16)',
     },
   },
   {
