@@ -30,4 +30,5 @@ export const BG_COMPONENTS: Partial<Record<LiveBgKind, Component>> = {
   linewaves: defineAsyncComponent(() => import('./KnowledgeLineWaves.vue')),
   siderays: defineAsyncComponent(() => import('./KnowledgeSideRays.vue')),
   lightfall: defineAsyncComponent(() => import('./KnowledgeLightfall.vue')),
+  evileye: defineAsyncComponent(() => import('./KnowledgeEvilEye.vue')),
 }
