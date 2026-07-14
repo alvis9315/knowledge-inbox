@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall'
 
 export interface ThemePreset {
   canvas: string
@@ -303,6 +303,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#070809', surface: '#0f1013', elevated: '#15161b', line: '#26272e',
       ink: '#f0eee6', muted: '#a09d90', accent: '#eab308', accentFg: '#070809',
       accentSoft: 'rgba(234, 179, 8, 0.16)',
+    },
+  },
+  {
+    key: 'light-fall',
+    label: '光瀑(活背景)',
+    liveBg: 'lightfall',
+    preset: {
+      canvas: '#070a1a', surface: '#0e1228', elevated: '#141a38', line: '#242c55',
+      ink: '#e9ecfb', muted: '#93a0c8', accent: '#a6c8ff', accentFg: '#070a1a',
+      accentSoft: 'rgba(166, 200, 255, 0.16)',
     },
   },
   {
