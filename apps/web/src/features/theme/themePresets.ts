@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid' | 'lightpillar' | 'colorbends' | 'griddistortion'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid' | 'lightpillar' | 'colorbends' | 'griddistortion' | 'pixelsnow'
 
 export interface ThemePreset {
   canvas: string
@@ -413,6 +413,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0b1226', surface: '#121a30', elevated: '#182142', line: '#28345a',
       ink: '#e8eeff', muted: '#8fa0c8', accent: '#8ab0ff', accentFg: '#0b1226',
       accentSoft: 'rgba(138, 176, 255, 0.16)',
+    },
+  },
+  {
+    key: 'pixel-snow',
+    label: '像素雪(活背景)',
+    liveBg: 'pixelsnow',
+    preset: {
+      canvas: '#0a0e1c', surface: '#111830', elevated: '#172040', line: '#263354',
+      ink: '#e9eeff', muted: '#93a3cc', accent: '#9db8ff', accentFg: '#0a0e1c',
+      accentSoft: 'rgba(157, 184, 255, 0.16)',
     },
   },
   {
