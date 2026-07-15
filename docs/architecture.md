@@ -6,6 +6,7 @@
 ## 系統架構
 
 所有入口共用同一個 `/ingest`;核心邏輯只有一份,新增入口只是多一個轉接層。
+URL metadata 擷取走獨立的 `/extract`(貼連結自動填標題+餵分類評分)。
 
 ```mermaid
 flowchart LR
@@ -17,6 +18,8 @@ flowchart LR
   A --> D
   B --> D
   C --> D
+  A -- 貼 URL 時 --> X["POST /extract<br>(Edge Function, Deno)<br>og / oEmbed / Maps 店名"]
+  X -- title / description --> A
   D["POST /ingest<br>(Edge Function, Deno)"] --> E[1. 正規化來源]
   E --> F["2. LLM 分類 + 抽取<br>(Claude Haiku, Phase 2)"]
   F --> G[("3. Supabase<br>Postgres + pgvector")]
@@ -27,7 +30,11 @@ flowchart LR
 **邊界說明**
 
 - 前端(`apps/web`)透過 `supabase-js` 直接讀寫 Postgres;RLS 是安全邊界(見 `security-guideline.md`)。
-- 唯一需要伺服端的路徑是 `/ingest`——因為要拿 `ANTHROPIC_API_KEY` 呼叫 Claude,key 不能進前端。
+- 伺服端路徑有兩條:
+  - `/ingest`——要拿 `ANTHROPIC_API_KEY` 呼叫 Claude,key 不能進前端。
+  - `/extract`——瀏覽器 CORS 抓不到別人網頁,必須 server 端 fetch;登入才可用。
+    SSRF 防護與 deadline 規格見 `docs/proposals/link-meta-no-ai.md`(H1/H2)。
+- `/extract` 是加值不是前提:mock 模式 / 擷取失敗一律 fail-soft 回 null,照原樣存。
 - 入口即模組:LINE bot / PWA 只負責「接住內容 + 呼叫 /ingest」,不含分類邏輯。
 
 ## Ingest pipeline(Phase 2 目標流程)
@@ -55,7 +62,9 @@ flowchart TD
 | Vue 3 網站(卡牆 / 搜尋 / 詳情 / CRUD) | ✅ Phase 1 |
 | supabase-js 直連 + RLS | ✅ Phase 1(anon session,見 security-guideline) |
 | `/ingest` Edge Function | 🟡 骨架(寫入 pending_review,LLM 未接) |
-| LLM 分類 + 信心分流 | ⬜ Phase 2 |
-| URL 正文擷取 / vision | ⬜ Phase 2 |
+| `/extract` Edge Function(og / oEmbed / Maps → 標題自動填 + 分類評分) | 🟡 已實作,SSRF / deadline 強化中(proposals/link-meta-no-ai.md),**未部署** |
+| LLM 分類 + 信心分流 | ⬜ Phase 2(現行替代:規則分類器 + 自學字典,見 ai-strategy.md) |
+| URL 正文擷取 / vision | ⬜ Phase 2(metadata 已由 /extract 覆蓋;正文 / vision 未做) |
 | pgvector 語意搜尋 / Realtime | ⬜ Phase 3 |
-| Collections / links / graph view | ⬜ Phase 4 |
+| Collections | ✅ 2026-07-15(entry 引用制,見 ai-strategy.md) |
+| links / graph view | ⬜ Phase 4 |

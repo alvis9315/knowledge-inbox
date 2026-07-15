@@ -74,6 +74,16 @@
 
 **建議:Phase 2a 先做「純文字分類」,把成本 / Kill Switch / 驗證先上線;Phase 2b 才加 URL 擷取 + 完整 SSRF 模組。** 分段學這塊,不卡 AI 功能主線。
 
+> **落實狀態(2026-07-16,`/extract` function)**:上列要求的落實對照——
+> `Deno.resolveDns` 分族解析(A/AAAA 分開,單族 NODATA 通過,所有取得 IP
+> 逐一驗)✅、redirect 逐跳重驗 ✅、bytes / 逾時 / 跳數上限 ✅、
+> Content-Type allowlist ✅、擋非 80/443 port ✅、擋 `user:pass@` ✅、
+> IPv4-mapped IPv6 與十進位 / 十六進位 / 八進位 IP 編碼正規化 ✅
+> (規格與驗收:`docs/proposals/link-meta-no-ai.md` H1)。
+> **殘餘風險(接受,明寫)**:DNS rebinding TOCTOU——Deno `fetch` 不支援
+> connect-to-IP pinning,resolve 與 fetch 間存在極小時窗(TTL=0 惡意 DNS
+> 可利用);以「解析緊貼 fetch + 每跳重驗」為 edge runtime 可達上限。
+
 ### 3.3 Edge Function 執行時間 / CPU 上限
 
 Supabase Edge Function(Deno)有 wall-clock / CPU 上限(依方案)。單次分類(URL ≤10s + AI ≤25s)放得下,但**必須自己設 `AbortSignal.timeout()`**(規範已給數值:fetch 10s、AI 25s)。冷啟動增加延遲,Demo 可接受。
