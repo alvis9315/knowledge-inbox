@@ -79,7 +79,7 @@
 AppShell 依當前大類別的主題渲染(fixed 層;調參時升 z-40 全螢幕預覽);
 控制器按鈕 `BgControlsButton`(視圖 icon 左)全域開關 `liveBgControls.ts`。
 
-**已完成 28 種**(至 2026-07-15 第二班,零依賴組全清):galaxy(星空)、
+**已完成 36 種**(至 2026-07-15 第二班,零依賴組全清 + three/gsap 批 8 顆):galaxy(星空)、
 threads(線條)、image(圖片封面)、aurora(極光)、waves(波浪)、
 darkveil(暗湧)、silk(絲綢)、iridescence(虹彩)、letterglitch(字符雨)、
 lightning(閃電)、liquidchrome(液態鉻)、particles(漂浮粒子)、
@@ -87,19 +87,25 @@ ripplegrid(漣漪網格)、orb(能量球)、plasma(電漿)、dotfield(點陣)、
 softaurora(柔光極光)、lightrays(光束)、grainient(顆粒漸層)、
 radar(雷達)、linewaves(波線)、siderays(斜射光)、lightfall(光瀑)、
 evileye(魔眼)、shapegrid(幾何格線)、prism(稜鏡)、
-prismaticburst(彩光爆發)、faultyterminal(故障終端)。
+prismaticburst(彩光爆發)、faultyterminal(故障終端)、
+gridmotion(卡片牆,gsap)、dotgrid(慣性點陣,gsap+Inertia)、
+lightpillar(光柱,three)、colorbends(彎折色帶,three)、
+griddistortion(封面扭曲,three,圖源=登入封面)、pixelsnow(像素雪,three)、
+floatinglines(漂浮波線,three)、dither(復古抖動,three+postprocessing)。
 
-**移植紀律**(夜班確立):只收零新依賴的(ogl 或純 canvas);
+**移植紀律**(夜班確立):零依賴優先(ogl 或純 canvas);
 一律 `defineAsyncComponent`(主包零成長);掛載四件套 =
 元件 + Controls + LiveBgKind + THEME_PRESETS + **registry 一行**
 (2026-07-14 起 AppShell 改 registry 驅動,見 backgrounds/registry.ts)。
 
 **零依賴組已全數移植完畢**(2026-07-15)。
 
-**暫緩(需要新重依賴,違反不亂加套件原則)**:
-- three.js 系:Beams、Hyperspeed、PixelSnow、FloatingLines、
-  GridDistortion、Dither、LightPillar、ColorBends、PixelBlast、
-  GridScan(還要 face-api.js,基本不考慮)
-- gsap 系:DotGrid、GridMotion
-若未來決定引入 three.js 或 gsap 再整批解鎖(依賴照樣走 async chunk,
-只有選用該主題的人會下載)。
+**three/gsap 批**(2026-07-15 使用者拍板引入,依賴全走 async chunk:
+three 為共享 lazy chunk 126KB gzip、gsap 30KB gzip,主包零成長已驗證):
+已完成 8 顆(見上)。**剩餘待移植**:PixelBlast(three+postprocessing)、
+Beams(R3F 需改寫原生 three)、Hyperspeed(1183 行,最大顆)。
+GridScan 不做(還要 face-api.js)。
+
+**移植教訓**(2026-07-15):FaultyTerminal 黑畫面根因 = 照抄元件預設值
+(noiseAmp=0)而非官方 demo 值(=1)——之後移植以 demo 的 props 為
+視覺基準,元件預設僅供對照。
