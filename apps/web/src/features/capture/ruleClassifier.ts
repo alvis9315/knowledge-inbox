@@ -203,6 +203,89 @@ export const clearLearned = () => {
   localStorage.removeItem(LEARNED_KEY)
 }
 
+// ── 字典批次匯入(網頁版 Claude 產 JSON → 貼上合併)────────────────────
+// JSON 格式:{ "分類名稱": { "詞或hostname": 權重 } }
+// 分類名稱可用「名稱」「大類/名稱」或 type key;對不上的列出,不硬塞。
+export interface DictImportPreview {
+  /** 解析成功的分類 → 詞表(已過濾、權重已夾限)。 */
+  matched: { typeKey: string; label: string; terms: Record<string, number> }[]
+  /** 對不上分類樹的 JSON key(原樣列出讓使用者自己看)。 */
+  unknownCategories: string[]
+  /** 被過濾的詞(通用平台 hostname / 權重不合法)。 */
+  filteredTerms: string[]
+  termCount: number
+}
+
+export const parseDictImport = (
+  raw: string,
+  categories: CategoryLike[],
+): DictImportPreview | string => {
+  let data: unknown
+  try {
+    // 容忍貼進整個 ```json code block``` 的情況
+    data = JSON.parse(raw.replace(/^\s*```(?:json)?/i, '').replace(/```\s*$/, '').trim())
+  } catch {
+    return 'JSON 格式不正確,請確認是從 Claude 回覆複製完整的 code block'
+  }
+  if (typeof data !== 'object' || data === null || Array.isArray(data)) {
+    return '格式不對:最外層要是 { "分類名稱": { "詞": 權重 } } 的物件'
+  }
+
+  const resolveKey = (name: string): CategoryLike | undefined => {
+    const n = name.trim().toLowerCase()
+    return (
+      categories.find((c) => c.key.toLowerCase() === n) ??
+      categories.find((c) => c.name.toLowerCase() === n) ??
+      categories.find((c) => `${c.domain}/${c.name}`.toLowerCase() === n)
+    )
+  }
+
+  const preview: DictImportPreview = { matched: [], unknownCategories: [], filteredTerms: [], termCount: 0 }
+  for (const [name, bucket] of Object.entries(data as Record<string, unknown>)) {
+    const cat = resolveKey(name)
+    if (!cat) {
+      preview.unknownCategories.push(name)
+      continue
+    }
+    if (typeof bucket !== 'object' || bucket === null) continue
+    const terms: Record<string, number> = {}
+    for (const [rawTerm, rawWeight] of Object.entries(bucket as Record<string, unknown>)) {
+      const term = rawTerm.trim().toLowerCase().replace(/^www\./, '')
+      const weight = Number(rawWeight)
+      if (!term || !Number.isFinite(weight) || weight < 1) {
+        preview.filteredTerms.push(rawTerm)
+        continue
+      }
+      // 與 learnFromCorrection 同一條紅線:通用平台 hostname 不得入典
+      if (term.includes('.') && GENERIC_HOSTS.test(term)) {
+        preview.filteredTerms.push(rawTerm)
+        continue
+      }
+      terms[term] = Math.min(Math.round(weight), 8)
+      preview.termCount++
+    }
+    if (Object.keys(terms).length) {
+      preview.matched.push({ typeKey: cat.key, label: `${cat.domain}/${cat.name}`, terms })
+    }
+  }
+  if (preview.matched.length === 0 && preview.unknownCategories.length === 0) {
+    return '沒有解析到任何詞——確認 JSON 內容不是空的'
+  }
+  return preview
+}
+
+/** 合併匯入(同詞取較大權重)。匯入=確認完成的變更:本機立即+雲端即時。 */
+export const mergeDictImport = (preview: DictImportPreview) => {
+  const learned = loadLearned()
+  for (const m of preview.matched) {
+    const bucket = (learned[m.typeKey] ??= {})
+    for (const [term, weight] of Object.entries(m.terms)) {
+      bucket[term] = Math.min(Math.max(bucket[term] ?? 0, weight), 8)
+    }
+  }
+  saveLearned(learned)
+}
+
 // ── 3. 分類主函式 ──────────────────────────────────────────────────────
 export interface RuleClassifyOpts {
   /** 有擷取到網頁 metadata(title/description 已併進 text)。顯式契約,

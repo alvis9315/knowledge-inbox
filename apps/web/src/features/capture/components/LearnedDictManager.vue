@@ -1,14 +1,18 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue'
-import { Search, X, Trash2, BrainCircuit } from 'lucide-vue-next'
+import { Search, X, Trash2, BrainCircuit, Upload } from 'lucide-vue-next'
 import { toast } from '@/composables/useToast'
 import BaseModal from '@/components/common/BaseModal.vue'
+import BaseButton from '@/components/common/BaseButton.vue'
 import BaseConfirm from '@/components/common/BaseConfirm.vue'
 import {
   getLearnedDict,
   removeLearnedTerm,
   removeLearnedType,
   clearLearned,
+  parseDictImport,
+  mergeDictImport,
+  type DictImportPreview,
   type LearnedMap,
 } from '@/features/capture/ruleClassifier'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
@@ -69,6 +73,35 @@ const doClearAll = () => {
   load()
   toast.success('已清空整本自學字典')
 }
+
+// ── 批次匯入(貼上網頁版 Claude 產的 JSON)──────────────────────────
+const importing = ref(false)
+const importText = ref('')
+const importPreview = ref<DictImportPreview | null>(null)
+const importError = ref<string | null>(null)
+
+const previewImport = () => {
+  importError.value = null
+  importPreview.value = null
+  const r = parseDictImport(importText.value, store.categories)
+  if (typeof r === 'string') importError.value = r
+  else importPreview.value = r
+}
+const doImport = () => {
+  if (!importPreview.value) return
+  mergeDictImport(importPreview.value)
+  toast.success(`已匯入 ${importPreview.value.termCount} 個詞`)
+  importing.value = false
+  importText.value = ''
+  importPreview.value = null
+  load()
+}
+const cancelImport = () => {
+  importing.value = false
+  importText.value = ''
+  importPreview.value = null
+  importError.value = null
+}
 </script>
 
 <template>
@@ -94,6 +127,13 @@ const doClearAll = () => {
           />
         </div>
         <button
+          type="button"
+          class="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-sm text-muted transition hover:bg-canvas hover:text-ink"
+          @click="importing = !importing"
+        >
+          <Upload :size="14" /> 匯入字典
+        </button>
+        <button
           v-if="!isEmpty"
           type="button"
           class="inline-flex items-center gap-1.5 rounded-lg border border-line px-3 py-2 text-sm text-muted transition hover:border-red-300 hover:bg-red-50 hover:text-red-600"
@@ -101,6 +141,45 @@ const doClearAll = () => {
         >
           <Trash2 :size="14" /> 全部清空
         </button>
+      </div>
+
+      <div v-if="importing" class="flex flex-col gap-2 rounded-lg border border-line bg-canvas p-3">
+        <p class="text-xs text-muted">
+          貼上 JSON(格式 <code class="rounded bg-surface px-1">{ "分類名稱": { "詞或網域": 權重 } }</code>,
+          可直接貼整個 code block)。同詞取較大權重;通用平台網域會自動過濾。
+        </p>
+        <textarea
+          v-model="importText"
+          rows="6"
+          placeholder='{ "AI 技能": { "huggingface.co": 3, "ollama": 2 } }'
+          class="w-full rounded-lg border border-line bg-surface px-3 py-2 font-mono text-xs text-ink placeholder:text-muted focus:border-accent focus:outline-none"
+          @input="importPreview = null"
+        />
+        <p v-if="importError" class="text-xs text-red-600">{{ importError }}</p>
+
+        <div v-if="importPreview" class="flex flex-col gap-1 text-xs">
+          <p class="text-ink">
+            將匯入 <b>{{ importPreview.termCount }}</b> 個詞到
+            <b>{{ importPreview.matched.length }}</b> 個分類:
+          </p>
+          <p class="text-muted">
+            {{ importPreview.matched.map((m) => `${m.label}(${Object.keys(m.terms).length})`).join('、') }}
+          </p>
+          <p v-if="importPreview.unknownCategories.length" class="text-amber-600">
+            對不上分類樹、將略過:{{ importPreview.unknownCategories.join('、') }}
+          </p>
+          <p v-if="importPreview.filteredTerms.length" class="text-muted">
+            已過濾(通用平台/權重不合法):{{ importPreview.filteredTerms.join('、') }}
+          </p>
+        </div>
+
+        <div class="flex justify-end gap-2">
+          <BaseButton variant="secondary" size="sm" @click="cancelImport">取消</BaseButton>
+          <BaseButton v-if="!importPreview" size="sm" :disabled="!importText.trim()" @click="previewImport">
+            預覽
+          </BaseButton>
+          <BaseButton v-else size="sm" @click="doImport">確認匯入</BaseButton>
+        </div>
       </div>
 
       <div class="h-[52vh] overflow-y-auto thin-scroll">
