@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid' | 'lightpillar' | 'colorbends'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid' | 'lightpillar' | 'colorbends' | 'griddistortion'
 
 export interface ThemePreset {
   canvas: string
@@ -403,6 +403,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0a0a14', surface: '#121224', elevated: '#181832', line: '#2a2a4e',
       ink: '#eaeaf8', muted: '#9a9ac2', accent: '#9d7ce8', accentFg: '#0a0a14',
       accentSoft: 'rgba(157, 124, 232, 0.16)',
+    },
+  },
+  {
+    key: 'grid-distortion',
+    label: '封面扭曲(活背景)',
+    liveBg: 'griddistortion',
+    preset: {
+      canvas: '#0b1226', surface: '#121a30', elevated: '#182142', line: '#28345a',
+      ink: '#e8eeff', muted: '#8fa0c8', accent: '#8ab0ff', accentFg: '#0b1226',
+      accentSoft: 'rgba(138, 176, 255, 0.16)',
     },
   },
   {
