@@ -31,14 +31,17 @@ interface DomainRule {
   host: RegExp
   domain: string
   nameHint?: string
+  /** 多主題平台:有擷取文字(hasMeta)時降為軟訊號(+1),不早退不硬圈定
+   *  ——美食影片才進得了美食,不會被 youtube→社群 鎖死(提案 H3)。 */
+  generic?: boolean
 }
 
 const DOMAIN_RULES: DomainRule[] = [
-  { host: /(youtube\.com|youtu\.be)/, domain: '社群', nameHint: 'youtube' },
-  { host: /instagram\.com/, domain: '社群', nameHint: 'ig' },
-  { host: /threads\.(net|com)/, domain: '社群', nameHint: 'threads' },
-  { host: /(facebook\.com|fb\.com|fb\.watch)/, domain: '社群' },
-  { host: /tiktok\.com/, domain: '社群', nameHint: '短影音' },
+  { host: /(youtube\.com|youtu\.be)/, domain: '社群', nameHint: 'youtube', generic: true },
+  { host: /instagram\.com/, domain: '社群', nameHint: 'ig', generic: true },
+  { host: /threads\.(net|com)/, domain: '社群', nameHint: 'threads', generic: true },
+  { host: /(facebook\.com|fb\.com|fb\.watch)/, domain: '社群', generic: true },
+  { host: /tiktok\.com/, domain: '社群', nameHint: '短影音', generic: true },
   { host: /(github\.com|stackoverflow\.com|dev\.to|medium\.com|ithome\.com\.tw)/, domain: '學習' },
   { host: /tabelog\.com/, domain: '日本旅遊' },
   { host: /(104\.com\.tw|1111\.com\.tw|linkedin\.com|cakeresume\.com|yourator\.co)/, domain: '求職' },
@@ -201,10 +204,21 @@ export const clearLearned = () => {
 }
 
 // ── 3. 分類主函式 ──────────────────────────────────────────────────────
-export const ruleClassify = (text: string, categories: CategoryLike[]): RuleClassification => {
+export interface RuleClassifyOpts {
+  /** 有擷取到網頁 metadata(title/description 已併進 text)。顯式契約,
+   *  不靠字串長度猜;false/未傳 = 純 URL 行為與既往完全相同(提案 H3)。 */
+  hasMeta?: boolean
+}
+
+export const ruleClassify = (
+  text: string,
+  categories: CategoryLike[],
+  opts?: RuleClassifyOpts,
+): RuleClassification => {
   const raw = text.trim()
   let t = raw.toLowerCase()
   let domainScope: string | null = null
+  let softDomain: string | null = null
   let reason: string | null = null
 
   // (1) URL → 網域對照
@@ -224,7 +238,12 @@ export const ruleClassify = (text: string, categories: CategoryLike[]): RuleClas
       reason = `Google Maps${place ? `:${place}` : ''}`
     } else {
       const rule = DOMAIN_RULES.find((r) => r.host.test(host))
-      if (rule) {
+      if (rule && rule.generic && opts?.hasMeta) {
+        // 多主題平台 + 有標題文字:降軟訊號(+1,全分類參與競爭),
+        // 標題關鍵字才有機會把美食影片帶進美食而非社群。
+        softDomain = rule.domain
+        reason = `網域 ${host}(軟訊號)`
+      } else if (rule) {
         const inDomain = categories.filter((c) => c.domain === rule.domain)
         const hinted = rule.nameHint
           ? inDomain.find((c) => c.name.toLowerCase().includes(rule.nameHint!))
@@ -241,44 +260,65 @@ export const ruleClassify = (text: string, categories: CategoryLike[]): RuleClas
     }
   }
 
-  // (2) 關鍵字加權(靜態 + 自學 + 分類名)
+  // (2) 關鍵字加權(靜態 + 自學 + 分類名;softDomain 加軟 +1)
   const learned = loadLearned()
   const scope = domainScope ? categories.filter((c) => c.domain === domainScope) : categories
-  let best: { key: string; score: number; hits: string[] } | null = null
+  let best: { key: string; score: number; hits: string[]; realHits: number; learnedSum: number } | null = null
 
   for (const c of scope) {
     let score = 0
+    let realHits = 0
+    let learnedSum = 0
     const hits: string[] = []
     if (t.includes(c.name.toLowerCase())) {
       score += 3
+      realHits++
       hits.push(c.name)
     }
     if (t.includes(c.domain.toLowerCase())) score += 1
+    if (softDomain && c.domain === softDomain) score += 1 // 軟訊號:不算實質命中
     for (const w of KEYWORDS[c.key] ?? []) {
       if (t.includes(w)) {
         score += 2
+        realHits++
         hits.push(w)
       }
     }
     for (const [term, weight] of Object.entries(learned[c.key] ?? {})) {
       if (t.includes(term)) {
         // Hostname 詞吃全額權重(一次學會);一般詞折半(需累積)。
-        score += term.includes('.') ? Math.min(weight, 6) : Math.min(weight, 6) * 0.5
+        const s = term.includes('.') ? Math.min(weight, 6) : Math.min(weight, 6) * 0.5
+        score += s
+        realHits++
+        learnedSum += s
         hits.push(term)
       }
     }
-    if (score > 0 && (!best || score > best.score)) best = { key: c.key, score, hits }
+    // 決勝規則(提案 H3,僅 hasMeta 時啟用——純 URL 路徑維持既往
+    // 「先到先贏」):同分取實質命中多者,再同分取自學權重和高者,
+    // 再同分維持順序 —— 軟訊號永遠壓不過任何實質命中。
+    const beats =
+      !best ||
+      score > best.score ||
+      (opts?.hasMeta === true &&
+        score === best.score &&
+        (realHits > best.realHits || (realHits === best.realHits && learnedSum > best.learnedSum)))
+    if (score > 0 && beats) best = { key: c.key, score, hits, realHits, learnedSum }
   }
 
-  if (best) {
+  // softDomain 啟用時,純軟訊號(無實質命中)不得以關鍵字結果回傳,
+  // 落到 (3) 保底;無 softDomain(既往路徑)條件恆真,行為不變。
+  if (best && (!softDomain || best.realHits > 0)) {
     const conf = Math.min(0.95, 0.6 + best.score * 0.1)
     const why = `關鍵字 ${best.hits.slice(0, 4).join('、')}`
     return { type: best.key, confidence: conf, reason: reason ? `${reason};${why}` : why }
   }
 
-  // (3) 只有大類別線索 → 保底該大類別第一個子分類,低信心進待確認。
-  if (domainScope) {
-    const first = categories.find((c) => c.domain === domainScope)
+  // (3) 只有大類別線索(硬圈定或軟訊號)→ 保底該大類別第一個子分類,
+  //     低信心進待確認。
+  const fallbackDomain = domainScope ?? softDomain
+  if (fallbackDomain) {
+    const first = categories.find((c) => c.domain === fallbackDomain)
     if (first) return { type: first.key, confidence: 0.6, reason }
   }
 

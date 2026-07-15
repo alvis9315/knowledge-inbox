@@ -4,13 +4,20 @@
 // YouTube oEmbed、Google Maps 店名),回傳給前端做標題/摘要/分類評分。
 // 瀏覽器因 CORS 做不到,所以必須在 Edge Function(docs/ai-strategy.md)。
 //
-// SSRF 防護(docs/security Phase 2b lite):僅 http(s)、擋 IP 直連/內網
-// hostname、redirect 手動展開逐跳重驗(≤3)、8s 逾時、1MB 上限、
-// 僅 text/html。完整 DNS pinning 留待 Phase 2b full。
+// SSRF 防護(docs/proposals/link-meta-no-ai.md H1):僅 http(s):80/443、
+// IP 各種編碼正規化 + 保留段黑名單(ssrf.ts 純函式)、Deno.resolveDns
+// 分族解析(單族 NODATA 屬正常)且緊貼 fetch、redirect 手動展開逐跳
+// 重驗(≤3)、1MB 上限、僅 text/html。
+// 殘餘風險(明寫):DNS rebinding TOCTOU——Deno fetch 無 connect-to-IP
+// pinning,「解析緊貼 fetch + 每跳重驗」為 edge runtime 可達上限。
+//
+// Deadline(H2):整體 6s 預算單一 AbortSignal 貫穿所有 fetch;
+// expand 走到 2xx 直接回傳該 Response 重用,不重複 GET。
 //
 // Deploy: supabase functions deploy extract(或 Dashboard → Edge Functions 貼上)
 
 import { createClient } from 'jsr:@supabase/supabase-js@2'
+import { dnsCheck, ipBlocked, portAllowed } from './ssrf.ts'
 
 const cors = {
   'Access-Control-Allow-Origin': '*',
@@ -21,10 +28,10 @@ const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { ...cors, 'content-type': 'application/json' } })
 
 const MAX_BYTES = 1_048_576
-const FETCH_TIMEOUT = 8000
+const TOTAL_BUDGET = 6000
 const MAX_REDIRECTS = 3
 
-/** SSRF:擋 IP 直連、內網/保留 hostname、非 http(s)、帳密夾帶。 */
+/** SSRF 靜態驗證:協定/帳密/port allowlist/hostname 字面(含 IP 各種編碼)。 */
 function validateUrl(raw: string): URL | string {
   let u: URL
   try {
@@ -34,37 +41,45 @@ function validateUrl(raw: string): URL | string {
   }
   if (!/^https?:$/.test(u.protocol)) return '只支援 http/https 網址'
   if (u.username || u.password) return '不支援夾帶帳密的網址'
+  if (!portAllowed(u)) return '不支援自訂連接埠的網址'
   const h = u.hostname.toLowerCase()
-  if (
-    h === 'localhost' || h.endsWith('.local') || h.endsWith('.internal') ||
-    /^\d{1,3}(\.\d{1,3}){3}$/.test(h) || h.includes(':') // IPv4 literal / IPv6
-  ) return '不支援內部網址'
+  if (h === 'localhost' || h.endsWith('.local') || h.endsWith('.internal')) return '不支援內部網址'
+  // IP 直連(任何編碼):黑名單段一律擋;非黑名單公網 IP 直連也不常見於
+  // 收藏連結,保守起見僅放行網域(與現行行為一致:IP literal 全擋)
+  if (ipBlocked(h) !== null) return '不支援 IP 直連的網址'
   return u
 }
 
-/** 手動展開 redirect,每一跳重新驗證(短網址 → 真網址)。 */
-async function expand(url: URL): Promise<URL | string> {
+/** dnsCheck 的 resolver(緊貼 fetch 前呼叫,縮小 rebinding 時窗)。 */
+const denoResolver = (host: string, type: 'A' | 'AAAA') => Deno.resolveDns(host, type)
+
+/**
+ * 手動展開 redirect,每一跳「靜態驗證 + DNS 檢查」後才 fetch(短網址 → 真網址)。
+ * 走到 2xx 直接回傳該 Response 供後續重用(不重複 GET,H2)。
+ */
+async function expand(url: URL, signal: AbortSignal): Promise<{ url: URL; res: Response } | string> {
   let cur = url
-  for (let i = 0; i < MAX_REDIRECTS; i++) {
+  for (let i = 0; i <= MAX_REDIRECTS; i++) {
+    const dnsErr = await dnsCheck(cur.hostname, denoResolver)
+    if (dnsErr) return dnsErr
     const res = await fetch(cur, {
       method: 'GET',
       redirect: 'manual',
       headers: { 'user-agent': 'KnowledgeInboxBot/1.0', accept: 'text/html' },
-      signal: AbortSignal.timeout(FETCH_TIMEOUT),
+      signal,
     })
     if (res.status >= 300 && res.status < 400) {
       const loc = res.headers.get('location')
       await res.body?.cancel()
-      if (!loc) return cur
+      if (!loc || i === MAX_REDIRECTS) return '轉址次數過多或缺少目的地'
       const next = validateUrl(new URL(loc, cur).href)
       if (typeof next === 'string') return next
       cur = next
       continue
     }
-    await res.body?.cancel()
-    return cur
+    return { url: cur, res }
   }
-  return cur
+  return '轉址次數過多或缺少目的地'
 }
 
 function decodeEntities(s: string): string {
@@ -104,36 +119,39 @@ Deno.serve(async (req) => {
   const parsed = validateUrl(url)
   if (typeof parsed === 'string') return json({ error: parsed }, 400)
 
+  // 整體 6s 預算:單一 signal 貫穿展開與所有後續 fetch(H2)。
+  const signal = AbortSignal.timeout(TOTAL_BUDGET)
+
   try {
-    // 1) 展開短網址(maps.app.goo.gl、bit.ly…)
-    const finalUrl = await expand(parsed)
-    if (typeof finalUrl === 'string') return json({ error: finalUrl }, 400)
+    // 1) 展開短網址(maps.app.goo.gl、bit.ly…);2xx Response 直接重用
+    const expanded = await expand(parsed, signal)
+    if (typeof expanded === 'string') return json({ error: expanded }, 400)
+    const { url: finalUrl, res } = expanded
 
     const host = finalUrl.hostname.replace(/^www\./, '')
 
-    // 2) YouTube:官方 oEmbed(免費無 key)
+    // 2) YouTube:官方 oEmbed(免費無 key;不需要頁面 body)
     if (/(^|\.)youtube\.com$|(^|\.)youtu\.be$/.test(host)) {
+      await res.body?.cancel()
       const o = await fetch(
         `https://www.youtube.com/oembed?url=${encodeURIComponent(finalUrl.href)}&format=json`,
-        { signal: AbortSignal.timeout(FETCH_TIMEOUT) },
+        { signal },
       )
       if (o.ok) {
         const d = await o.json()
         return json({ title: d.title ?? null, description: d.author_name ? `YouTube · ${d.author_name}` : null, finalUrl: finalUrl.href, source: 'youtube' })
       }
+      return json({ title: null, description: null, finalUrl: finalUrl.href, source: 'youtube' })
     }
 
-    // 3) Google Maps:店名就在展開後的 URL path
+    // 3) Google Maps:店名就在展開後的 URL path(不需要 body)
     const place = /\/maps\/place\/([^/@?]+)/.exec(finalUrl.href)
     if (place) {
+      await res.body?.cancel()
       return json({ title: decodeURIComponent(place[1]).replace(/\+/g, ' '), description: null, finalUrl: finalUrl.href, source: 'maps' })
     }
 
-    // 4) 一般網頁:og:title / og:description / <title>
-    const res = await fetch(finalUrl, {
-      headers: { 'user-agent': 'KnowledgeInboxBot/1.0', accept: 'text/html' },
-      signal: AbortSignal.timeout(FETCH_TIMEOUT),
-    })
+    // 4) 一般網頁:重用 expand 的 Response,不再 GET 第二次(H2)
     const type = res.headers.get('content-type') ?? ''
     if (!type.includes('text/html') && !type.includes('text/plain')) {
       await res.body?.cancel()

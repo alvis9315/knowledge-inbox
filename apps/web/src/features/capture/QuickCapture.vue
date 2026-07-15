@@ -38,6 +38,9 @@ const reset = () => {
 }
 
 const submit = async () => {
+  // 防重入:disabled 只擋按鈕,鍵盤快捷鍵在 await extractUrl 期間連按
+  // 會並行跑兩次 createEntry(提案 H2)。
+  if (saving.value) return
   const text = form.text.trim()
   if (!text) {
     error.value = '請貼上內容'
@@ -53,12 +56,15 @@ const submit = async () => {
     let title = text.slice(0, 80)
     let summary: string | null = null
     let classifyInput = text
+    let classifyMeta: { title: string; description: string | null } | undefined
     if (isUrl) {
       const meta = await extractUrl(text)
       if (meta?.title) {
         title = meta.title.slice(0, 120)
         summary = meta.description?.slice(0, 300) ?? null
         classifyInput = `${meta.title} ${meta.description ?? ''} ${text}`
+        // 顯式 meta 契約(提案 H3):啟用多主題平台軟化評分
+        classifyMeta = { title: meta.title, description: meta.description }
       }
     }
 
@@ -66,7 +72,7 @@ const submit = async () => {
     let type = form.type
     let status: 'filed' | 'pending_review' = form.pending ? 'pending_review' : 'filed'
     if (!type) {
-      const guess = await classifyText(classifyInput)
+      const guess = await classifyText(classifyInput, classifyMeta)
       if (guess.type && guess.confidence > 0.85 && !form.pending) {
         type = guess.type
         status = 'filed'
