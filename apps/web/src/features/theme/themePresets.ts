@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion'
 
 export interface ThemePreset {
   canvas: string
@@ -363,6 +363,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#030503', surface: '#0a120c', elevated: '#0f1a12', line: '#1e3527',
       ink: '#d8f5e2', muted: '#84b294', accent: '#7bffa0', accentFg: '#030503',
       accentSoft: 'rgba(123, 255, 160, 0.16)',
+    },
+  },
+  {
+    key: 'grid-motion',
+    label: '卡片牆(活背景)',
+    liveBg: 'gridmotion',
+    preset: {
+      canvas: '#070a14', surface: '#0e1322', elevated: '#141a30', line: '#242c48',
+      ink: '#e8ecf8', muted: '#8e9ac0', accent: '#8aa5ff', accentFg: '#070a14',
+      accentSoft: 'rgba(138, 165, 255, 0.16)',
     },
   },
   {

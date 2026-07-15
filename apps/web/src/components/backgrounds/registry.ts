@@ -35,4 +35,5 @@ export const BG_COMPONENTS: Partial<Record<LiveBgKind, Component>> = {
   prism: defineAsyncComponent(() => import('./KnowledgePrism.vue')),
   prismaticburst: defineAsyncComponent(() => import('./KnowledgePrismaticBurst.vue')),
   faultyterminal: defineAsyncComponent(() => import('./KnowledgeFaultyTerminal.vue')),
+  gridmotion: defineAsyncComponent(() => import('./KnowledgeGridMotion.vue')),
 }
