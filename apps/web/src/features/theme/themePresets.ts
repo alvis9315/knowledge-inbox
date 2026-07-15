@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid'
 
 export interface ThemePreset {
   canvas: string
@@ -372,6 +372,16 @@ export const THEME_PRESETS: NamedPreset[] = [
     preset: {
       canvas: '#070a14', surface: '#0e1322', elevated: '#141a30', line: '#242c48',
       ink: '#e8ecf8', muted: '#8e9ac0', accent: '#8aa5ff', accentFg: '#070a14',
+      accentSoft: 'rgba(138, 165, 255, 0.16)',
+    },
+  },
+  {
+    key: 'dot-grid',
+    label: '彈性點陣(活背景)',
+    liveBg: 'dotgrid',
+    preset: {
+      canvas: '#0a0d18', surface: '#111527', elevated: '#171c33', line: '#262d4a',
+      ink: '#e6ebfa', muted: '#8d9ac0', accent: '#8aa5ff', accentFg: '#0a0d18',
       accentSoft: 'rgba(138, 165, 255, 0.16)',
     },
   },
