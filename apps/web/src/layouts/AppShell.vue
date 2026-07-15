@@ -107,7 +107,8 @@ const doLogout = async () => {
 const activeType = computed(() =>
   route.name === 'category' ? String(route.params.type) : null,
 )
-// 全部/待確認(browse)是跨類別檢視:沿用進來前的世界主題,不切回首頁主題。
+// 跨類別檢視(全部/待確認/集合)沿用進來前的世界主題,不切回首頁主題。
+const CROSS_CATEGORY_ROUTES = new Set(['browse', 'collections', 'collection-detail'])
 const lastWorld = ref<{ domain: string | null; color: string | null }>({ domain: null, color: null })
 const themeContext = computed<{ domain: string | null; color: string | null }>(() => {
   if (route.name === 'category') {
@@ -115,7 +116,7 @@ const themeContext = computed<{ domain: string | null; color: string | null }>((
     return { domain: c?.domain ?? null, color: c?.color ?? null }
   }
   if (route.name === 'domain') return { domain: String(route.params.domain), color: null }
-  if (route.name === 'browse') return lastWorld.value
+  if (CROSS_CATEGORY_ROUTES.has(String(route.name))) return lastWorld.value
   return { domain: null, color: null }
 })
 watch(themeContext, (v) => {
