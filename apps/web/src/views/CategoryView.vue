@@ -160,7 +160,8 @@ const confirmBusy = ref(false)
 const askRemove = (entry: EntryWithTags) => {
   confirm.value = {
     title: '刪除項目',
-    message: `確定刪除「${entry.title}」?此動作無法復原。`,
+    // 極簡文案(使用者要求):標題連結很長時全文引用會撐爆 modal
+    message: '確認刪除?',
     variant: 'danger',
     confirmText: '刪除',
     action: async () => {
