@@ -87,7 +87,8 @@ let scene: THREE.Scene | null = null
 let camera: THREE.OrthographicCamera | null = null
 let material: THREE.ShaderMaterial | null = null
 let geometry: THREE.PlaneGeometry | null = null
-let clock: THREE.Clock | null = null
+// THREE.Clock 已於 three r185 棄用,改自算 elapsed
+let startTime = 0
 let raf = 0
 let ro: ResizeObserver | null = null
 let io: IntersectionObserver | null = null
@@ -325,9 +326,9 @@ const resize = () => {
 }
 
 const renderFrame = () => {
-  if (!renderer || !scene || !camera || !material || !clock) return
+  if (!renderer || !scene || !camera || !material) return
   const u = material.uniforms
-  u.iTime.value = clock.getElapsedTime()
+  u.iTime.value = (performance.now() - startTime) * 0.001
   u.animationSpeed.value = cfg.animationSpeed
   u.topLineCount.value = cfg.lineCount
   u.middleLineCount.value = cfg.lineCount
@@ -406,7 +407,7 @@ onMounted(() => {
   })
   geometry = new THREE.PlaneGeometry(2, 2)
   scene.add(new THREE.Mesh(geometry, material))
-  clock = new THREE.Clock()
+  startTime = performance.now()
 
   resize()
   ro = new ResizeObserver(resize)
@@ -438,7 +439,6 @@ onBeforeUnmount(() => {
   camera = null
   material = null
   geometry = null
-  clock = null
 })
 </script>
 

@@ -103,7 +103,9 @@ let scene: THREE.Scene | null = null
 let camera: THREE.OrthographicCamera | null = null
 let material: THREE.ShaderMaterial | null = null
 let geometry: THREE.PlaneGeometry | null = null
-let clock: THREE.Clock | null = null
+// THREE.Clock 已於 three r185 棄用,改自算 elapsed/dt
+let startTime = 0
+let lastTime = 0
 let raf = 0
 let ro: ResizeObserver | null = null
 let io: IntersectionObserver | null = null
@@ -242,8 +244,8 @@ const resize = () => {
 }
 
 const renderFrame = (dt: number) => {
-  if (!renderer || !scene || !camera || !material || !clock) return
-  const elapsed = clock.elapsedTime
+  if (!renderer || !scene || !camera || !material) return
+  const elapsed = (performance.now() - startTime) * 0.001
   const u = material.uniforms
   u.uTime.value = elapsed
   u.uSpeed.value = cfg.speed
@@ -274,8 +276,11 @@ const renderFrame = (dt: number) => {
 
 const loop = () => {
   raf = requestAnimationFrame(loop)
-  if (!onScreen || document.hidden || !clock) return
-  renderFrame(clock.getDelta())
+  const now = performance.now()
+  const dt = (now - lastTime) * 0.001
+  lastTime = now
+  if (!onScreen || document.hidden) return
+  renderFrame(dt)
 }
 
 onMounted(() => {
@@ -318,7 +323,8 @@ onMounted(() => {
   renderer.setClearColor(0x000000, 0)
   Object.assign(renderer.domElement.style, { width: '100%', height: '100%', display: 'block' })
   c.appendChild(renderer.domElement)
-  clock = new THREE.Clock()
+  startTime = performance.now()
+  lastTime = startTime
 
   resize()
   ro = new ResizeObserver(resize)
@@ -350,7 +356,6 @@ onBeforeUnmount(() => {
   camera = null
   material = null
   geometry = null
-  clock = null
 })
 </script>
 

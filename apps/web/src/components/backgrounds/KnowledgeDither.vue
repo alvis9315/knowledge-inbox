@@ -80,7 +80,8 @@ let material: THREE.ShaderMaterial | null = null
 let geometry: THREE.PlaneGeometry | null = null
 let composer: EffectComposer | null = null
 let retro: RetroEffect | null = null
-let clock: THREE.Clock | null = null
+// THREE.Clock 已於 three r185 棄用,改自算 elapsed
+let startTime = 0
 let raf = 0
 let ro: ResizeObserver | null = null
 let io: IntersectionObserver | null = null
@@ -245,9 +246,9 @@ const resize = () => {
 }
 
 const renderFrame = () => {
-  if (!composer || !material || !clock || !retro) return
+  if (!composer || !material || !retro) return
   const u = material.uniforms
-  if (!reduceMotion) u.time.value = clock.getElapsedTime()
+  if (!reduceMotion) u.time.value = (performance.now() - startTime) * 0.001
   u.waveSpeed.value = cfg.waveSpeed
   u.waveFrequency.value = cfg.waveFrequency
   u.waveAmplitude.value = cfg.waveAmplitude
@@ -300,7 +301,7 @@ onMounted(() => {
   composer.addPass(new RenderPass(scene, camera))
   retro = new RetroEffect()
   composer.addPass(new EffectPass(camera, retro))
-  clock = new THREE.Clock()
+  startTime = performance.now()
 
   resize()
   ro = new ResizeObserver(resize)
@@ -337,7 +338,6 @@ onBeforeUnmount(() => {
   geometry = null
   composer = null
   retro = null
-  clock = null
 })
 </script>
 
