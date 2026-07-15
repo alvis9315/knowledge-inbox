@@ -38,4 +38,5 @@ export const BG_COMPONENTS: Partial<Record<LiveBgKind, Component>> = {
   gridmotion: defineAsyncComponent(() => import('./KnowledgeGridMotion.vue')),
   dotgrid: defineAsyncComponent(() => import('./KnowledgeDotGrid.vue')),
   lightpillar: defineAsyncComponent(() => import('./KnowledgeLightPillar.vue')),
+  colorbends: defineAsyncComponent(() => import('./KnowledgeColorBends.vue')),
 }
