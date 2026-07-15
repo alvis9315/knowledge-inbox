@@ -98,13 +98,19 @@ floatinglines(漂浮波線,three)、dither(復古抖動,three+postprocessing)。
 元件 + Controls + LiveBgKind + THEME_PRESETS + **registry 一行**
 (2026-07-14 起 AppShell 改 registry 驅動,見 backgrounds/registry.ts)。
 
-**零依賴組已全數移植完畢**(2026-07-15)。
-
 **three/gsap 批**(2026-07-15 使用者拍板引入,依賴全走 async chunk:
 three 為共享 lazy chunk 126KB gzip、gsap 30KB gzip,主包零成長已驗證):
-已完成 8 顆(見上)。**剩餘待移植**:PixelBlast(three+postprocessing)、
-Beams(R3F 需改寫原生 three)、Hyperspeed(1183 行,最大顆)。
-GridScan 不做(還要 face-api.js)。
+已完成 8 顆(見上)。
+
+**未移植清單**(2026-07-15 全目錄盤點定版,react-bits 共 45 顆,
+已移植 35 + 自製 image = 36 種;以下 9 顆待排,**先記錄不動工**):
+- ogl 系(零新依賴——當初「零依賴組全清」漏了這 4 顆):
+  Balatro(212 行)、PlasmaWave(239 行)、GradientBlinds(348 行)、
+  Ferrofluid(381 行)
+- three 系:Beams(308 行,R3F 需改寫原生 three)、PixelBlast
+  (609 行,+postprocessing)、Ballpit(745 行)、LiquidEther(1168 行)、
+  Hyperspeed(1183 行,+postprocessing,最大顆)
+- GridScan 不做(還要 face-api.js)。
 
 **移植教訓**(2026-07-15):FaultyTerminal 黑畫面根因 = 照抄元件預設值
 (noiseAmp=0)而非官方 demo 值(=1)——之後移植以 demo 的 props 為
