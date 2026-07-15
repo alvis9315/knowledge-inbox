@@ -122,26 +122,43 @@ Deno.serve(async (req) => {
   // 整體 6s 預算:單一 signal 貫穿展開與所有後續 fetch(H2)。
   const signal = AbortSignal.timeout(TOTAL_BUDGET)
 
+  const isYoutube = (h: string) => /(^|\.)youtube\.com$|(^|\.)youtu\.be$/.test(h.replace(/^www\./, ''))
+  const oembed = async (target: URL): Promise<Response> => {
+    const o = await fetch(
+      `https://www.youtube.com/oembed?url=${encodeURIComponent(target.href)}&format=json`,
+      { signal },
+    )
+    if (o.ok) {
+      const d = await o.json()
+      return json({ title: d.title ?? null, description: d.author_name ? `YouTube · ${d.author_name}` : null, finalUrl: target.href, source: 'youtube' })
+    }
+    return json({ title: null, description: null, finalUrl: target.href, source: 'youtube' })
+  }
+
   try {
-    // 1) 展開短網址(maps.app.goo.gl、bit.ly…);2xx Response 直接重用
+    // 1) YouTube 直連:oEmbed 直接吃原始 watch/youtu.be URL,完全不抓頁面
+    //    ——機房 IP 抓 youtube 頁面會被重導到 google.com/sorry 機器人牆,
+    //    走 expand 反而把 oEmbed 分支繞掉(2026-07-16 dev 實測)。
+    if (isYoutube(parsed.hostname)) return await oembed(parsed)
+
+    // 2) 展開短網址(maps.app.goo.gl、bit.ly…);2xx Response 直接重用
     const expanded = await expand(parsed, signal)
     if (typeof expanded === 'string') return json({ error: expanded }, 400)
     const { url: finalUrl, res } = expanded
 
     const host = finalUrl.hostname.replace(/^www\./, '')
 
-    // 2) YouTube:官方 oEmbed(免費無 key;不需要頁面 body)
-    if (/(^|\.)youtube\.com$|(^|\.)youtu\.be$/.test(host)) {
+    // 2b) 短網址展開後才發現是 YouTube(bit.ly → youtube)
+    if (isYoutube(host)) {
       await res.body?.cancel()
-      const o = await fetch(
-        `https://www.youtube.com/oembed?url=${encodeURIComponent(finalUrl.href)}&format=json`,
-        { signal },
-      )
-      if (o.ok) {
-        const d = await o.json()
-        return json({ title: d.title ?? null, description: d.author_name ? `YouTube · ${d.author_name}` : null, finalUrl: finalUrl.href, source: 'youtube' })
-      }
-      return json({ title: null, description: null, finalUrl: finalUrl.href, source: 'youtube' })
+      return await oembed(finalUrl)
+    }
+
+    // 2c) 被機器人驗證牆攔下(google /sorry/ 等):沒有可用 metadata,
+    //     回錯誤讓前端 fail-soft 照原樣存,不要拿驗證牆的 title 冒充
+    if (/(^|\.)google\.[a-z.]+$/.test(host) && finalUrl.pathname.startsWith('/sorry')) {
+      await res.body?.cancel()
+      return json({ error: '對方網站擋了機器人,無法擷取' }, 502)
     }
 
     // 3) Google Maps:店名就在展開後的 URL path(不需要 body)
