@@ -47,7 +47,8 @@ const props = withDefaults(defineProps<Props>(), {
   scanlineIntensity: 0.3,
   glitchAmount: 1,
   flickerAmount: 1,
-  noiseAmp: 0,
+  // 原版元件預設 0 會使 fbm 恆 0 → 整片黑;官方 demo 傳 1 才點亮,取 demo 值
+  noiseAmp: 1,
   chromaticAberration: 0,
   dither: 0,
   curvature: 0.2,

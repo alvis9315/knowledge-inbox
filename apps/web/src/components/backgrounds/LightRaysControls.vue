@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import ColorPicker from '@/components/common/ColorPicker.vue'
 import type { LightRaysConfig } from './KnowledgeLightRays.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // KnowledgeLightRays 的控制面板(Speed/Spread/Length/Noise/Distortion
 // + 光色 + 脈動/互動),直接編輯傳入的 reactive config。模式同 ThreadsControls。
@@ -38,6 +39,7 @@ const copyProps = () => {
 
 <template>
   <div class="lightrays-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

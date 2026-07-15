@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import ColorPicker from '@/components/common/ColorPicker.vue'
 import type { GridMotionConfig } from './KnowledgeGridMotion.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // KnowledgeGridMotion 的控制面板(暈色/卡色/位移幅度/互動)。
 const props = defineProps<{ config: GridMotionConfig; closable?: boolean }>()
@@ -30,6 +31,7 @@ const copyProps = () => {
 
 <template>
   <div class="gridmotion-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

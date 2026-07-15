@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import ColorPicker from '@/components/common/ColorPicker.vue'
 import type { PixelSnowConfig, SnowVariant } from './KnowledgePixelSnow.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // KnowledgePixelSnow 的控制面板(顆粒/速度/密度/方向 + 色),
 // 直接編輯傳入的 reactive config。模式同 ThreadsControls。
@@ -45,6 +46,7 @@ const copyProps = () => {
 
 <template>
   <div class="pixelsnow-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

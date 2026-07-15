@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import ColorPicker from '@/components/common/ColorPicker.vue'
 import type { ShapeGridConfig, GridShape, GridDirection } from './KnowledgeShapeGrid.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // KnowledgeShapeGrid 的控制面板(形狀/方向/速度/格距 + 線色/亮格色/互動),
 // 直接編輯傳入的 reactive config。模式同 ThreadsControls。
@@ -51,6 +52,7 @@ const copyProps = () => {
 
 <template>
   <div class="shapegrid-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import ColorPicker from '@/components/common/ColorPicker.vue'
 import type { FloatingLinesConfig } from './KnowledgeFloatingLines.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // KnowledgeFloatingLines 的控制面板(Speed/Scale/Brightness/BandHeight/ColorSpeed
 // + 雙色 + 互動),直接編輯傳入的 reactive config。模式同 ThreadsControls。
@@ -44,6 +45,7 @@ const copyProps = () => {
 
 <template>
   <div class="floatinglines-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

@@ -220,7 +220,9 @@ const submit = async () => {
                 class="h-10 min-w-0 flex-1 rounded-lg border bg-surface px-3 text-sm text-ink placeholder:text-muted focus:outline-none focus:ring-1"
                 :class="rowErrors[i] ? 'border-red-400 focus:border-red-500 focus:ring-red-400' : 'border-line focus:border-accent focus:ring-accent'"
               />
+              <!-- 只剩一列時本來就不能刪(只會清空內容),不擺假按鈕 -->
               <button
+                v-if="subs.length > 1"
                 type="button"
                 class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-muted transition hover:bg-canvas hover:text-red-600"
                 title="移除此列"

@@ -8,6 +8,7 @@ const props = defineProps<{ config: PrismaticBurstConfig; closable?: boolean }>(
 const emit = defineEmits<{ done: []; cancel: [] }>()
 
 import ColorPicker from '@/components/common/ColorPicker.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 const COLOR_PRESETS = ['#5227ff', '#a78bfa', '#22d3ee', '#ff9ffc', '#61dca3', '#f4c430']
 const MODES: { value: BurstAnimation; label: string }[] = [
   { value: 'rotate', label: '旋轉' },
@@ -47,6 +48,7 @@ const copyProps = () => {
 
 <template>
   <div class="prismaticburst-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">

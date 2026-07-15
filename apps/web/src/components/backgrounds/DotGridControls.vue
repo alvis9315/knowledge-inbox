@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import ColorPicker from '@/components/common/ColorPicker.vue'
 import type { DotGridConfig } from './KnowledgeDotGrid.vue'
+import BgPresetTabs from '@/features/theme/BgPresetTabs.vue'
 
 // KnowledgeDotGrid 的控制面板(點徑/間距/感應半徑/震波強度 + 雙色/互動)。
 const props = defineProps<{ config: DotGridConfig; closable?: boolean }>()
@@ -39,6 +40,7 @@ const copyProps = () => {
 
 <template>
   <div class="dotgrid-controls">
+    <BgPresetTabs />
     <div class="mb-3 flex items-center justify-between">
       <span class="text-sm font-semibold text-white">Customize</span>
       <div class="flex items-center">
