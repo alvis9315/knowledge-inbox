@@ -1,8 +1,10 @@
 # 提案:extract 管線強化(不串 AI 的連結解析,自動填名稱+分類)
 
-狀態:**v3.1,Codex approve**(2026-07-16;歷經 4 輪 adversarial review:
-v1 no-ship 認知錯誤 → v2 no-ship 四條 → v3 兩條 → v3.1 approve)。
-待排班施工,順序 H4 → H1+H2 → 部署(使用者)→ H3
+狀態:**已施工**(2026-07-16;v3.1 經 Codex 4 輪 adversarial review approve)。
+H4=c374654、H1+H2+H3+測試=3d976b5(50 tests 綠)。
+**剩使用者部署**:`supabase functions deploy extract`(dev+prod)→ 貼連結驗證
+自動填標題。Deno 端編排(resolveDns 接線)未在本機跑過(無 deno),
+純函式層已由 vitest 全覆蓋;部署後以真實連結煙霧測試。
 
 ## 背景與現況(v1 的錯誤更正)
 
