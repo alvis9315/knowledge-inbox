@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid' | 'lightpillar'
 
 export interface ThemePreset {
   canvas: string
@@ -383,6 +383,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0a0d18', surface: '#111527', elevated: '#171c33', line: '#262d4a',
       ink: '#e6ebfa', muted: '#8d9ac0', accent: '#8aa5ff', accentFg: '#0a0d18',
       accentSoft: 'rgba(138, 165, 255, 0.16)',
+    },
+  },
+  {
+    key: 'light-pillar',
+    label: '光柱(活背景)',
+    liveBg: 'lightpillar',
+    preset: {
+      canvas: '#06040f', surface: '#0e0a1e', elevated: '#140f2a', line: '#282047',
+      ink: '#ece8fa', muted: '#9d93c2', accent: '#a78bfa', accentFg: '#06040f',
+      accentSoft: 'rgba(167, 139, 250, 0.16)',
     },
   },
   {
