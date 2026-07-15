@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid' | 'lightpillar' | 'colorbends' | 'griddistortion' | 'pixelsnow'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid' | 'lightpillar' | 'colorbends' | 'griddistortion' | 'pixelsnow' | 'floatinglines'
 
 export interface ThemePreset {
   canvas: string
@@ -423,6 +423,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#0a0e1c', surface: '#111830', elevated: '#172040', line: '#263354',
       ink: '#e9eeff', muted: '#93a3cc', accent: '#9db8ff', accentFg: '#0a0e1c',
       accentSoft: 'rgba(157, 184, 255, 0.16)',
+    },
+  },
+  {
+    key: 'floating-lines',
+    label: '漂浮波線(活背景)',
+    liveBg: 'floatinglines',
+    preset: {
+      canvas: '#05060f', surface: '#0d0f1f', elevated: '#131731', line: '#252a4e',
+      ink: '#e9ebff', muted: '#9298c4', accent: '#a08ae0', accentFg: '#05060f',
+      accentSoft: 'rgba(160, 138, 224, 0.16)',
     },
   },
   {

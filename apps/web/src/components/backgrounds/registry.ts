@@ -41,4 +41,5 @@ export const BG_COMPONENTS: Partial<Record<LiveBgKind, Component>> = {
   colorbends: defineAsyncComponent(() => import('./KnowledgeColorBends.vue')),
   griddistortion: defineAsyncComponent(() => import('./KnowledgeGridDistortion.vue')),
   pixelsnow: defineAsyncComponent(() => import('./KnowledgePixelSnow.vue')),
+  floatinglines: defineAsyncComponent(() => import('./KnowledgeFloatingLines.vue')),
 }
