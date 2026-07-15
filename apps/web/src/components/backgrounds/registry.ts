@@ -42,4 +42,5 @@ export const BG_COMPONENTS: Partial<Record<LiveBgKind, Component>> = {
   griddistortion: defineAsyncComponent(() => import('./KnowledgeGridDistortion.vue')),
   pixelsnow: defineAsyncComponent(() => import('./KnowledgePixelSnow.vue')),
   floatinglines: defineAsyncComponent(() => import('./KnowledgeFloatingLines.vue')),
+  dither: defineAsyncComponent(() => import('./KnowledgeDither.vue')),
 }

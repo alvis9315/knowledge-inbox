@@ -8,7 +8,7 @@
 export type LiveBgKind =
   | 'galaxy' | 'threads' | 'image' | 'aurora' | 'waves' | 'darkveil' | 'silk' | 'iridescence' | 'letterglitch'
   | 'lightning' | 'liquidchrome' | 'particles' | 'ripplegrid' | 'orb' | 'plasma' | 'dotfield' | 'softaurora' | 'lightrays'
-  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid' | 'lightpillar' | 'colorbends' | 'griddistortion' | 'pixelsnow' | 'floatinglines'
+  | 'grainient' | 'radar' | 'linewaves' | 'siderays' | 'lightfall' | 'evileye' | 'shapegrid' | 'prism' | 'prismaticburst' | 'faultyterminal' | 'gridmotion' | 'dotgrid' | 'lightpillar' | 'colorbends' | 'griddistortion' | 'pixelsnow' | 'floatinglines' | 'dither'
 
 export interface ThemePreset {
   canvas: string
@@ -433,6 +433,16 @@ export const THEME_PRESETS: NamedPreset[] = [
       canvas: '#05060f', surface: '#0d0f1f', elevated: '#131731', line: '#252a4e',
       ink: '#e9ebff', muted: '#9298c4', accent: '#a08ae0', accentFg: '#05060f',
       accentSoft: 'rgba(160, 138, 224, 0.16)',
+    },
+  },
+  {
+    key: 'dither-waves',
+    label: '復古抖動(活背景)',
+    liveBg: 'dither',
+    preset: {
+      canvas: '#05060d', surface: '#0d0f1c', elevated: '#141830', line: '#262c4a',
+      ink: '#e8ebfa', muted: '#9099c0', accent: '#8b9fe8', accentFg: '#05060d',
+      accentSoft: 'rgba(139, 159, 232, 0.16)',
     },
   },
   {
