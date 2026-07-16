@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { useRouter } from 'vue-router'
 import { useLocalStorage } from '@vueuse/core'
 import { Sparkles, ArrowRight, LogIn, SlidersHorizontal, ImageUp } from 'lucide-vue-next'
@@ -93,8 +93,9 @@ const runDecode = () => {
     stage.value = 'form'
     return
   }
-  // 圖片封面頁:照片本身就是主角,標題直接顯示(不跑亂碼序列)。
-  if (bg.value === 'image') {
+  // 標題動畫分軌:亂碼解碼是星空專屬;線條=SplitText 逐字彈入、
+  // 圖片=BlurText 逐字聚焦,兩者直接進 start(彈入/聚焦由 assembled 分支跑)。
+  if (bg.value !== 'galaxy') {
     display.value = TITLE_TEXT
     showCaret.value = false
     stage.value = 'start'
@@ -192,6 +193,17 @@ const onCursorMove = (e: PointerEvent) => {
     cursorEl.value.style.transform = `translate3d(${e.clientX}px, ${e.clientY}px, 0) translate(-50%, -50%)`
   }
 }
+
+// 亂碼序列進行中切到非星空頁籤 → 快轉到完成態(亂碼是星空專屬)。
+watch(bg, (v) => {
+  if (v !== 'galaxy' && stage.value === 'typing') {
+    clearInterval(introTimer)
+    display.value = TITLE_TEXT
+    showCaret.value = false
+    titleHidden.value = false
+    stage.value = 'start'
+  }
+})
 
 onMounted(() => {
   runDecode()
