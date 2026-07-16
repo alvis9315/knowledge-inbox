@@ -1,10 +1,15 @@
 # 提案:extract 管線強化(不串 AI 的連結解析,自動填名稱+分類)
 
-狀態:**已施工**(2026-07-16;v3.1 經 Codex 4 輪 adversarial review approve)。
-H4=c374654、H1+H2+H3+測試=3d976b5(50 tests 綠)。
-**剩使用者部署**:`supabase functions deploy extract`(dev+prod)→ 貼連結驗證
-自動填標題。Deno 端編排(resolveDns 接線)未在本機跑過(無 deno),
-純函式層已由 vitest 全覆蓋;部署後以真實連結煙霧測試。
+狀態:**已完成並部署**(2026-07-17)。v3.1 經 Codex 4 輪 adversarial review
+approve;H4=c374654、H1+H2+H3+測試=3d976b5、YouTube oEmbed 直連修正=e7ac602
+(部署時實測發現機器人牆,見下方部署後記)。dev+prod 均為 e7ac602 版,
+dev 煙霧測試通過(YouTube 真標題 + 分類進學習/AI 技能)。
+
+**部署後記(教訓)**:
+1. Dashboard「Via Editor」的 slug 是建立時定死的,事後改名只改顯示名稱
+   ——slug 錯了前端 invoke 永遠 404,建立時名稱欄就要填 extract
+2. 機房 IP 抓 youtube 頁面被 302 到 google.com/sorry:YouTube 一律
+   oEmbed 直連,任何連結落到 /sorry 回 502 不冒充
 
 ## 背景與現況(v1 的錯誤更正)
 
