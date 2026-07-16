@@ -1,8 +1,10 @@
 <script setup lang="ts">
+import { Dices } from 'lucide-vue-next'
 import BaseModal from '@/components/common/BaseModal.vue'
 import SearchableSelect from '@/components/common/SearchableSelect.vue'
 import { useCategoriesStore } from '@/features/categories/stores/categoriesStore'
 import { domainIcon } from '@/features/categories/domainIcons'
+import { toast } from '@/composables/useToast'
 import { THEME_PRESETS } from './themePresets'
 import { applyTheme, domainThemeKey, setDomainTheme, homeThemeKey, setHomeTheme } from './useCategoryTheme'
 
@@ -26,11 +28,30 @@ const changeHome = (key: string) => {
   setHomeTheme(key === '__follow__' ? null : key)
   if (props.activeDomain == null) applyTheme(null) // 正在首頁就即時反映
 }
+
+// 🎲 隨機配主題:每個大分類抽一套(不重複,池夠大;排除圖片封面
+// ——沒上傳封面會開天窗)。首頁導覽不動,骰不喜歡就再骰。
+const rollThemes = () => {
+  const pool = THEME_PRESETS.filter((p) => p.key !== 'photo-cover').map((p) => p.key)
+  const shuffled = [...pool].sort(() => Math.random() - 0.5)
+  store.domains.forEach((d, i) => change(d, shuffled[i % shuffled.length]))
+  toast.success('已隨機配好主題,不喜歡就再骰一次 🎲')
+}
 </script>
 
 <template>
   <BaseModal :open="props.open" title="主題風格" size="lg" @close="emit('close')">
-    <p class="mb-1.5 text-sm font-medium text-ink">為每個大分類指定一套世界主題。</p>
+    <div class="mb-1.5 flex items-center justify-between gap-2">
+      <p class="text-sm font-medium text-ink">為每個大分類指定一套世界主題。</p>
+      <button
+        type="button"
+        class="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-line px-3 py-1.5 text-sm text-muted transition hover:bg-canvas hover:text-ink"
+        title="隨機幫每個大分類配一套主題(首頁導覽不動)"
+        @click="rollThemes"
+      >
+        <Dices :size="15" /> 隨機配
+      </button>
+    </div>
     <ul class="mb-3 space-y-0.5 text-xs text-muted">
       <li>· 主題 = 底色 + 文字 + 主色,一進該大分類整個介面就切換</li>
       <li>· 子類別若另設主色,只覆蓋主色,底色文字仍照這裡</li>
